@@ -3,6 +3,7 @@
 ##############################################################
 import os
 import textract
+from unidecode import unidecode
 
 class Converter(object):
     """ Creates a converter object for converting text from source documents to .txt files"""
@@ -20,11 +21,15 @@ class Converter(object):
        
     #Strip characters from collected text   
     def strip_text(self, word):
-        temp_text = self.text
+        temp_text = unidecode(self.text)
         if word in temp_text:
             temp_text = temp_text.replace(word, "")
 
         self.text = temp_text
+
+    #Strip string from collected text
+    #def strip_string(self, start_char, end_char):
+
 
 
 #Construct object
@@ -43,7 +48,4 @@ converter.strip_text("test")
 text = converter.get_text()
 print(text)
 
-converter.strip_text("This is a" )
-text = converter.get_text()
-print(text)
 
