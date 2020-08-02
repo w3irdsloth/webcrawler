@@ -2,11 +2,12 @@
 # Strip text from documents to .txt for RNN machine learning #
 ##############################################################
 import os
-import textract
 from unidecode import unidecode
 
+from extender import Extender
+
 class Converter(object):
-    """ Creates a converter object for converting text from source documents to .txt files"""
+    """ Creates a converter object for converting text from source documents to .txt files """
     def __init__(self):
         self.text= ""
 
@@ -16,21 +17,25 @@ class Converter(object):
 
     #Scrape text from source document to string for manipulation
     def scrape_text(self, source):
-        temp_text = textract.process(source)
-        self.text = self.text + str(temp_text)
+        extndr = Extender(source)
+        temp_text = extndr.call_extract()
+        self.text = self.text + str(temp_text) + "\n"
        
-    #Strip characters from collected text   
-    def strip_text(self, word):
+    #Strip string from collected text   
+    def strip_string(self, string):
         temp_text = unidecode(self.text)
-        if word in temp_text:
-            temp_text = temp_text.replace(word, "")
+        if string in temp_text:
+            temp_text = temp_text.replace(string, "")
 
         self.text = temp_text
 
-    #Strip string from collected text
-    #def strip_string(self, start_char, end_char):
-
-
+    #Strip slice from collected text
+    def strip_slice(self, char1, char2):
+        temp_text = unidecode(self.text)
+        slice_start = temp_text.find(char1)
+        slice_end = temp_text.find(char2, slice_start + 1)
+        temp_text = temp_text.replace(temp_text[slice_start:slice_end + 1], "")
+        self.text = temp_text
 
 #Construct object
 converter = Converter()
@@ -44,8 +49,18 @@ text = converter.get_text()
 print(text)
 
 #strip word from string
-converter.strip_text("test")
+#converter.strip_string("test")
+#text = converter.get_text()
+#print(text)
+
+#strip slice from string
+converter.strip_slice('"', '"')
 text = converter.get_text()
 print(text)
+
+converter.strip_slice('!!', '!!')
+text = converter.get_text()
+print(text)
+
 
 
