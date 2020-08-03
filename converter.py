@@ -15,7 +15,7 @@ class Converter(object):
     def get_text(self):
         return self.text
 
-    #Scrape text from source document to string for manipulation
+    #Scrape and collect text
     def scrape_text(self, source):
         extndr = Extender(source)
         temp_text = extndr.call_extract()
