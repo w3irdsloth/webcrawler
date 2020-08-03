@@ -4,8 +4,8 @@ class Modeler(object):
         self.model = "n/a"
         self.modlist = ["textgenrnn"]
         self.implist = []
-        self.cmdkey = {}
-        self.construct = "n/a"
+        self.fnckey = []
+        self.constructor = "n/a"
 
     #Get current model
     def get_model(self):
@@ -13,78 +13,91 @@ class Modeler(object):
 
     #Get list of available models
     def get_modlist(self):
-        for mdl in self.modlist:
-            return mdl
+        return self.modlist
 
-    #Get list of necessary imports
+    #Get list of necessary imports for selected model
     def get_imports(self):
-        for impt in self.implist:
-            return impt
+        return self.implist
 
-    #Get list of available commands
-    def get_commands(self):
-        return self.cmdkey
+    #Get list of available commands for selected model
+    def get_functions(self):
+        return self.fnckey
 
-    #Get the construct for selected model
-    def get_construct(self):
-        return self.construct
+    #Get constructor for selected model
+    def get_constructor(self):
+        return self.constructor
 
     #Set current model
     def set_model(self, model):
-        if  model == "textgenrnn":
-            print("Selected textgenrnn...")
+        if  model in self.modlist:
+            print("Selected " + model + "...")
             self.model = model
-            self.implist.append("from textgenrnn import textgenrnn")
-            self.cmdkey[".train_from_file"] = ["source", "epochs"]
-            self.construct = "textgenrnn()"
 
         else:
             print("Model not found")
 
+    #Activate current model
+    def activate_model(self):
+        model = self.model
+        if model == "textgenrnn":
+            self.implist = ["textgenrnn"]
+            from textgenrnn import textgenrnn
+            self.fnckey.append(".train_from_file(source, epochs)")
+            self.constructor = textgenrnn()
 
+        else:
+            print("No active model found")
+
+    #import new model
+    #def import_model(self, model):
+    #    self.modlist.append(model)
+
+
+
+####Functions####
 
 #Construct model object
-model = Modeler()
+#model = Modeler()
 
 #Get selected model
-modname=model.get_model()
-print("Current model: ")
-print(modname)
-print("\n")
+#modname=model.get_model()
+#print("Current model: ")
+#print(modname)
+#print("\n")
 
 #Get list of models
-modlist = model.get_modlist()
-print("List of models: ")
-print(modlist)
-print("\n")
+#modlist = model.get_modlist()
+#print("List of models: ")
+#print(modlist)
+#print("\n")
 
 #Set a new model
-model.set_model("textgenrnn")
-modelname=model.get_model()
-print(modelname)
-print("\n")
+#model.set_model("textgenrnn")
+#modelname=model.get_model()
+#print(modelname)
+#print("\n")
 
 #Get selected model
-modname=model.get_model()
-print("Current model: ")
-print(modname)
-print("\n")
+#modname=model.get_model()
+#print("Current model: ")
+#print(modname)
+#print("\n")
 
 #Get list of imports
-implist = model.get_imports()
-print("List of imports: ")
-print(implist)
-print("\n")
+#implist = model.get_imports()
+#print("List of imports: ")
+#print(implist)
+#print("\n")
 
 #Get list of commands
-cmdlist = model.get_commands()
-print("List of commands: ")
-print(cmdlist)
-print("\n")
+#cmdlist = model.get_commands()
+#print("List of commands: ")
+#print(cmdlist)
+#print("\n")
 
 #Get the constructor
-construct = model.get_construct()
-print("Constructor: ")
-print(construct)
-print("\n")
+#construct = model.get_constructor()
+#print("Constructor: ")
+#print(construct)
+#print("\n")
 
