@@ -26,7 +26,7 @@ class Modeler(object):
         return self.fun_key.get(model)
 
     #Get constructor for selected model
-    def get_constructor(self):
+    def get_constructors(self):
         return self.constructors
 
     #Set current model
@@ -45,55 +45,41 @@ class Modeler(object):
         self.fun_key = models.fun_key
         self.constructors = models.con_key
 
-    #Activate current model
-    def activate_model(self):
-        model = self.model
-
-
 ####Functions####
 
 #Construct model object
-model = Modeler()
-
-#Get selected model
-modname=model.get_model()
-print("Current model: ")
-print(modname)
-#print("\n")
-
-#Get list of models
-modlist = model.get_modlist()
-print("List of models: ")
-print(modlist)
-#print("\n")
-
-#Set a new model
-model.set_model("textgenrnn")
-modelname=model.get_model()
-print(modelname)
-#print("\n")
+#model = Modeler()
 
 #Get selected model
 #modname=model.get_model()
 #print("Current model: ")
 #print(modname)
-#print("\n")
+
+#Get list of models
+#modlist = model.get_modlist()
+#print("List of models: ")
+#print(modlist)
+
+#Set a new model
+#model.set_model("textgenrnn")
+#modelname=model.get_model()
+#print(modelname)
 
 #Get list of imports
-implist = model.get_imports("textgenrnn")
-print("List of imports: ")
-print(implist)
-#print("\n")
+#implist = model.get_imports("textgenrnn")
+#print("List of imports: ")
+#print(implist)
 
 #Get list of commands
-cmdlist = model.get_functions("textgenrnn")
-print("List of commands: ")
-print(cmdlist)
-#print("\n")
+#cmdlist = model.get_functions("textgenrnn")
+#print("List of commands: ")
+#print(cmdlist)
 
-#Get the constructor
-#construct = model.get_constructor()
-#print("Constructor: ")
-#print(construct)
-#print("\n")
+#Get list of constructors
+#constructs = model.get_constructors()
+#print("Constructors: ")
+#print(constructs)
+
+#Update models from file
+#model.update_models()
 

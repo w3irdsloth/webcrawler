@@ -5,3 +5,4 @@ fun_key = {"textgenrnn": {".train_from_file": ["source", "epochs"]}
         }
 con_key = {"textgenrnn": "textgenrnn()"}
 
+:
