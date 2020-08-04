@@ -2,7 +2,7 @@ import os
 from docx import Document
 
 class Extender(object):
-    """ Creates an extender object for handling extraction from filetype extensions """
+    """ Creates an object for handling extraction from filetype extensions """
     def __init__(self, source):
         self.source = source
         self.split_path = os.path.split(self.source)

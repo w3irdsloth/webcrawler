@@ -1,11 +1,11 @@
 class Modeler(object):
-    """ Creates an object for selecting and running a default rnn model """
+    """ Creates an object for selecting and running command models """
     def __init__(self):
         self.model = "n/a"
         self.mod_list = ["textgenrnn"]
-        self.fun_key = {"textgenrnn": {".train_from_file": ["source", "epochs"]}
-                }
-        self.rnn = ""
+        self.fun_key = {"textgenrnn": {".train_from_file": ["source", "epochs"]},
+                                      {".trafrom_file": ["source", "epochs"] }}
+        self.constructer = ""
 
     #Get current nodel
     def get_model(self):
@@ -32,7 +32,7 @@ class Modeler(object):
         if self.model == "textgenrnn":
             print("textgenrnn activated...")
             from textgenrnn import textgenrnn
-            self.rnn = textgenrnn()
+            self.constructer = textgenrnn()
 
         else:
             print("Model not found")

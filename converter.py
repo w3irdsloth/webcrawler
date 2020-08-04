@@ -7,7 +7,7 @@ from unidecode import unidecode
 from extender import Extender
 
 class Converter(object):
-    """ Creates a converter object for converting text from source documents to .txt files """
+    """ Creates an object for converting text from source documents to text files """
     def __init__(self):
         self.text= ""
 
@@ -86,5 +86,5 @@ print(text)
 #text = converter.get_text()
 #print(text)
 
-converter.print_text("myfile")
+converter.print_text("myfile.txt")
 

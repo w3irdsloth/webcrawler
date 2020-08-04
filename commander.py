@@ -1,11 +1,11 @@
 from modeler import *
 
-class Builder(object):
-    """ Creates an object for building weights from collected text """
+class Commander(object):
+    """ Creates an object for unpacking and executing commands """
     def __init__(self, model):
         self.model = model
         self.command = ""
-        self.construct = model.rnn
+        self.construct = model.construct
 
     #Get command to be run by builder
     def get_command(self):
@@ -17,13 +17,12 @@ class Builder(object):
 
     #Build weight from text file
     def execute_command(self):
-        print("building weight...")
         try:
-            print("Attempting weight command...")
+            print("attempting to execute...")
             exec(self.command)
 
         except:
-            print("build failed...")
+            print("command failed...")
 
 
 
@@ -39,19 +38,19 @@ model.set_model("textgenrnn")
 model.activate_model()
 
 #Create builder and pass in model
-builder = Builder(model)
+commander = Commander(model)
 
 #Set function and arguments
 function = ".train_from_file"
 args = "('/home/lux/Downloads/test/test.txt', 1)"
 
 #Build command
-builder.set_command(function, args)
+commander.set_command(function, args)
 
 #Print command
-cmd = builder.get_command()
+cmd = commander.get_command()
 print(cmd)
 
 #Build weight
-builder.build_weight()
+commander.execute_command()
 
