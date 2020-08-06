@@ -13,7 +13,12 @@ class Applicator(object):
     def set_text(self, text):
        self.text = text
 
-    def apply_text(self, docname):
-        with open(docname, "a") as temp_file:
-            temp_file.write(self.text)
-            temp_file.close()
+    def apply_text(self, document):
+        print("applying text...")
+        try:
+            with open(document, "a") as temp_file:
+                temp_file.write(self.text)
+                temp_file.close()
+
+        except:
+            print("text application failed")

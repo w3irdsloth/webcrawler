@@ -4,17 +4,25 @@
   
 #Import Modules
 ################
-# from applicator import Applicator
-# from extractor import Extractor
-# from generator import Generator
-# from splitter import Splitter
-# from stripper import Stripper
+from applicator import Applicator
+from extractor import Extractor
+from generator import Generator
+from splitter import Splitter
+from stripper import Stripper
 
+#########################
 
+ ########################
+## Applicator Functions ##
+ ########################
 
- #######################
-## Applicator Functions##
- #######################
+#Apply text to a document
+def apply_text(text, document):
+    applicator = Applicator()
+    applicator.set_text(text)
+    applicator.apply_text(text)
+
+#########################
 
 ##Build Applicator
 #applicator = Applicator()
@@ -30,11 +38,20 @@
 ##Paste text into document
 #applicator.apply_text("mydoc.txt")
 
-
+#########################
  
- ######################
-# Extractor Functions ##
- ######################
+ #######################
+## Extractor Functions ##
+ #######################
+
+#Extract text from a source file
+def extract_text(source, extension):
+    extractor = Extractor()
+    extractor.set_ext(extension)
+    extractor.extract_text(source)
+    return extractor.get_text()
+
+#########################
 
 ##Set source file
 #source = "/home/lux/Downloads/test/test.txt"
@@ -71,11 +88,25 @@
 ##Discard collected text
 #extractor.discard_text()
 
+#########################
 
+ #######################
+## Generator Functions ##
+ #######################
 
- ######################
-# Generator Functions ##
- ######################
+#Generate a weight by training from a text file
+def gen_weight(source, epochs):
+    generator = Generator()
+    generator.gen_weight(source, epochs)
+
+#Generate text from a given weight
+def gen_text(weight, lines, temperature):
+    generator = Generator()
+    generator.set_weight(weight)
+    generator.gen_text(num_lines=lines, temp=temperature)
+    return generator.get_text()
+
+##########################
 
 ##Build generator object
 #generator = Generator()
@@ -98,11 +129,39 @@
 #text = generator.get_text()
 #print(text)
 
- 
+##########################
 
- #####################
-# Splitter Functions ##
- #####################
+ ######################
+## Splitter Functions ##
+ ######################
+
+#Split the directory path from a given file path
+def split_path(source):
+    splitter = Splitter()
+    splitter.split_source(source)
+    return splitter.get_path
+
+#Spplit the filename with the extension from a given file path
+def split_flname(source):
+    splitter = Splitter()
+    splitter.split_source(source)
+    return splitter.get_flname
+
+#Split the filename without the extension from a given file path
+def split_name(source):
+    splitter = Splitter()
+    splitter.split_source(source)
+    return splitter.get_name
+
+#Split the extension from a given file path
+def split_ext(source):
+    splitter = Splitter()
+    splitter.split_source(source)
+    return splitter.get_ext
+
+split_path(1)
+
+##########################
 
 ##Build splitter object
 #splitter = Splitter()
@@ -123,11 +182,34 @@
 #print(name)
 #print(ext)
 
+##########################
 
+ ######################
+## Stripper Functions ##
+ ######################
 
- #####################
-# Stripper Functions ##
- #####################
+#Strip a string from the given text
+def strip_string(text, string):
+    stripper = Stripper()
+    stripper.set_text(text)
+    stripper.strip_string(string)
+    return stripper.get_text()
+
+#Strip the text between the given set of characters
+def strip_slice(text, char1, char2):
+    stripper = Stripper()
+    stripper.set_text(text)
+    stripper.strip_slice(char1, char2)
+    return stripper.get_text()
+
+#Strip the page following the given string
+def strip_page(text, string):
+    stripper = Stripper()
+    stripper.set_text(text)
+    stripper.strip_page(string)
+    return stripper.get_text()
+
+##########################
 
 ##scrape text to string
 #extractor = Extractor()

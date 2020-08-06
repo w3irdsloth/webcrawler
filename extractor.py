@@ -33,5 +33,8 @@ class Extractor(object):
                 for char in prgrph.text:
                     temp_text = temp_text + char
 
+        else:
+            print("unsupported file type")
+
         self.text = self.text + temp_text
 
