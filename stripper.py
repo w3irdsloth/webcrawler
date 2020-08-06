@@ -1,11 +1,6 @@
- ##########
-# Stripper #
- ##########
-
-import os
-from unidecode import unidecode
-
-from extractor import Extractor
+ ##############
+##  STRIPPER  ##
+ ##############
 
 class Stripper(object):
     """ Creates an object for stripping unwanted characters from text """
@@ -21,7 +16,7 @@ class Stripper(object):
 
     #Strip string from collected text   
     def strip_string(self, string):
-        temp_text = unidecode(self.text)
+        temp_text = self.text
         if string in temp_text:
             temp_text = temp_text.replace(string, "")
 
@@ -29,7 +24,7 @@ class Stripper(object):
 
     #Strip slice from collected text
     def strip_slice(self, char1, char2):
-        temp_text = unidecode(self.text)
+        temp_text = self.text
         slice_start = temp_text.find(char1)
         slice_end = temp_text.find(char2, slice_start + 1)
         temp_text = temp_text.replace(temp_text[slice_start:slice_end + 1], "")
@@ -43,6 +38,3 @@ class Stripper(object):
             temp_text = temp_text[:slice_start]
 
         self.text = temp_text
-
-
-

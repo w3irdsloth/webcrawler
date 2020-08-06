@@ -1,11 +1,14 @@
-from applicator import Applicator
-from extractor import Extractor
-from generator import Generator
-from splitter import Splitter
-from stripper import Stripper
-
-
-
+ ###############
+##  MODULATOR  ##
+ ###############
+  
+#Import Modules
+################
+# from applicator import Applicator
+# from extractor import Extractor
+# from generator import Generator
+# from splitter import Splitter
+# from stripper import Stripper
 
 
 
@@ -69,6 +72,7 @@ from stripper import Stripper
 #extractor.discard_text()
 
 
+
  ######################
 # Generator Functions ##
  ######################
@@ -118,8 +122,6 @@ from stripper import Stripper
 #print(flname)
 #print(name)
 #print(ext)
-
-
 
 
 

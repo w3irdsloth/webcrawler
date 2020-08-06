@@ -1,6 +1,6 @@
- ############
-# Applicator #
- ############
+ ################
+##  APPLICATOR  ##
+ ################
 
 class Applicator(object):
     """ Creates an object for applying text to a file """
@@ -16,6 +16,4 @@ class Applicator(object):
     def apply_text(self, docname):
         with open(docname, "a") as temp_file:
             temp_file.write(self.text)
-
             temp_file.close()
-

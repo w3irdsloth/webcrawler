@@ -1,8 +1,6 @@
- ###########
-# Generator #
- ##########
-
-from textgenrnn import textgenrnn
+ ###############
+##  GENERATOR  ##
+ ###############
 
 class Generator(object):
     """ Creates an object for generating unique text with an rnn architecture  """
