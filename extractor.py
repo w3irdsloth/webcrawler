@@ -1,7 +1,6 @@
  ###########
 # Extractor #
  ###########
-
 from splitter import Splitter
 
 class Extractor(object):
@@ -36,44 +35,4 @@ class Extractor(object):
                     temp_text = temp_text + char
 
         self.text = self.text + temp_text
-
-##Extractor Functions##
-
-#Set source file
-#source = "/home/lux/Downloads/test/test.txt"
-#source2 = "/home/lux/Downloads/test/test2.docx"
-
-#Get extensions from splitter
-#splitter = Splitter()
-
-#splitter.split_source(source)
-#ext = splitter.get_ext()
-
-#splitter.split_source(source2)
-#ext2 = splitter.get_ext()
-
-#Build extractor
-#extractor = Extractor()
-
-#Pass in extension
-#extractor.set_ext(ext)
-
-#Call extract function
-#extractor.extract_text(source)
-
-#Print extracted text
-#text = extractor.get_text()
-#print(text)
-
-#extractor.set_ext(ext2)
-#extractor.extract_text(source2)
-#text = extractor.get_text()
-#print(text)
-
-#Discard collected text
-#extractor.discard_text()
-
-#text = extractor.get_text()
-#print("After discard...")
-#print(text)
 

@@ -19,17 +19,3 @@ class Applicator(object):
 
             temp_file.close()
 
-##Applicator Functions##
-
-text = """ Here is a test string """
-
-applicator = Applicator()
-
-applicator.set_text(text)
-
-#my_text = applicator.get_text()
-
-#print(my_text)
-
-applicator.apply_text("mydoc.txt")
-

@@ -40,20 +40,3 @@ class Splitter(object):
 
 
 
-##Splitter Functions##
-
-# Build splitter object
-# splitter = Splitter()
-
-# source = "mysource"
-# splitter.split_source(source)
-
-# path = splitter.get_path()
-# flname = splitter.get_flname()
-# name = splitter.get_name()
-# ext = splitter.get_ext()
-
-# print(path)
-# print(flname)
-# print(name)
-# print(ext)
