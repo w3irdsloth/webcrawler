@@ -44,7 +44,7 @@ source = "/home/lux/Downloads/test/test.txt"
 epochs=1
 
 #Generate a new weight
-#generator.gen_weight(source, epochs)
+generator.gen_weight(source, epochs)
 
 #Set weight
 weight = "textgenrnn_weights.hdf5"
