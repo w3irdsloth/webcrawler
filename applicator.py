@@ -1,6 +1,6 @@
- ################
-##  APPLICATOR  ##
- ################
+     ################
+    ##  APPLICATOR  ##
+     ################
 
 class Applicator(object):
     """ Creates an object for applying text to a file """

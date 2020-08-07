@@ -1,6 +1,6 @@
- ###############
-##  EXTRACTOR  ##
- ###############
+     ###############
+    ##  EXTRACTOR  ##
+     ###############
 
 class Extractor(object):
     """ Creates an object for extracting text from files """

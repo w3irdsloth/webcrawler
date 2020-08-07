@@ -1,4 +1,6 @@
-
+     ##############
+    ##  MEDIATOR  ##
+     ##############
 
 from modulator import Modulator
 
@@ -25,29 +27,23 @@ class Mediator(object):
         else:
             return False
 
+#Mediator functions#
+
 # mediator = Mediator()
 
 # print("Input a command: ")
 # mediator.set_input()
 
 # user_input = mediator.get_input()
+
 # print("Your command was: ")
 # print(user_input)
 
 # cmd_list = ["sometext", "apply_text", "some other text"]
 # mediator.set_checklist(cmd_list)
+
 # is_input = mediator.check_input("apply_text and some other test")
 # print(is_input)
-#importlib.import_module("modulator.apply_text")
 
-modulator = Modulator()
-
-modulator.set_functions()
-
-functions = modulator.get_functions()
-print(functions)
-
-#attrs = modulator.get_attributes("extract_text")
-#print(attrs)
 
 

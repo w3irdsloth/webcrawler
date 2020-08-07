@@ -1,6 +1,6 @@
- ##############
-##  STRIPPER  ##
- ##############
+     ##############
+    ##  STRIPPER  ##
+     ##############
 
 class Stripper(object):
     """ Creates an object for stripping unwanted characters from text """

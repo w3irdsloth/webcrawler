@@ -1,6 +1,6 @@
-     #############
-    ## COMMANDER ##
-     #############
+     ###############
+    ##  COMMANDER  ##
+     ###############
 
 from applicator import Applicator
 from extractor import Extractor
