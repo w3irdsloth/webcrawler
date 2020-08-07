@@ -10,8 +10,8 @@ class Modulator(object):
         self.commander = ""
         self.functions = [] 
 
-    def get_commander(self, commander):
-        self.commander = commander
+    def get_commander(self):
+        return self.commander
 
     def get_functions(self):
         return self.functions
@@ -19,7 +19,10 @@ class Modulator(object):
     def get_attributes(self, function):
         return getattr(Commander, function).__doc__
 
-    def set_functions(self):
+    def set_commander(self, commander):
+        self.commander = commander
+
+    def refresh_functions(self):
         functions = []
         for attr in dir(Commander):
             if callable(getattr(Commander, attr)) and "__" not in attr:
@@ -34,9 +37,9 @@ class Modulator(object):
 
 # commander = Commander
 
-# modulator.get_commander(commander)
+# modulator.set_commander(commander)
 
-# modulator.set_functions()
+# modulator.refresh_functions()
 
 # functions = modulator.get_functions()
 # print(functions)
