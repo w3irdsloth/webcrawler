@@ -15,10 +15,10 @@ class Applicator(object):
 
     def apply_text(self, document):
         print("applying text...")
-        try:
+        if len(self.text) > 0:
             with open(document, "a") as temp_file:
                 temp_file.write(self.text)
                 temp_file.close()
 
-        except:
+        else:
             print("text application failed")

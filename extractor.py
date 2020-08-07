@@ -25,7 +25,7 @@ class Extractor(object):
             temp_doc = open(source, "r")
             temp_text = temp_doc.read()
 
-        if self.ext == ".docx":
+        elif self.ext == ".docx":
             print("extracting from .docx...")
             from docx import Document
             temp_doc = Document(source)
