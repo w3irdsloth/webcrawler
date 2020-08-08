@@ -2,8 +2,6 @@
     ##  MEDIATOR  ##
      ##############
 
-from modulator import Modulator
-
 class Mediator(object):
     """ Creates an object for mediating user input """
     def __init__(self):
@@ -26,24 +24,4 @@ class Mediator(object):
 
         else:
             return False
-
-#Mediator functions#
-
-# mediator = Mediator()
-
-# print("Input a command: ")
-# mediator.set_input()
-
-# user_input = mediator.get_input()
-
-# print("Your command was: ")
-# print(user_input)
-
-# cmd_list = ["sometext", "apply_text", "some other text"]
-# mediator.set_checklist(cmd_list)
-
-# is_input = mediator.check_input("apply_text and some other test")
-# print(is_input)
-
-
 

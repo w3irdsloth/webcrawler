@@ -17,7 +17,6 @@ class Extractor(object):
     def discard_text(self):
         self.text = ""
 
-    ##Call object for extracting text from files
     def extract_text(self, source):
         temp_text = ""
         if self.ext == ".txt":
