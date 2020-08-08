@@ -24,7 +24,6 @@ class Stripper(object):
  
         else:
             print("string not found")
-        
        
     #Strip slice from collected text
     def strip_slice(self, char1, char2):
