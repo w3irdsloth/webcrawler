@@ -178,3 +178,9 @@
 
 
 
+
+##Documenter Functions##
+documenter = Documenter()                  
+documenter.set_text("My new text for the paper should be right here.")
+documenter.set_tag("<tag>")                                             
+documenter.apply_text("testtemplate.docx"

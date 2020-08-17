@@ -2,11 +2,15 @@
     ##  COMMANDER  ##
      ###############
 
+
+import os
 from applicator import Applicator
+from documenter import Documenter
 from extractor import Extractor
 from generator import Generator
 from splitter import Splitter
 from stripper import Stripper
+
 
 class Commander(object):
     """ Creates an object for getting and setting function commands """
@@ -43,6 +47,24 @@ class Commander(object):
         applicator = Applicator()
         applicator.set_text(text)
         applicator.apply_text(textfile)
+
+     ########################     
+    ## Documenter Functions ##
+     ########################
+
+    def document_text(self, text, tag, document):
+        """Create a document from text
+
+        Parameters:
+        text: Input text string
+        tag: tag name for paragraph input
+        document: Output path name for document
+        
+        """
+        documenter = Documenter()
+        documenter.set_text(text)
+        documenter.set_tag(tag)
+        documenter.document_text(document)
 
 
 
@@ -83,7 +105,7 @@ class Commander(object):
         generator = Generator()
         generator.gen_weight(source, epochs)
 
-    def gen_text(self, lines, temperature, weight="textgenrnn_weights.hdf5"):
+    def gen_text(self, lines, temperature, weight):
         """Generate unique text from weight
 
         Parameters:
@@ -101,6 +123,7 @@ class Commander(object):
             text += char
         
         return text
+
 
 
      ######################
@@ -198,26 +221,112 @@ class Commander(object):
         return stripper.get_text()
 
 
-      ##########################
+
+       ##########################
     #####  Complex Functions  #####
       ##########################
+    
+    #Composite strip functions#
+    def strip_cover(self, text):
+        print("stripping cover page...")
+        strip_list = ["Name", "Academic Institution", "Author Note", "Class", "Professor", "Date"]
+        for strng in strip_list:
+            if strng in text:
+                text = self.strip_string(text, strng)
+        
+        return text
 
-    def batch(self, document, textfile="tmp.txt"):
-        """Batch a single document and print to a .txt file
+    def strip_pars(self, text):
+        print("stripping parentheses...")
+        for char in text:
+            if char == "(" or char == ")":
+                try:
+                    text = self.strip_slice(text, "(", ")")
+
+                except:
+                    pass
+        
+        return text
+
+    def strip_quotes(self, text):
+        print("stripping quotes...")
+        for char in text:
+            if char == '"':
+                try:
+                    text = self.strip_slice(text, '"', '"')
+
+                except:
+                    pass
+
+        return text
+
+    def strip_refs(self, text):
+        print("stripping references...")
+        page_list = ["References", "Works Cited", "Bibliography"]
+        for pg in page_list:
+            if pg in text:
+                text = self.strip_page(text, pg)
+        
+        return text
+
+    def strip_noalpha(self, text):
+        print("stripping non-alphabetic characters...")
+        temp_text = ""
+        for char in text:
+            if char.isalpha() == True or char == "." or char == "!" or char == "?" or char == " ":
+                temp_text = temp_text + char
+        
+        text = temp_text
+        return text
+
+    def strip_whtspce(self, text):
+        if "  " in text:
+                text = self.strip_string(text, "  ")
+        
+        return text
+
+    #Batching functions#
+    def batch(self, document, textfile):
+        """Batch a single document and print to .txt file
 
         Parameters:
         document: Document to be stripped
         textfile: File to print to 
 
         """
+        print("batching text...")
         text = self.extract_text(document)
+        text = text.strip()
+        text = self.strip_cover(text)
+        text = self.strip_pars(text)
+        text = self.strip_quotes(text)
+        text = self.strip_refs(text)
+        text = self.strip_noalpha(text) 
+        text = self.strip_whtspce(text)
+        temp_text = ""
+        for char in text:
+            temp_text = temp_text + char
+            if char == "." or char == "?" or char == "!":
+                temp_text = temp_text + "\n"        
+
+        text = temp_text
         self.apply_text(text, textfile)
-       
 
-    def generate(self, lines, temperature, document, weight="textgenrnn_weights.hdf5"):
+    def batch_all(self, path, textfile): 
+        """Batch all documents in a path and print to .txt file """
+        for doc in os.listdir(path):
+            print("stripping " + doc + "...")
+            self.batch(os.path.join(path, doc), textfile)            
+
+    def generate(self, word_count, document, tag, lines, temperature, weight):
         """Generate unique text and apply it to a document """
-        print("generating...")
-        text = self.gen_text(lines, temperature)        
-        self.apply_text(text, document)
-
-
+        print("generating text...")
+        len_check = 0 
+        text = ""
+        while len_check < word_count:
+            print("text: " + text)
+            text = text + self.gen_text(lines, temperature, weight)         
+            len_check = len(text.split())
+            print(str(len_check) + " words generated...")
+        
+        self.document_text(text, tag, document)

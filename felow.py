@@ -19,6 +19,10 @@ parser.add_argument("-i", "--integer", action="store",type=int, dest="integer")
 
 parser.add_argument("-tmp", "--temperature", action="store", type=float, dest="temperature")
 parser.add_argument("-epo", "--epochs", action ="store", type=int, dest="epochs")
+parser.add_argument("-lns", "--lines", action="store", type=int, dest="lines") 
+parser.add_argument("-tfl", "--txtfile", action="store", dest="txtfile") 
+parser.add_argument("-wgt", "--weight", action="store", dest="weight")
+parser.add_argument("-wds", "--words", action="store", type=int, dest="words")
 
 #Set variables to parsed arguments
 args = parser.parse_args()
@@ -31,28 +35,35 @@ integer = args.integer
 
 temperature = args.temperature
 epochs = args.epochs
+lines = args.lines
+txtfile = args.txtfile
+weight = args.weight
+words = args.words
+
 
 #Build commander 
 commander = Commander()
 
-#Set argument commands
+#Set command arguments
 if args.command == "get_functions":
     functions = commander.get_functions()
     print(functions)
 
 elif args.command == "get_attributes":
-    attributes = commander.get_attributes(string)
+    attributes = commander.get_attributes(filename)
     print(attributes)
 
 elif args.command == "batch":
-    commander.batch(path)
+    commander.batch(path, txtfile)
+
+elif args.command == "batch_all":
+    commander.batch_all(path, txtfile)
 
 elif args.command == "build":
-    commander.gen_weight(path, integer) 
+    commander.gen_weight(path, epochs) 
 
 elif args.command == "generate":
-    commander.gen_text(integer, temperature, string) 
+    commander.generate(words, filename, tag="<tag>", temperature=0.5, weight="textgenrnn_weights.hdf5") 
 
 else: 
    print("command not found")
-

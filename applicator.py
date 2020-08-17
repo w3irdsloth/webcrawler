@@ -6,7 +6,7 @@ class Applicator(object):
     """ Creates an object for applying text to a file """
     def __init__(self):
         self.text = ""
-    
+
     def get_text(self):
         return self.text
 
@@ -21,5 +21,5 @@ class Applicator(object):
                 temp_file.close()
 
         except:
-                print("text application failed")
+            print("text application failed")
 
