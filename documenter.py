@@ -32,14 +32,17 @@ class Documenter(object):
             doc = Document()
 
         if len(self.tag) >= 1:
+            tag_check = False
             for prgph in doc.paragraphs:
                 if self.tag in prgph.text:
                     prgph.text = self.text
+                    tag_check = True
 
-                else:
-                    print("tag not found")
+            if tag_check == False:
+                print("tag not found")
         
         else:
+            print("no tag selected...")
             doc.add_paragraph(self.text)
 
         doc.save(document)

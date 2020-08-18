@@ -1,7 +1,7 @@
+
      ###############
     ##  COMMANDER  ##
      ###############
-
 
 import os
 from applicator import Applicator
@@ -10,7 +10,6 @@ from extractor import Extractor
 from generator import Generator
 from splitter import Splitter
 from stripper import Stripper
-
 
 class Commander(object):
     """ Creates an object for getting and setting function commands """
@@ -318,13 +317,12 @@ class Commander(object):
             print("stripping " + doc + "...")
             self.batch(os.path.join(path, doc), textfile)            
 
-    def generate(self, word_count, document, tag, lines, temperature, weight):
+    def gen_doc(self, word_count, document, tag, lines, temperature, weight):
         """Generate unique text and apply it to a document """
-        print("generating text...")
+        print("generating document...")
         len_check = 0 
         text = ""
         while len_check < word_count:
-            print("text: " + text)
             text = text + self.gen_text(lines, temperature, weight)         
             len_check = len(text.split())
             print(str(len_check) + " words generated...")

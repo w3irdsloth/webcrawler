@@ -6,64 +6,68 @@
 import argparse
 from commander import Commander
 
-#Create parser
-parser = argparse.ArgumentParser(description="filter arguments")
+#Construct parsers
+parser = argparse.ArgumentParser()
+subparsers = parser.add_subparsers(title="commands", dest="command")
 
-#Add arguments to parser
-parser.add_argument("command")
-parser.add_argument('-s', "--string",  action="store", dest="string")
-parser.add_argument("-p", "--path", action="store", dest="path")
-parser.add_argument("-t", "--type", action="store", dest="filetype") 
-parser.add_argument("-f", "--filename", action="store", dest="filename") 
-parser.add_argument("-i", "--integer", action="store",type=int, dest="integer")
+#Batch parser
+batch = subparsers.add_parser(name="batch")
+batch.add_argument("-p", "--path", action="store", dest="path", required=True)
+batch.add_argument("-f", "--filename", action="store", dest="filename", default="tmp.txt") 
 
-parser.add_argument("-tmp", "--temperature", action="store", type=float, dest="temperature")
-parser.add_argument("-epo", "--epochs", action ="store", type=int, dest="epochs")
-parser.add_argument("-lns", "--lines", action="store", type=int, dest="lines") 
-parser.add_argument("-tfl", "--txtfile", action="store", dest="txtfile") 
-parser.add_argument("-wgt", "--weight", action="store", dest="weight")
-parser.add_argument("-wds", "--words", action="store", type=int, dest="words")
+#Batchall parser
+batchall = subparsers.add_parser(name="batchall")
+batchall.add_argument("-p", "--path", action="store", dest="path", required=True)
+batchall.add_argument("-f", "--filename", action="store", dest="filename", default="tmp.txt") 
 
-#Set variables to parsed arguments
+#Build parser
+build = subparsers.add_parser(name="build")
+build.add_argument("-p", "--path", action="store", dest="path", required=True)
+build.add_argument("-i", "--integer", action="store",type=int, dest="integer", required=True)
+
+#Docgen parser
+docgen = subparsers.add_parser(name="docgen")
+docgen.add_argument("-num", "--numwords", action="store", dest="numwords", type=int, required=True)
+docgen.add_argument("-f", "--filename", action="store", dest="filename", required=True) 
+docgen.add_argument("-tag", "--tag", action="store", dest="tag", default="<tag>")
+docgen.add_argument("-lns", "--lines", action="store", dest="lines", type=int, default=25)
+docgen.add_argument("-tmp", "--temp", action="store", dest="temp", type=float, default= 0.5)
+docgen.add_argument("-wgt", "--weight", action="store", dest="weight", default="textgenrnn_weights.hdf5")
+
+#Get arguments
 args = parser.parse_args()
 
-string = args.string
-path = args.path
-filetype = args.filetype
-filename = args.filename
-integer = args.integer
-
-temperature = args.temperature
-epochs = args.epochs
-lines = args.lines
-txtfile = args.txtfile
-weight = args.weight
-words = args.words
-
-
-#Build commander 
+#Construct commander
 commander = Commander()
 
 #Set command arguments
-if args.command == "get_functions":
-    functions = commander.get_functions()
-    print(functions)
+if args.command == "batch":
+    print("batch command selected...")
+    path = args.path
+    filename = args.filename
+    commander.batch(path, filename)  
 
-elif args.command == "get_attributes":
-    attributes = commander.get_attributes(filename)
-    print(attributes)
-
-elif args.command == "batch":
-    commander.batch(path, txtfile)
-
-elif args.command == "batch_all":
-    commander.batch_all(path, txtfile)
+elif args.command == "batchall":
+    print("batchall selected...")
+    path = args.path
+    filename = args.filename
+    commander.batch_all(path, filename)
 
 elif args.command == "build":
-    commander.gen_weight(path, epochs) 
+    print("build selected...")
+    path = args.path
+    integer = args.integer
+    commander.gen_weight(path, integer) 
 
-elif args.command == "generate":
-    commander.generate(words, filename, tag="<tag>", temperature=0.5, weight="textgenrnn_weights.hdf5") 
+elif args.command == "docgen":
+    print("docgen selected...")
+    numwords = args.numwords
+    filename = args.filename
+    tag = args.tag
+    lines = args.lines
+    temp = args.temp
+    weight = args.weight
+    commander.gen_doc(numwords, filename, tag, lines, temp, weight) 
 
-else: 
-   print("command not found")
+else:
+    print("command not found")
