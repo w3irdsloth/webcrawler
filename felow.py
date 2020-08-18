@@ -1,4 +1,3 @@
-
     #################################
     ############  FELOW  ############
     #################################
@@ -30,7 +29,7 @@ docgen = subparsers.add_parser(name="docgen")
 docgen.add_argument("-num", "--numwords", action="store", dest="numwords", type=int, required=True)
 docgen.add_argument("-f", "--filename", action="store", dest="filename", required=True) 
 docgen.add_argument("-tag", "--tag", action="store", dest="tag", default="<tag>")
-docgen.add_argument("-lns", "--lines", action="store", dest="lines", type=int, default=25)
+docgen.add_argument("-lns", "--lines", action="store", dest="lines", type=int, default=1)
 docgen.add_argument("-tmp", "--temp", action="store", dest="temp", type=float, default= 0.5)
 docgen.add_argument("-wgt", "--weight", action="store", dest="weight", default="textgenrnn_weights.hdf5")
 

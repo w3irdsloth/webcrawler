@@ -1,4 +1,3 @@
-
      ###############
     ##  COMMANDER  ##
      ###############
@@ -328,3 +327,5 @@ class Commander(object):
             print(str(len_check) + " words generated...")
         
         self.document_text(text, tag, document)
+
+

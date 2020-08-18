@@ -1,8 +1,6 @@
-
      ################
     ##  Documenter  ##
      ################
-
 
 import os
 from docx import Document
@@ -25,24 +23,43 @@ class Documenter(object):
         self.tag = tag
 
     def document_text(self, document):
-        if os.path.exists(document):
-            doc = Document(document)
+        if os.path.isfile(document):
+            try:
+                doc = Document(document)
+            
+            except:
+                print("unsupported document")
+                raise SystemExit
 
         else: 
             doc = Document()
 
         if len(self.tag) >= 1:
             tag_check = False
-            for prgph in doc.paragraphs:
-                if self.tag in prgph.text:
-                    prgph.text = self.text
-                    tag_check = True
+            try:
+                for prgph in doc.paragraphs:
+                    if self.tag in prgph.text:
+                        prgph.text = self.text
+                        tag_check = True
+            
+                doc.save(document)
+            
+            except:
+                print("unsupported document")
+                raise SystemExit                
 
             if tag_check == False:
                 print("tag not found")
-        
+                raise SystemExit
+
         else:
             print("no tag selected...")
-            doc.add_paragraph(self.text)
+            try:
+                doc.add_paragraph(self.text)
+                doc.save(document)
 
-        doc.save(document)
+            except:
+                print("unsupported document")
+                raise SystemExit
+
+

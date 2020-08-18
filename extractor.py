@@ -21,19 +21,30 @@ class Extractor(object):
         temp_text = ""
         if self.ext == ".txt":
             print("extracting from .txt...")
-            temp_doc = open(source, "r")
-            temp_text = temp_doc.read()
+            try:
+                temp_doc = open(source, "r")
+                temp_text = temp_doc.read()
+
+            except:
+                print("extraction failed")
+                raise SystemExit
 
         elif self.ext == ".docx":
             print("extracting from .docx...")
-            from docx import Document
-            temp_doc = Document(source)
-            for prgrph in temp_doc.paragraphs:
-                for char in prgrph.text:
-                    temp_text = temp_text + char
+            try:
+                from docx import Document
+                temp_doc = Document(source)
+                for prgrph in temp_doc.paragraphs:
+                    for char in prgrph.text:
+                        temp_text = temp_text + char
+            
+            except:
+                print("extraction failed")
+                raise SystemExit
 
         else:
             print("unsupported file type")
+            raise SystemExit
 
         self.text = self.text + temp_text
 

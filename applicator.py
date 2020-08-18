@@ -22,4 +22,4 @@ class Applicator(object):
 
         except:
             print("text application failed")
-
+            raise SystemExit
