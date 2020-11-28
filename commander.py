@@ -87,7 +87,6 @@ class Commander(object):
         return extractor.get_text()
 
 
-
      #######################
     ## Generator Functions #
      #######################
@@ -116,10 +115,11 @@ class Commander(object):
         generator.set_weight(weight)
         generator.gen_text(num_lines=lines, temp=temperature)
         text_list = generator.get_text()
-        text = ""
-        for char in text_list:
-            text += char
-        
+        text =""
+        for sentc in text_list:
+            text = text + sentc
+            text = text + "  "
+
         return text
 
 
@@ -224,7 +224,7 @@ class Commander(object):
     #####  Complex Functions  #####
       ##########################
     
-    #Composite strip functions#
+    #Document Stripper#
     def strip_cover(self, text):
         print("stripping cover page...")
         strip_list = ["Name", "Academic Institution", "Author Note", "Class", "Professor", "Date"]
@@ -270,8 +270,10 @@ class Commander(object):
     def strip_noalpha(self, text):
         print("stripping non-alphabetic characters...")
         temp_text = ""
+        num_list = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+        sym_list = [".", "!", "?", "'", ",", "`" "-", " "]
         for char in text:
-            if char.isalpha() == True or char == "." or char == "!" or char == "?" or char == " ":
+            if char.isalpha() == True or char in num_list or char in sym_list:
                 temp_text = temp_text + char
         
         text = temp_text
@@ -283,6 +285,42 @@ class Commander(object):
         
         return text
 
+    #Clean Sentences#
+    def clean_sentcs(self, text):
+        sen_list = []
+        temp_text = ""
+
+        for char in text:
+            temp_text = temp_text + char
+            if char == "." or char == "!" or char == "?":
+                sen_list.append(temp_text)
+                temp_text = ""
+        try:
+            sen_list.pop(0)
+        
+        except:
+            pass
+
+        for sentc in sen_list:           
+            if sentc.startswith(" "):
+                sentc = sentc[1:]
+           
+            try:
+                end_indx = len(sentc) - 1
+                if sentc[end_indx - 1] == " ":
+                    sentc = sentc[:end_indx - 1:end_indx]
+            except:
+                pass
+
+            if len(sentc) >= 50 and len(sentc) <= 150:
+                temp_text = temp_text + sentc    
+                temp_text = temp_text + "\n"        
+
+        text = temp_text
+        return text
+
+
+
     #Batching functions#
     def batch(self, document, textfile):
         """Batch a single document and print to .txt file
@@ -292,7 +330,7 @@ class Commander(object):
         textfile: File to print to 
 
         """
-        print("batching text...")
+        print("batching " + document + "...")
         text = self.extract_text(document)
         text = text.strip()
         text = self.strip_cover(text)
@@ -301,19 +339,12 @@ class Commander(object):
         text = self.strip_refs(text)
         text = self.strip_noalpha(text) 
         text = self.strip_whtspce(text)
-        temp_text = ""
-        for char in text:
-            temp_text = temp_text + char
-            if char == "." or char == "?" or char == "!":
-                temp_text = temp_text + "\n"        
-
-        text = temp_text
+        text = self.clean_sentcs(text)
         self.apply_text(text, textfile)
 
     def batch_all(self, path, textfile): 
         """Batch all documents in a path and print to .txt file """
         for doc in os.listdir(path):
-            print("stripping " + doc + "...")
             self.batch(os.path.join(path, doc), textfile)            
 
     def gen_doc(self, word_count, document, tag, lines, temperature, weight):

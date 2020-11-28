@@ -31,35 +31,29 @@ class Documenter(object):
                 print("unsupported document")
                 raise SystemExit
 
-        else: 
+        else:
             doc = Document()
 
+        tag_check = False
         if len(self.tag) >= 1:
-            tag_check = False
-            try:
-                for prgph in doc.paragraphs:
-                    if self.tag in prgph.text:
-                        prgph.text = self.text
-                        tag_check = True
-            
-                doc.save(document)
-            
-            except:
-                print("unsupported document")
-                raise SystemExit                
+            for prgph in doc.paragraphs:
+                if self.tag in prgph.text:
+                    print("printing to selected tag...")
+                    prgph.text = self.text                    
+                    doc.save(document)
+                    tag_check = True       
+                    break
 
             if tag_check == False:
                 print("tag not found")
-                raise SystemExit
-
-        else:
-            print("no tag selected...")
-            try:
+                print("printing to end of file...")
                 doc.add_paragraph(self.text)
                 doc.save(document)
 
-            except:
-                print("unsupported document")
-                raise SystemExit
+        else:
+            print("no tag selected")
+            print("printing to end of file...")
+            doc.add_paragraph(self.text)
+            doc.save(document)
 
 

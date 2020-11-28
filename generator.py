@@ -30,11 +30,12 @@ class Generator(object):
     def gen_text(self, num_lines, temp):
         print("generating text...") 
         from textgenrnn import textgenrnn
-        textgen = textgenrnn(self.weight)
         try:
+            textgen = textgenrnn(self.weight)
             temp_text = textgen.generate(num_lines, temperature=temp, return_as_list=True)
             self.text = temp_text
         
         except:
             print("text generation failed")
-
+            print("ensure a weight is available")
+            raise SystemExit

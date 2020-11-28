@@ -27,7 +27,6 @@ class Extractor(object):
 
             except:
                 print("extraction failed")
-                raise SystemExit
 
         elif self.ext == ".docx":
             print("extracting from .docx...")
@@ -40,11 +39,9 @@ class Extractor(object):
             
             except:
                 print("extraction failed")
-                raise SystemExit
 
         else:
             print("unsupported file type")
-            raise SystemExit
 
         self.text = self.text + temp_text
 
