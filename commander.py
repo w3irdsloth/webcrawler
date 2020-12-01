@@ -4,6 +4,7 @@
 
 import os
 from applicator import Applicator
+from builder import Builder
 from documenter import Documenter
 from extractor import Extractor
 from generator import Generator
@@ -45,6 +46,25 @@ class Commander(object):
         applicator = Applicator()
         applicator.set_text(text)
         applicator.apply_text(textfile)
+    
+    
+    
+     #####################
+    ## Builder Functions ##
+     #####################
+
+    def build_weight(self, source, epochs):
+        """Generate weight from source file
+
+        Parameters:
+        source: Source .txt file to generate from
+        epochs: Number of passes to train on
+
+        """
+        builder = Builder()
+        builder.build_weight(source, epochs)
+
+
 
      ########################     
     ## Documenter Functions ##
@@ -90,17 +110,6 @@ class Commander(object):
      #######################
     ## Generator Functions #
      #######################
-
-    def gen_weight(self, source, epochs):
-        """Generate weight from source file
-
-        Parameters:
-        source: Source to generate from
-        epochs: Number of passes to train on
-
-        """
-        generator = Generator()
-        generator.gen_weight(source, epochs)
 
     def gen_text(self, lines, temperature, weight):
         """Generate unique text from weight

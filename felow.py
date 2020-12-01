@@ -58,7 +58,7 @@ elif args.command == "build":
     path = args.path
     epochs = args.epochs
     integer = args.integer
-    commander.gen_weight(path, epochs) 
+    commander.build_weight(path, epochs) 
 
 elif args.command == "docgen":
     print("docgen selected...")

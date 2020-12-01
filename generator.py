@@ -17,16 +17,6 @@ class Generator(object):
     def set_weight(self, weight):
         self.weight = weight
 
-    def gen_weight(self, source, epochs):
-        print("training weight...")
-        from textgenrnn import textgenrnn
-        textgen = textgenrnn()
-        try:
-            textgen.train_from_file(source, num_epochs=epochs)
-
-        except:
-            print("weight generation failed")
-
     def gen_text(self, num_lines, temp):
         print("generating text...") 
         from textgenrnn import textgenrnn
