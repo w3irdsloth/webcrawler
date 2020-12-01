@@ -5,6 +5,7 @@
 import os
 from applicator import Applicator
 from builder import Builder
+from cleaner import Cleaner
 from documenter import Documenter
 from extractor import Extractor
 from generator import Generator
@@ -31,9 +32,9 @@ class Commander(object):
         else: 
             print("attribute not found")
 
-     ########################
-    ## Applicator Functions ##
-     ########################
+    ########################
+    # Applicator Functions #
+    ########################
 
     def apply_text(self, text, textfile):
         """Apply text to text document
@@ -46,12 +47,10 @@ class Commander(object):
         applicator = Applicator()
         applicator.set_text(text)
         applicator.apply_text(textfile)
-    
-    
-    
-     #####################
-    ## Builder Functions ##
-     #####################
+        
+    #####################
+    # Builder Functions #
+    #####################
 
     def build_weight(self, source, epochs):
         """Generate weight from source file
@@ -63,12 +62,24 @@ class Commander(object):
         """
         builder = Builder()
         builder.build_weight(source, epochs)
+      
+    #####################
+    # Cleaner Functions #
+    #####################
 
+    def clean_text(self, text):
+        cleaner = Cleaner()
+        cleaner.set_text(text)
+        cleaner.build_sentlist()
+        cleaner.trim_sentlist(50, 150)
+        cleaner.remv_wtspc()
+        #print(cleaner.get_sentlist())
+        cleaner.remv_noalead()
+        return cleaner.frmt_textlist()
 
-
-     ########################     
-    ## Documenter Functions ##
-     ########################
+    ########################     
+    # Documenter Functions #
+    ########################
 
     def document_text(self, text, tag, document):
         """Create a document from text
@@ -84,11 +95,9 @@ class Commander(object):
         documenter.set_tag(tag)
         documenter.document_text(document)
 
-
-
-     #######################
-    ## Extractor Functions ##
-     #######################
+    #######################
+    # Extractor Functions #
+    #######################
 
     def extract_text(self, source):
         """Extract text from document
@@ -106,10 +115,9 @@ class Commander(object):
         extractor.extract_text(source)
         return extractor.get_text()
 
-
-     #######################
-    ## Generator Functions #
-     #######################
+    #######################
+    # Generator Functions #
+    #######################
 
     def gen_text(self, lines, temperature, weight):
         """Generate unique text from weight
@@ -133,9 +141,9 @@ class Commander(object):
 
 
 
-     ######################
-    ## Splitter Functions ##
-     ######################
+    ######################
+    # Splitter Functions #
+    ######################
 
     def split_path(self, source):
         """Split pathname from source
@@ -183,9 +191,9 @@ class Commander(object):
 
 
 
-     ######################
-    ## Stripper Functions ##
-     ######################
+    ######################
+    # Stripper Functions #
+    ######################
 
     def strip_string(self, text, string):
         """Strip string from text
@@ -199,6 +207,13 @@ class Commander(object):
         stripper.set_text(text)
         stripper.strip_string(string)
         return stripper.get_text()
+
+    def strip_strings(self, text, string_list):
+        for strng in string_list:
+            while strng in text:
+                text = self.strip_string(text, strng)
+        
+        return text
 
     def strip_slice(self, text, char1, char2):
         """Strip slice form text
@@ -214,6 +229,12 @@ class Commander(object):
         stripper.strip_slice(char1, char2)
         return stripper.get_text()
 
+    def strip_slices(self, text, char1, char2):
+        for char1 in text:
+            text = self.strip_slice(text, char1, char2)
+        
+        return text
+
     def strip_page(self, text, string):
         """Strip remaining pages from text
 
@@ -227,134 +248,145 @@ class Commander(object):
         stripper.strip_page(string)
         return stripper.get_text()
 
+    def strip_pages(self, text, page_list):
+        for pg in page_list:
+            while pg in text:
+                text = self.strip_page(text, pg)
 
+        return text
 
-       ##########################
-    #####  Complex Functions  #####
-      ##########################
+    ###################
+    #  Old Functions  #
+    ###################
     
     #Document Stripper#
-    def strip_cover(self, text):
-        print("stripping cover page...")
-        strip_list = ["Name", "Academic Institution", "Author Note", "Class", "Professor", "Date"]
-        for strng in strip_list:
-            if strng in text:
-                text = self.strip_string(text, strng)
+    # def strip_cover(self, text):
+    #     print("stripping cover page...")
+    #     strip_list = ["Name", "Academic Institution", "Author Note", "Class", "Professor", "Date"]
+    #     for strng in strip_list:
+    #         while strng in text:
+    #             text = self.strip_string(text, strng)
         
-        return text
+    #     return text
 
-    def strip_pars(self, text):
-        print("stripping parentheses...")
-        for char in text:
-            if char == "(" or char == ")":
-                try:
-                    text = self.strip_slice(text, "(", ")")
+    # def strip_pars(self, text):
+    #     print("stripping parentheses...")
+    #     for char in text:
+    #         if char == "(" or char == ")":
+    #             try:
+    #                 text = self.strip_slice(text, "(", ")")
 
-                except:
-                    pass
+    #             except:
+    #                 pass
         
-        return text
+    #     return text
 
-    def strip_quotes(self, text):
-        print("stripping quotes...")
-        for char in text:
-            if char == '"':
-                try:
-                    text = self.strip_slice(text, '"', '"')
+    # def strip_quotes(self, text):
+    #     print("stripping quotes...")
+    #     for char in text:
+    #         if char == '"':
+    #             try:
+    #                 text = self.strip_slice(text, '"', '"')
 
-                except:
-                    pass
+    #             except:
+    #                 pass
 
-        return text
 
-    def strip_refs(self, text):
-        print("stripping references...")
-        page_list = ["References", "Works Cited", "Bibliography"]
-        for pg in page_list:
-            if pg in text:
-                text = self.strip_page(text, pg)
+    #     return text
+
+    # def strip_refs(self, text):
+    #     print("stripping references...")
+    #     page_list = ["References", "Works Cited", "Bibliography"]
+    #     for pg in page_list:
+    #         if pg in text:
+    #             text = self.strip_page(text, pg)
         
-        return text
+    #     return text
 
-    def strip_noalpha(self, text):
-        print("stripping non-alphabetic characters...")
-        temp_text = ""
-        num_list = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
-        sym_list = [".", "!", "?", "'", ",", "`" "-", " "]
-        for char in text:
-            if char.isalpha() == True or char in num_list or char in sym_list:
-                temp_text = temp_text + char
+    # def strip_noalpha(self, text):
+    #     print("stripping non-alphabetic characters...")
+    #     temp_text = ""
+    #     num_list = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    #     sym_list = [".", "!", "?", "'", ",", "`" "-", " "]
+    #     for char in text:
+    #         if char.isalpha() == True or char in num_list or char in sym_list:
+    #             temp_text = temp_text + char
         
-        text = temp_text
-        return text
+    #     text = temp_text
+    #     return text
 
-    def strip_whtspce(self, text):
-        if "  " in text:
-                text = self.strip_string(text, "  ")
+    # def strip_whtspce(self, text):
+    #     if "  " in text:
+    #         text = self.strip_string(text, "  ")
         
-        return text
+    #     return text
 
-    #Clean Sentences#
-    def clean_sentcs(self, text):
-        sen_list = []
-        temp_text = ""
+    # #Clean Sentences#
+    # def clean_sentcs(self, text):
+    #     sen_list = []
+    #     temp_text = ""
 
-        for char in text:
-            temp_text = temp_text + char
-            if char == "." or char == "!" or char == "?":
-                sen_list.append(temp_text)
-                temp_text = ""
-        try:
-            sen_list.pop(0)
+    #     #remove noalpha
+    #     for char in text:
+    #         temp_text = temp_text + char
+    #         if char == "." or char == "!" or char == "?":
+    #             sen_list.append(temp_text)
+    #             temp_text = ""
         
-        except:
-            pass
+    #     #remove whitespace
 
-        for sentc in sen_list:           
-            if sentc.startswith(" "):
-                sentc = sentc[1:]
+    #     #remove title
+    #     try:
+    #         sen_list.pop(0)
+        
+    #     except:
+    #         pass
+
+    #     for sentc in sen_list:           
+    #         if sentc.startswith(" "):
+    #             sentc = sentc[1:]
            
-            try:
-                end_indx = len(sentc) - 1
-                if sentc[end_indx - 1] == " ":
-                    sentc = sentc[:end_indx - 1:end_indx]
-            except:
-                pass
+    #         try:
+    #             end_indx = len(sentc) - 1
+    #             if sentc[end_indx - 1] == " ":
+    #                 sentc = sentc[:end_indx - 1:end_indx]
+    #         except:
+    #             pass
 
-            if len(sentc) >= 50 and len(sentc) <= 150:
-                temp_text = temp_text + sentc    
-                temp_text = temp_text + "\n"        
+    #         if len(sentc) >= 50 and len(sentc) <= 150:
+    #             temp_text = temp_text + sentc    
+    #             temp_text = temp_text + "\n"        
 
-        text = temp_text
-        return text
+    #     text = temp_text
+    #     return text
 
 
 
     #Batching functions#
-    def batch(self, document, textfile):
-        """Batch a single document and print to .txt file
+    # def batch(self, document, textfile):
+    #     """Batch a single document and print to .txt file
 
-        Parameters:
-        document: Document to be stripped
-        textfile: File to print to 
+    #     Parameters:
+    #     document: Document to be stripped
+    #     textfile: File to print to 
 
-        """
-        print("batching " + document + "...")
-        text = self.extract_text(document)
-        text = text.strip()
-        text = self.strip_cover(text)
-        text = self.strip_pars(text)
-        text = self.strip_quotes(text)
-        text = self.strip_refs(text)
-        text = self.strip_noalpha(text) 
-        text = self.strip_whtspce(text)
-        text = self.clean_sentcs(text)
-        self.apply_text(text, textfile)
+    #     """
+    #     print("batching " + document + "...")
+    #     text = self.extract_text(document)
+    #     text = text.strip()
+    #     text = self.strip_cover(text)
+    #     text = self.strip_pars(text)
+    #     text = self.strip_quotes(text)
+    #     text = self.strip_refs(text)
+    #     text = self.strip_noalpha(text) 
+    #     text = self.strip_whtspce(text)
+    #     text = self.clean_sentcs(text)
+    #     self.apply_text(text, textfile)
 
-    def batch_all(self, path, textfile): 
-        """Batch all documents in a path and print to .txt file """
-        for doc in os.listdir(path):
-            self.batch(os.path.join(path, doc), textfile)            
+    # def batch_all(self, path, textfile): 
+    #     """Batch all documents in a path and print to .txt file """
+    #     for doc in os.listdir(path):
+    #         self.batch(os.path.join(path, doc), textfile)            
 
     def gen_doc(self, word_count, document, tag, lines, temperature, weight):
         """Generate unique text and apply it to a document """

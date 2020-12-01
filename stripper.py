@@ -29,14 +29,19 @@ class Stripper(object):
     def strip_slice(self, char1, char2):
         print("stripping slice...")
         temp_text = self.text
-        try:
-            slice_start = temp_text.find(char1)
-            slice_end = temp_text.find(char2, slice_start + 1)
-            temp_text = temp_text.replace(temp_text[slice_start:slice_end + 1], "")
-            self.text = temp_text
+        if char1 in temp_text:
+            try:
+                slice_start = temp_text.find(char1)
+                slice_end = temp_text.find(char2, slice_start + 1)
+                temp_text = temp_text.replace(temp_text[slice_start:slice_end + 1], "")
+                
+                self.text = temp_text
         
-        except:
-            print("slice not found")
+            except:
+                print("slice end not found")
+
+        else:
+            print("slice start not found")
 
     #Discard collected text that appears after the given string
     def strip_page(self, string):
@@ -48,6 +53,5 @@ class Stripper(object):
             self.text = temp_text   
         
         else:
-            print("string not found")
+            print("page not found")
         
-     

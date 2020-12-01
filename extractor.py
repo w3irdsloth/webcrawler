@@ -32,6 +32,7 @@ class Extractor(object):
             print("extracting from .docx...")
             try:
                 from docx import Document
+                print(source)
                 temp_doc = Document(source)
                 for prgrph in temp_doc.paragraphs:
                     for char in prgrph.text:
