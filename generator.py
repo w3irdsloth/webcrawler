@@ -6,7 +6,7 @@ class Generator(object):
     """ Creates an object for generating unique text with an rnn architecture  """
     def __init__(self):
         self.weight = ""
-        self.text = ""
+        self.text = []
 
     def get_text(self):
         return self.text
@@ -20,6 +20,7 @@ class Generator(object):
     def gen_text(self, num_lines, temp):
         print("generating text...") 
         from textgenrnn import textgenrnn
+        
         try:
             textgen = textgenrnn(self.weight)
             temp_text = textgen.generate(num_lines, temperature=temp, return_as_list=True)
