@@ -12,6 +12,7 @@ class Splitter(object):
         self.name = "no source"
         self.ext = "no source"
 
+    #Split source file between path, filename, source name, and extension
     def split_source(self, source):
         print("splitting source...")
         try:

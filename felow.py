@@ -1,13 +1,14 @@
-                ###########       
-        ###########################    
-      ###############################
-     #################################
-    #############  FELOW  #############
-     #################################
-      ###############################
-        ###########################
-                ###########        
-                   
+           ##   ###########   ##                 
+        ###########################              ##############################
+      ##### ################### #####           ##  Hello, there! I'm Felow.  ##
+     #################################       ##################################
+    #############  FELOW  #############    #####  
+     #################################  ######
+      ############ ###### ########### ####
+        ###########      ###########
+                ############        
+                 ##########
+                 
 import argparse
 import os
 from commander import Commander
@@ -16,25 +17,24 @@ from commander import Commander
 parser = argparse.ArgumentParser()
 subparsers = parser.add_subparsers(title="commands", dest="command")
 
-#batch parser
+#batch text subparsers
 batch = subparsers.add_parser(name="btc")
 batch.add_argument("-p", "--path", action="store", dest="path", required=True)
 batch.add_argument("-f", "--filename", action="store", dest="filename", default="tmp.txt")
 
-#build parser
+#build weight subparsers
 build = subparsers.add_parser(name="bld")
-build.add_argument("-p", "--path", action="store", dest="path", required=True)
+build.add_argument("-f", "--filename", action="store", dest="filename", required=True)
 build.add_argument("-epo", "--epochs", action="store", type=int, dest="epochs", required=True) 
-build.add_argument("-i", "--integer", action="store",type=int, dest="integer", default=1)
 
-#generate parser
+#generate document subparsers
 generate = subparsers.add_parser(name="gen")
 generate.add_argument("-num", "--numwords", action="store", dest="numwords", type=int, required=True)
-generate.add_argument("-f", "--filename", action="store", dest="filename", required=True) 
-generate.add_argument("-tag", "--tag", action="store", dest="tag", default="<content>")
 generate.add_argument("-lns", "--lines", action="store", dest="lines", type=int, default=5)
 generate.add_argument("-tmp", "--temp", action="store", dest="temp", type=float, default= 0.5)
-generate.add_argument("-wgt", "--weight", action="store", dest="weight", default="textgenrnn_weights.hdf5")
+generate.add_argument("-wgt", "--weight", action="store", dest="weight", required=True)
+generate.add_argument("-tag", "--tag", action="store", dest="tag", default="<content>")
+generate.add_argument("-f", "--filename", action="store", dest="filename", required=True) 
 
 #Get arguments
 args = parser.parse_args()
@@ -43,7 +43,7 @@ args = parser.parse_args()
 commander = Commander()
 
 if args.command == "btc":
-    print("text batcher selected...")
+    print("batching text...")
     path = args.path
     filename = args.filename
     text = ""
@@ -73,23 +73,22 @@ if args.command == "btc":
     text = commander.clean_text(text)
 
     #apply text to .txt doc
-    commander.apply_text(text, "tmp.txt")
+    commander.apply_text(text, filename)
 
 elif args.command == "bld":
-    print("weight builder selected...")
-    path = args.path
+    print("building weight...")
+    filename = args.filename
     epochs = args.epochs
-    integer = args.integer
-    commander.build_weight(path, epochs)
+    commander.build_weight(filename, epochs)
 
 elif args.command == "gen":
-    print("document generator selected...")
+    print("generating document...")
     numwords = args.numwords
-    filename = args.filename
-    tag = args.tag
     lines = args.lines
     temp = args.temp
     weight = args.weight
+    tag = args.tag
+    filename = args.filename
 
     len_check = 0 
     text = ""

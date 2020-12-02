@@ -13,6 +13,7 @@ class Applicator(object):
     def set_text(self, text):
        self.text = text
 
+    #Apply text to .txt file
     def apply_text(self, document):
         print("applying text...")
         try:

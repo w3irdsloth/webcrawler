@@ -17,6 +17,7 @@ class Generator(object):
     def set_weight(self, weight):
         self.weight = weight
 
+    #Generate text using textgenrnn
     def gen_text(self, num_lines, temp):
         print("generating text...") 
         from textgenrnn import textgenrnn

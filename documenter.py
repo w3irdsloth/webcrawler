@@ -22,6 +22,7 @@ class Documenter(object):
     def set_tag(self, tag):
         self.tag = tag
 
+    #Look for selected document and create new one if it doesn't exist before pasting text to tag or at end of file if tag not found
     def document_text(self, document):
         if os.path.isfile(document):
             try:

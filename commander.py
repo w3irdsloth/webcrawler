@@ -68,12 +68,17 @@ class Commander(object):
     #####################
 
     def clean_text(self, text):
+        """Clean unwanted symbols and characters from text
+
+        Parameters:
+        text: Input text string
+        
+        """
         cleaner = Cleaner()
         cleaner.set_text(text)
         cleaner.build_sentlist()
         cleaner.trim_sentlist(50, 150)
         cleaner.remv_wtspc()
-        #print(cleaner.get_sentlist())
         cleaner.remv_noalead()
         return cleaner.frmt_textlist()
 
@@ -139,8 +144,6 @@ class Commander(object):
 
         return text
 
-
-
     ######################
     # Splitter Functions #
     ######################
@@ -188,8 +191,6 @@ class Commander(object):
         splitter = Splitter()
         splitter.split_source(source)
         return splitter.get_ext
-
-
 
     ######################
     # Stripper Functions #

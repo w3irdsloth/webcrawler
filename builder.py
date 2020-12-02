@@ -7,6 +7,7 @@ class Builder(object):
     def __init__(self):
         self.weight = ""
 
+    #Build weight using textgenrnn
     def build_weight(self, source, epochs):
         print("training weight...")
         from textgenrnn import textgenrnn
