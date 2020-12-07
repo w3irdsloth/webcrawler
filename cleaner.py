@@ -20,7 +20,7 @@ class Cleaner(object):
 
     #Generate sentence list from text
     def build_sentlist(self):
-        print("Building sentence list...")
+        print("building sentence list...")
         pun_list = [".", "?", "!"]
         temp_text = ""
         for char in self.text:
@@ -31,7 +31,7 @@ class Cleaner(object):
 
     #Trim length of sentences in sentence list
     def trim_sentlist(self, sent_min, sent_max):
-        print("Trimming sentence list...")
+        print("trimming sentence list...")
         temp_list = []
         for sentc in self.sent_list:
             if len(sentc) >= sent_min and len(sentc) <= sent_max:
@@ -45,11 +45,11 @@ class Cleaner(object):
             self.sent_list.pop(sent_num - 1)
         
         except:
-            print("Sentence not found")
+            print("sentence not found")
 
     #Remove sentences starting with non-alphabetical and lowercase characters from sentences in list
     def remv_noalead(self):
-        print("Checking leading characters...")
+        print("checking leading characters...")
         temp_list = []
         alpha_list = ["A", "B", "C", "D", "E", "F", 
                         "G", "H", "I", "J", "K", "L", 
@@ -63,9 +63,23 @@ class Cleaner(object):
 
         self.sent_list = temp_list
 
+    def remv_nodeclare(self):
+        for sentc in self.sent_list:
+            if "?" in sentc or "!" in sentc:
+                self.sent_list.remove(sentc)
+
+    def remv_nums(self):
+        print("checking for numbers...")
+        num_list = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+        for sentc in self.sent_list:
+            for num in num_list:
+                if num in sentc:
+                    self.sent_list.remove(sentc)
+                    break
+
     #Remove empty whitespace from sentences in list
     def remv_wtspc(self):
-        print("Cleaning whitespace...")
+        print("cleaning whitespace...")
         temp_list = []
         for sentc in self.sent_list:           
             sentc = sentc.strip()
@@ -89,7 +103,7 @@ class Cleaner(object):
         self.sent_list = temp_list
 
     def fix_language(self):
-        print("Fixing spelling and grammar errors...")
+        print("fixing spelling and grammar errors...")
         lang_tool = language_tool_python.LanguageTool('en-US')
         for sentc in self.sent_list:
             errors = lang_tool.check(sentc)
@@ -101,7 +115,7 @@ class Cleaner(object):
                 self.sent_list[error_index] = fix_sentc
 
     def remv_language(self):
-        print("Removing spelling and grammar errors...")
+        print("removing spelling and grammar errors...")
         lang_tool = language_tool_python.LanguageTool('en-US')
         for sentc in self.sent_list:
             errors = lang_tool.check(sentc)
@@ -110,7 +124,7 @@ class Cleaner(object):
 
     #Print sentence list to .txt file formatted as a list
     def frmt_textlist(self):
-        print("Formatting text as list...")
+        print("formatting text as list...")
         temp_text = ""
         for sentc in self.sent_list:
             temp_text = temp_text + sentc
@@ -120,7 +134,7 @@ class Cleaner(object):
 
     #Print sentences to .txt file formated as a block
     def frmt_textblock(self, par_len):
-        print("Formatting text as block...")
+        print("formatting text as block...")
         temp_text = "\t"
         text_check = ""
         par_check = 0

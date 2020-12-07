@@ -9,7 +9,7 @@ from cleaner import Cleaner
 from documenter import Documenter
 from extractor import Extractor
 from generator import Generator
-from splitter import Splitter
+#from splitter import Splitter
 from stripper import Stripper
 
 class Commander(object):
@@ -59,7 +59,7 @@ class Commander(object):
         builder = Builder()
         return builder
 
-    def build_weight(self, builder, source, epochs):
+    def build_weight(self, builder, source, epochs, gen_epochs, weight_name):
         """Generate weight from source file
 
         Parameters:
@@ -67,7 +67,7 @@ class Commander(object):
         epochs: Number of passes to train on
 
         """
-        builder.build_weight(source, epochs)
+        builder.build_weight(source, epochs, gen_epochs, weight_name)
       
     #####################
     # Cleaner Functions #
@@ -86,20 +86,30 @@ class Commander(object):
         """
         cleaner.set_text(text)
         cleaner.build_sentlist()
+        cleaner.remv_nodeclare()
+        cleaner.remv_nums()
         cleaner.remv_wtspc()
         cleaner.remv_noalead()
         cleaner.trim_sentlist(28, 140) 
         cleaner.remv_language()
+        return cleaner.get_text()
+        
+    def format_list(self, cleaner, text):
         return cleaner.frmt_textlist()
 
     #Separate set text, format textblock, and Cleaner constructor into their own function.
-    def clean_textblock(self, cleaner, text, par_len):
-        cleaner.set_text(text)
-        cleaner.build_sentlist()
-        cleaner.remv_wtspc()
-        cleaner.remv_noalead()
-        cleaner.trim_sentlist(28, 140)
-        cleaner.remv_language()
+    # def clean_textblock(self, cleaner, text):
+    #     cleaner.set_text(text)
+    #     cleaner.build_sentlist()
+    #     cleaner.remv_nodeclare()
+    #     cleaner.remv_nums()
+    #     cleaner.remv_wtspc()
+    #     cleaner.remv_noalead()
+    #     cleaner.trim_sentlist(28, 140)
+    #     cleaner.remv_language()
+    #     return cleaner.get_text()
+    
+    def format_block(self, cleaner, text, par_len):
         return cleaner.frmt_textblock(par_len)
 
     ########################     
@@ -139,9 +149,9 @@ class Commander(object):
         extension: Extension for source document
 
         """
-        splitter = Splitter()
-        splitter.split_source(source)
-        ext = splitter.get_ext()
+        #splitter = Splitter()
+        #splitter.split_source(source)
+        ext = extractor.split_ext(source)
         extractor.set_ext(ext)
         extractor.extract_text(source)
         return extractor.get_text()
@@ -166,60 +176,60 @@ class Commander(object):
         generator.set_weight(weight)
         generator.gen_text(num_lines=lines, temp=temperature)
         text_list = generator.get_text()
-        text =""
-        for sentc in text_list:
-            text = text + sentc
-            text = text + "  "
+        # text =""
+        # for sentc in text_list:
+        #     text = text + sentc
+        #     text = text + "  "
 
-        return text
+        return text_list
 
     ######################
     # Splitter Functions #
     ######################
 
-    def split_path(self, source):
-        """Split pathname from source
+    # def split_path(self, source):
+    #     """Split pathname from source
 
-        Parameters:
-        source: source file or directory to split
+    #     Parameters:
+    #     source: source file or directory to split
 
-        """
-        splitter = Splitter()
-        splitter.split_source(source)
-        return splitter.get_path
+    #     """
+    #     splitter = Splitter()
+    #     splitter.split_source(source)
+    #     return splitter.get_path
 
-    def split_flname(self, source):
-        """Split filename with extension from source
+    # def split_flname(self, source):
+    #     """Split filename with extension from source
 
-        Parameters:
-        source: source file or directory to split
+    #     Parameters:
+    #     source: source file or directory to split
 
-        """
-        splitter = Splitter()
-        splitter.split_source(source)
-        return splitter.get_flname
+    #     """
+    #     splitter = Splitter()
+    #     splitter.split_source(source)
+    #     return splitter.get_flname
 
-    def split_name(self, source):
-        """Split filename without extension from source
+    # def split_name(self, source):
+    #     """Split filename without extension from source
 
-        Parameters:
-        source: source file or directory to split
+    #     Parameters:
+    #     source: source file or directory to split
 
-        """
-        splitter = Splitter()
-        splitter.split_source(source)
-        return splitter.get_name
+    #     """
+    #     splitter = Splitter()
+    #     splitter.split_source(source)
+    #     return splitter.get_name
 
-    def split_ext(self, source):
-        """Split extension from source
+    # def split_ext(self, source):
+    #     """Split extension from source
 
-        Parameters:
-        source: source file or directory to split
+    #     Parameters:
+    #     source: source file or directory to split
 
-        """
-        splitter = Splitter()
-        splitter.split_source(source)
-        return splitter.get_ext
+    #     """
+    #     splitter = Splitter()
+    #     splitter.split_source(source)
+    #     return splitter.get_ext
 
     ######################
     # Stripper Functions #

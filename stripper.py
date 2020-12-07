@@ -16,18 +16,18 @@ class Stripper(object):
 
     #Strip string from collected text   
     def strip_string(self, string):
-        print("stripping string...")
+        print("\rstripping string...", end='')
         temp_text = self.text
         if string in temp_text:
             temp_text = temp_text.replace(string, "")
             self.text = temp_text
  
         else:
-            print("string not found")
+            print("\rstring not found...", end='')
        
     #Strip slice from collected text
     def strip_slice(self, char1, char2):
-        print("stripping slice...")
+        print("\rstripping slice...", end='')
         temp_text = self.text
         if char1 in temp_text:
             try:
@@ -38,14 +38,14 @@ class Stripper(object):
                 self.text = temp_text
         
             except:
-                print("slice end not found")
+                print("\rslice end not found", end='')
 
         else:
-            print("slice start not found")
+            print("\rslice start not found", end='')
 
     #Discard collected text that appears after the given string
     def strip_page(self, string):
-        print("stripping page...")
+        print("\rstripping page...", end='')
         temp_text = self.text
         if string in temp_text:
             slice_start = temp_text.index(string)
@@ -53,5 +53,5 @@ class Stripper(object):
             self.text = temp_text   
         
         else:
-            print("page not found")
+            print("\rpage not found", end='')
         

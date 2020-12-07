@@ -26,6 +26,7 @@ class Documenter(object):
     def document_text(self, document):
         if os.path.isfile(document):
             try:
+                print("printing to .docx file...")
                 doc = Document(document)
             
             except:
