@@ -1,7 +1,9 @@
  ###########
 ## Cleaner ##
  ###########
- 
+
+import language_tool_python
+
 class Cleaner(object):
     def __init__(self):
         self.text = ""
@@ -29,6 +31,7 @@ class Cleaner(object):
 
     #Trim length of sentences in sentence list
     def trim_sentlist(self, sent_min, sent_max):
+        print("Trimming sentence list...")
         temp_list = []
         for sentc in self.sent_list:
             if len(sentc) >= sent_min and len(sentc) <= sent_max:
@@ -46,6 +49,7 @@ class Cleaner(object):
 
     #Remove sentences starting with non-alphabetical and lowercase characters from sentences in list
     def remv_noalead(self):
+        print("Checking leading characters...")
         temp_list = []
         alpha_list = ["A", "B", "C", "D", "E", "F", 
                         "G", "H", "I", "J", "K", "L", 
@@ -61,6 +65,7 @@ class Cleaner(object):
 
     #Remove empty whitespace from sentences in list
     def remv_wtspc(self):
+        print("Cleaning whitespace...")
         temp_list = []
         for sentc in self.sent_list:           
             sentc = sentc.strip()
@@ -83,8 +88,29 @@ class Cleaner(object):
 
         self.sent_list = temp_list
 
+    def fix_language(self):
+        print("Fixing spelling and grammar errors...")
+        lang_tool = language_tool_python.LanguageTool('en-US')
+        for sentc in self.sent_list:
+            errors = lang_tool.check(sentc)
+            if len(errors) > 0:
+                error_index = self.sent_list.index(sentc)
+                print(sentc)
+                fix_sentc = lang_tool.correct(sentc)
+                print(fix_sentc)
+                self.sent_list[error_index] = fix_sentc
+
+    def remv_language(self):
+        print("Removing spelling and grammar errors...")
+        lang_tool = language_tool_python.LanguageTool('en-US')
+        for sentc in self.sent_list:
+            errors = lang_tool.check(sentc)
+            if len(errors) > 0:
+                self.sent_list.remove(sentc)
+
     #Print sentence list to .txt file formatted as a list
     def frmt_textlist(self):
+        print("Formatting text as list...")
         temp_text = ""
         for sentc in self.sent_list:
             temp_text = temp_text + sentc
@@ -93,10 +119,21 @@ class Cleaner(object):
         return temp_text
 
     #Print sentences to .txt file formated as a block
-    def frmt_textblock(self):
-        temp_text = ""
-        for setnc in self.sent_list:
-            temp_text = temp_text + setnc
-            temp_text = temp_text + " "
+    def frmt_textblock(self, par_len):
+        print("Formatting text as block...")
+        temp_text = "\t"
+        text_check = ""
+        par_check = 0
+        for sentc in self.sent_list:
+            temp_text = temp_text + sentc
+            temp_text = temp_text + "  "
+           
+            text_check = text_check + sentc
+            text_check = text_check + "  "
+            par_check = len(text_check.split())
+            if par_check >= par_len:
+                temp_text = temp_text + "\n"
+                temp_text = temp_text + "\t"
+                text_check = ""
 
         return temp_text

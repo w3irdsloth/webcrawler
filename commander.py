@@ -36,7 +36,11 @@ class Commander(object):
     # Applicator Functions #
     ########################
 
-    def apply_text(self, text, textfile):
+    def construct_applicator(self):
+        applicator = Applicator()
+        return applicator
+
+    def apply_text(self, applicator, text, textfile):
         """Apply text to text document
 
         Parameters:
@@ -44,7 +48,6 @@ class Commander(object):
         document: Output path or name for document
 
         """
-        applicator = Applicator()
         applicator.set_text(text)
         applicator.apply_text(textfile)
         
@@ -52,7 +55,11 @@ class Commander(object):
     # Builder Functions #
     #####################
 
-    def build_weight(self, source, epochs):
+    def construct_builder(self):
+        builder = Builder()
+        return builder
+
+    def build_weight(self, builder, source, epochs):
         """Generate weight from source file
 
         Parameters:
@@ -60,33 +67,50 @@ class Commander(object):
         epochs: Number of passes to train on
 
         """
-        builder = Builder()
         builder.build_weight(source, epochs)
       
     #####################
     # Cleaner Functions #
     #####################
 
-    def clean_text(self, text):
+    def construct_cleaner(self):
+        cleaner = Cleaner()
+        return cleaner
+    
+    def clean_text(self, cleaner, text):
         """Clean unwanted symbols and characters from text
 
         Parameters:
         text: Input text string
         
         """
-        cleaner = Cleaner()
         cleaner.set_text(text)
         cleaner.build_sentlist()
-        cleaner.trim_sentlist(50, 150)
         cleaner.remv_wtspc()
         cleaner.remv_noalead()
+        cleaner.trim_sentlist(28, 140) 
+        cleaner.remv_language()
         return cleaner.frmt_textlist()
+
+    #Separate set text, format textblock, and Cleaner constructor into their own function.
+    def clean_textblock(self, cleaner, text, par_len):
+        cleaner.set_text(text)
+        cleaner.build_sentlist()
+        cleaner.remv_wtspc()
+        cleaner.remv_noalead()
+        cleaner.trim_sentlist(28, 140)
+        cleaner.remv_language()
+        return cleaner.frmt_textblock(par_len)
 
     ########################     
     # Documenter Functions #
     ########################
 
-    def document_text(self, text, tag, document):
+    def construct_documenter(self):
+        documenter = Documenter()
+        return documenter
+
+    def document_text(self, documenter, text, tag, document):
         """Create a document from text
 
         Parameters:
@@ -95,7 +119,6 @@ class Commander(object):
         document: Output path name for document
         
         """
-        documenter = Documenter()
         documenter.set_text(text)
         documenter.set_tag(tag)
         documenter.document_text(document)
@@ -104,7 +127,11 @@ class Commander(object):
     # Extractor Functions #
     #######################
 
-    def extract_text(self, source):
+    def construct_extractor(self):
+        extractor = Extractor()
+        return extractor
+    
+    def extract_text(self, extractor, source):
         """Extract text from document
 
         Parameters:
@@ -112,7 +139,6 @@ class Commander(object):
         extension: Extension for source document
 
         """
-        extractor = Extractor()
         splitter = Splitter()
         splitter.split_source(source)
         ext = splitter.get_ext()
@@ -124,7 +150,11 @@ class Commander(object):
     # Generator Functions #
     #######################
 
-    def gen_text(self, lines, temperature, weight):
+    def construct_generator(self):
+        generator = Generator()
+        return generator
+    
+    def gen_text(self, generator, lines, temperature, weight):
         """Generate unique text from weight
 
         Parameters:
@@ -133,7 +163,6 @@ class Commander(object):
         temperature: uniqueness of generated text
 
         """
-        generator = Generator()
         generator.set_weight(weight)
         generator.gen_text(num_lines=lines, temp=temperature)
         text_list = generator.get_text()
@@ -196,7 +225,11 @@ class Commander(object):
     # Stripper Functions #
     ######################
 
-    def strip_string(self, text, string):
+    def construct_stripper(self):
+        stripper = Stripper()
+        return stripper
+    
+    def strip_string(self, stripper, text, string):
         """Strip string from text
 
         Parameters:
@@ -204,19 +237,18 @@ class Commander(object):
         string: String to strip from text
 
         """
-        stripper = Stripper()
         stripper.set_text(text)
         stripper.strip_string(string)
         return stripper.get_text()
 
-    def strip_strings(self, text, string_list):
+    def strip_strings(self, stripper, text, string_list):
         for strng in string_list:
             while strng in text:
-                text = self.strip_string(text, strng)
+                text = self.strip_string(stripper, text, strng)
         
         return text
 
-    def strip_slice(self, text, char1, char2):
+    def strip_slice(self, stripper, text, char1, char2):
         """Strip slice form text
 
         Parameters:
@@ -225,18 +257,17 @@ class Commander(object):
         char2: End of slice
 
         """
-        stripper = Stripper()
         stripper.set_text(text)
         stripper.strip_slice(char1, char2)
         return stripper.get_text()
 
-    def strip_slices(self, text, char1, char2):
+    def strip_slices(self, stripper, text, char1, char2):
         for char1 in text:
-            text = self.strip_slice(text, char1, char2)
+            text = self.strip_slice(stripper, text, char1, char2)
         
         return text
 
-    def strip_page(self, text, string):
+    def strip_page(self, stripper, text, string):
         """Strip remaining pages from text
 
         Parameters:
@@ -244,15 +275,14 @@ class Commander(object):
         string: Start of page
 
         """
-        stripper = Stripper()
         stripper.set_text(text)
         stripper.strip_page(string)
         return stripper.get_text()
 
-    def strip_pages(self, text, page_list):
+    def strip_pages(self, stripper, text, page_list):
         for pg in page_list:
             while pg in text:
-                text = self.strip_page(text, pg)
+                text = self.strip_page(stripper, text, pg)
 
         return text
 

@@ -19,10 +19,9 @@ class Generator(object):
 
     #Generate text using textgenrnn
     def gen_text(self, num_lines, temp):
-        print("generating text...") 
-        from textgenrnn import textgenrnn
-        
+        print("generating text...")
         try:
+            from textgenrnn import textgenrnn
             textgen = textgenrnn(self.weight)
             temp_text = textgen.generate(num_lines, temperature=temp, return_as_list=True)
             self.text = temp_text
