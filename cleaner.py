@@ -32,7 +32,7 @@ class Cleaner(object):
                 self.sent_list.append(temp_text)
                 temp_text = ""
 
-    #Trim length of sentences in sentence list
+    #Trim sentence length in sentence list
     def trim_sentlist(self, sent_min, sent_max):
         print("trimming sentence list...")
         temp_list = []
@@ -50,7 +50,7 @@ class Cleaner(object):
         except:
             print("sentence not found")
 
-    #Remove sentences starting with non-alphabetical and lowercase characters from sentences in list
+    #Remove sentences starting with non-alphabetical and lowercase characters
     def remv_noalead(self):
         print("checking leading characters...")
         temp_list = []
@@ -66,11 +66,13 @@ class Cleaner(object):
 
         self.sent_list = temp_list
 
+    #Remove non-declarative sentences
     def remv_nodeclare(self):
         for sentc in self.sent_list:
             if "?" in sentc or "!" in sentc:
                 self.sent_list.remove(sentc)
 
+    #Remove sentences with numbers
     def remv_nums(self):
         print("checking for numbers...")
         num_list = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
@@ -105,6 +107,7 @@ class Cleaner(object):
 
         self.sent_list = temp_list
 
+    #Fix spelling and grammar issues of sentences in list
     def fix_language(self):
         print("fixing spelling and grammar errors...")
         lang_tool = language_tool_python.LanguageTool('en-US')
@@ -117,6 +120,7 @@ class Cleaner(object):
                 print(fix_sentc)
                 self.sent_list[error_index] = fix_sentc
 
+    #Remove sentences with spelling and grammar issues from list
     def remv_language(self):
         print("removing spelling and grammar errors...")
         lang_tool = language_tool_python.LanguageTool('en-US')

@@ -42,7 +42,7 @@ build.add_argument("-wgt", "--weightname", action="store", dest="weightname", de
 generate = subparsers.add_parser(name="gen")
 generate.add_argument("-num", "--numwords", action="store", dest="numwords", type=int, required=True)
 generate.add_argument("-lns", "--lines", action="store", dest="lines", type=int, default=1)
-generate.add_argument("-tmp", "--temp", action="store", dest="temp", type=float, default= 0.3)
+generate.add_argument("-tmp", "--temp", action="store", dest="temp", type=float, default= 0.5)
 generate.add_argument("-wgt", "--weight", action="store", dest="weight", required=True)
 generate.add_argument("-tag", "--tag", action="store", dest="tag", default="<content>")
 generate.add_argument("-f", "--filename", action="store", dest="filename", required=True)
@@ -57,8 +57,8 @@ args = parser.parse_args()
 #Construct commander
 commander = Commander()
 
+#Batch text from documents to .txt file
 if args.command == "btc":
-    #Batch text from documents to .txt file
     print("batching text...")
     path = args.path
     filename = args.filename
@@ -112,8 +112,8 @@ if args.command == "btc":
     applicator.split_ext(filename)
     applicator.apply_text(filename)
 
+#Build weight from .txt file
 elif args.command == "bld":
-    #Build weight from .txt file
     print("building weight...")
     filename = args.filename
     epochs = args.epochs
@@ -122,8 +122,8 @@ elif args.command == "bld":
     builder = Builder()
     builder.build_weight(filename, epochs, numepochs, weightname)
 
+#Generate document from weight
 elif args.command == "gen":
-    #Generate document from weight
     print("generating document...")
     numwords = args.numwords
     lines = args.lines
@@ -133,28 +133,25 @@ elif args.command == "gen":
     filename = args.filename
     title = args.title
     
-    len_check = 0 
     text = ""
     temp_text = ""
-    gentext_list = []
+    len_check = 0 
     cleaner = Cleaner()
     generator = Generator()
     generator.set_weight(weight)
-    #Generate text list in loop
+    
+    #Generate text based on word count
     while True:
+        #Generate text list
         generator.gen_text(lines, temp)
+
+        #Convert text list to string
         generator.cnvrt_text()
         generated_text = generator.get_text()
 
-        #Format generated text as string
-        # cleaner.set_sentlist(gentext_list)
-        # cleaner.cnvrt_text()
-
         #Collect generated text into string
-        # generated_text = cleaner.get_text()
         temp_text = temp_text + generated_text
-        print("collected text......")
-        print(temp_text)
+        generated_text = ""
     
         #Get length of generated text plus stored text
         len_check = len(text.split()) + len(temp_text.split())
@@ -165,18 +162,13 @@ elif args.command == "gen":
             old_len = len_check
             cleaner.set_text(temp_text)
             cleaner.build_sentlist()
-            print("After building sent list....")
-            print(cleaner.get_text())
             cleaner.remv_nodeclare()
             cleaner.remv_nums()
             cleaner.remv_wtspc()
             cleaner.remv_noalead()
             cleaner.trim_sentlist(28, 140) 
             cleaner.remv_language()
-            cleaner.cnvrt_text()
             cleaned_text = cleaner.get_text()
-            print("After cleaning.....")
-            print(cleaned_text)
             text = text + cleaner.get_text()
             temp_text = ""
 
@@ -190,7 +182,6 @@ elif args.command == "gen":
             ####This wil be negative if no words are discarded###
             print(str(disc_len) + " words discarded...")
             
-
         #Break loop when word count reached
         if len_check >= numwords:
             break
@@ -214,6 +205,7 @@ elif args.command == "gen":
 
     applicator = Applicator()
     
+    #Apply generated text to document
     applicator.set_text(text)
     applicator.set_tag(tag)
     applicator.split_ext(filename)

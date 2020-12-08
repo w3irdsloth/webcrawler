@@ -21,6 +21,7 @@ class Generator(object):
     def set_weight(self, weight):
         self.weight = weight
 
+    #Convert text list into string
     def cnvrt_text(self):
         temp_text = ""
         for txt in self.text_list:
@@ -28,7 +29,7 @@ class Generator(object):
             temp_text = temp_text + " "
             self.text = temp_text
 
-    #Generate text using textgenrnn
+    #Generate text list using textgenrnn
     def gen_text(self, num_lines, temp):
         print("generating text...")
         try:
