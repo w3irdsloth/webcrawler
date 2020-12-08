@@ -12,8 +12,15 @@
                  
 import argparse
 import os
+
+from applicator import Applicator
+from builder import Builder
 from commander import Commander
-from mediator import Mediator
+from cleaner import Cleaner
+from documenter import Documenter
+from extractor import Extractor
+from generator import Generator
+from stripper import Stripper
 
 #Construct parsers
 parser = argparse.ArgumentParser()
@@ -42,7 +49,7 @@ generate.add_argument("-f", "--filename", action="store", dest="filename", requi
 generate.add_argument("-t", "--title", action="store", dest="title", default="Title")
 
 #command mode subparsers
-mediate = subparsers.add_parser(name="hlo")
+mediate = subparsers.add_parser(name="cmd")
 
 #Get arguments
 args = parser.parse_args()
@@ -55,41 +62,53 @@ if args.command == "btc":
     print("batching text...")
     path = args.path
     filename = args.filename
-    text = ""
-    extractor = commander.construct_extractor()
-    stripper = commander.construct_stripper()
+    extractor = Extractor()
+    stripper = Stripper()
     for doc in os.listdir(path):
-        temp_text = commander.extract_text(extractor, os.path.join(path, doc))
+        ext = extractor.split_ext(doc)
+        extractor.set_ext(ext)
+        extractor.extract_text(os.path.join(path, doc))
+        text = extractor.get_text()
+        stripper.set_text(text)
         #strip cover
         string_list = ["Name", "Academic Institution", "Author Note", "Class", "Professor", "Date"]
-        temp_text = commander.strip_strings(stripper, temp_text, string_list)
+        stripper.strip_strings(string_list)
         
         #strip pars
         char1 = "("
         char2 = ")"
-        temp_text = commander.strip_slices(stripper, temp_text, char1, char2)
+        stripper.strip_slices(char1, char2)
     
         #strip quotes
         char1 = "\""
         char2 = "\""
-        temp_text = commander.strip_slices(stripper, temp_text, char1, char2)
+        stripper.strip_slices(char1, char2)
 
         #strip refs
         page_list = ["References", "Works Cited", "Bibliography"]
-        temp_text = commander.strip_pages(stripper, temp_text, page_list)
+        stripper.strip_pages(page_list)
 
-        text = text + temp_text
+        text = text + stripper.get_text()
 
     #send text for cleaning
-    cleaner = commander.construct_cleaner()
-    text = commander.clean_text(cleaner, text)
+    cleaner = Cleaner()
+    cleaner.set_text(text)
+    cleaner.build_sentlist()
+    cleaner.remv_nodeclare()
+    cleaner.remv_nums()
+    cleaner.remv_wtspc()
+    cleaner.remv_noalead()
+    cleaner.trim_sentlist(28, 140) 
+    cleaner.remv_language()
 
     #Format text as list
-    text = commander.format_list(cleaner, text)
+    cleaner.frmt_textlist()
+    text = cleaner.get_text()
 
     #apply text to .txt doc
-    applicator = commander.construct_applicator()
-    commander.apply_text(applicator, text, filename)
+    applicator = Applicator()
+    applicator.set_text(text)
+    applicator.apply_text(filename)
 
 elif args.command == "bld":
     #Build weight from .txt file
@@ -98,8 +117,8 @@ elif args.command == "bld":
     epochs = args.epochs
     numepochs = args.numepochs
     weightname = args.weightname
-    builder = commander.construct_builder()
-    commander.build_weight(builder, filename, epochs, numepochs, weightname)
+    builder = Builder()
+    builder.build_weight(filename, epochs, numepochs, weightname)
 
 elif args.command == "gen":
     #Generate document from weight
@@ -114,43 +133,69 @@ elif args.command == "gen":
     
     len_check = 0 
     text = ""
-    cleaner = commander.construct_cleaner()
-    generator = commander.construct_generator()
-    #Generate text in a loop
+    cleaner = Cleaner()
+    generator = Generator()
+    generator.set_weight(weight)
+    #Generate text list in loop
     while True:
-        text_list = commander.gen_text(generator, lines, temp, weight)
-        for sentc in text_list:
-            text = text + sentc
-            text = text + "  "
+        generator.gen_text(lines, temp)
+        text_list = generator.get_text()
 
+        #Get length of generated text
+        cleaner.set_sentlist(text_list)
+        cleaner.cnvrt_text()
+        text = text + cleaner.get_text()
         len_check = len(text.split())
         print(str(len_check) + " words generated...")
         
-        #Discard unwanted text
+        #Clean text
         if len_check >= numwords:
-            disc_check = len_check
-            text = commander.clean_text(cleaner, text)
-            len_check = len(text.split())
-            print(str(disc_check - len_check) + " words discarded...")
+            old_len = len_check
+            print("words before discard: ")
+            print(old_len)
+            cleaner.set_text(text)
+            cleaner.build_sentlist()
+            cleaner.remv_nodeclare()
+            cleaner.remv_nums()
+            cleaner.remv_wtspc()
+            cleaner.remv_noalead()
+            cleaner.trim_sentlist(28, 140) 
+            cleaner.remv_language()
+            cleaner.cnvrt_text()
+            text = cleaner.get_text()
+
+            #Check length again
+            new_len = len(text.split())
+            disc_len = old_len - new_len
+            print("words after discard: ")
+            print(new_len)
+            print(str(disc_len) + " words discarded...")
 
         #Break loop when word count reached
         if len_check >= numwords:
             break
 
     par_len = 175
-    text = commander.format_block(cleaner, text, par_len)
+    cleaner.set_text(text) 
+    cleaner.frmt_textblock(par_len)
+    text = cleaner.get_text()
+
+    documenter = Documenter()
 
     #Apply title to document
-    documenter = commander.construct_documenter()
-    commander.document_text(documenter, title, "Title", filename)
-    
-    #Apply generated text to document
-    commander.document_text(documenter, text, tag, filename)
-   
+    documenter.set_text(title)
+    documenter.set_tag("Title")
+    documenter.document_text(filename)
 
-elif args.command == "hlo":
-    mediator = Mediator()
-    mediator.med_cmd()
+    #Apply generated text to document
+    documenter.set_text(text)
+    documenter.set_tag(tag)
+    documenter.document_text(filename)
+       
+
+elif args.command == "cmd":
+    commander = Commander()
+    commander.cmd_mode()
 
 else:
     print("command not found")

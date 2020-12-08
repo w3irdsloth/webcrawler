@@ -18,6 +18,9 @@ class Cleaner(object):
     def get_sentlist(self):
         return self.sent_list
 
+    def set_sentlist(self, sent_list):
+        self.sent_list = sent_list
+
     #Generate sentence list from text
     def build_sentlist(self):
         print("building sentence list...")
@@ -122,6 +125,15 @@ class Cleaner(object):
             if len(errors) > 0:
                 self.sent_list.remove(sentc)
 
+    def cnvrt_text(self):
+        print("Convert list to text...")
+        temp_text = ""
+        for sentc in self.sent_list:
+            temp_text = temp_text + sentc
+            temp_text = temp_text + "  "
+
+        self.text = temp_text
+
     #Print sentence list to .txt file formatted as a list
     def frmt_textlist(self):
         print("formatting text as list...")
@@ -130,7 +142,7 @@ class Cleaner(object):
             temp_text = temp_text + sentc
             temp_text = temp_text + "\n"
         
-        return temp_text
+        self.text = temp_text
 
     #Print sentences to .txt file formated as a block
     def frmt_textblock(self, par_len):
@@ -150,4 +162,4 @@ class Cleaner(object):
                 temp_text = temp_text + "\t"
                 text_check = ""
 
-        return temp_text
+        self.text = temp_text
