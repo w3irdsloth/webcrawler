@@ -17,10 +17,8 @@ from applicator import Applicator
 from builder import Builder
 from commander import Commander
 from cleaner import Cleaner
-from documenter import Documenter
 from extractor import Extractor
-from generator import Generator
-from stripper import Stripper
+#from generator import Generator
 
 #Construct parsers
 parser = argparse.ArgumentParser()
@@ -63,36 +61,35 @@ if args.command == "btc":
     path = args.path
     filename = args.filename
     extractor = Extractor()
-    stripper = Stripper()
+    cleaner = Cleaner()
     for doc in os.listdir(path):
         extractor.split_ext(doc)
         ext = extractor.get_ext()
         extractor.set_ext(ext)
         extractor.extract_text(os.path.join(path, doc))
         text = extractor.get_text()
-        stripper.set_text(text)
+        cleaner.set_text(text)
         #strip cover
         string_list = ["Name", "Academic Institution", "Author Note", "Class", "Professor", "Date"]
-        stripper.strip_strings(string_list)
+        cleaner.strip_strings(string_list)
         
         #strip pars
         char1 = "("
         char2 = ")"
-        stripper.strip_slices(char1, char2)
+        cleaner.strip_slices(char1, char2)
     
         #strip quotes
         char1 = "\""
         char2 = "\""
-        stripper.strip_slices(char1, char2)
+        cleaner.strip_slices(char1, char2)
 
         #strip refs
         page_list = ["References", "Works Cited", "Bibliography"]
-        stripper.strip_pages(page_list)
+        cleaner.strip_pages(page_list)
 
-        text = text + stripper.get_text()
+        text = text + cleaner.get_text()
 
     #send text for cleaning
-    cleaner = Cleaner()
     cleaner.set_text(text)
     cleaner.build_sentlist()
     cleaner.remv_nodeclare()
@@ -125,6 +122,7 @@ elif args.command == "bld":
 #Generate document from weight
 elif args.command == "gen":
     print("generating document...")
+    from generator import Generator
     numwords = args.numwords
     lines = args.lines
     temp = args.temp
@@ -186,24 +184,18 @@ elif args.command == "gen":
         if len_check >= numwords:
             break
 
+    #Format generated text
     par_len = 175
     cleaner.set_text(text) 
     cleaner.frmt_textblock(par_len)
     text = cleaner.get_text()
 
-    # documenter = Documenter()
-
-    # #Apply title to document
-    # documenter.set_text(title)
-    # documenter.set_tag("Title")
-    # documenter.document_text(filename)
-
-    # #Apply generated text to document
-    # documenter.set_text(text)
-    # documenter.set_tag(tag)
-    # documenter.document_text(filename)
-
+    #Apply title to document
     applicator = Applicator()
+    applicator.set_text(title)
+    applicator.set_tag("Title")
+    applicator.split_ext(filename)
+    applicator.apply_text(filename)
     
     #Apply generated text to document
     applicator.set_text(text)

@@ -2,6 +2,8 @@
     ##  GENERATOR  ##
      ###############
 
+from textgenrnn import textgenrnn
+
 class Generator(object):
     """ Creates an object for generating unique text with an rnn architecture  """
     def __init__(self):
@@ -21,7 +23,7 @@ class Generator(object):
     def set_weight(self, weight):
         self.weight = weight
 
-    #Convert text list into string
+    #Convert text list to string
     def cnvrt_text(self):
         temp_text = ""
         for txt in self.text_list:
@@ -31,9 +33,8 @@ class Generator(object):
 
     #Generate text list using textgenrnn
     def gen_text(self, num_lines, temp):
-        print("generating text...")
         try:
-            from textgenrnn import textgenrnn
+            print("generating text...")
             textgen = textgenrnn(self.weight)
             temp_textlist = textgen.generate(num_lines, temperature=temp, return_as_list=True)
             self.text_list = temp_textlist
