@@ -16,10 +16,6 @@ class Extractor(object):
     def set_ext(self, ext):
         self.ext = ext
 
-    def split_ext(self, source):
-        ext = splitext(source)[1]
-        return ext
-
     def get_text(self):
         return self.text
 
@@ -28,6 +24,11 @@ class Extractor(object):
 
     def discard_text(self):
         self.text = ""
+
+    #Split filepath for extension
+    def split_ext(self, source):
+        ext = splitext(source)[1]
+        self.ext = ext
 
     #Extract text from source file
     def extract_text(self, source):

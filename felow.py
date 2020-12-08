@@ -65,7 +65,8 @@ if args.command == "btc":
     extractor = Extractor()
     stripper = Stripper()
     for doc in os.listdir(path):
-        ext = extractor.split_ext(doc)
+        extractor.split_ext(doc)
+        ext = extractor.get_ext()
         extractor.set_ext(ext)
         extractor.extract_text(os.path.join(path, doc))
         text = extractor.get_text()
