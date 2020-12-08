@@ -109,6 +109,7 @@ if args.command == "btc":
     #apply text to .txt doc
     applicator = Applicator()
     applicator.set_text(text)
+    applicator.split_ext(filename)
     applicator.apply_text(filename)
 
 elif args.command == "bld":
@@ -134,28 +135,38 @@ elif args.command == "gen":
     
     len_check = 0 
     text = ""
+    temp_text = ""
+    gentext_list = []
     cleaner = Cleaner()
     generator = Generator()
     generator.set_weight(weight)
     #Generate text list in loop
     while True:
         generator.gen_text(lines, temp)
-        text_list = generator.get_text()
+        generator.cnvrt_text()
+        generated_text = generator.get_text()
 
-        #Get length of generated text
-        cleaner.set_sentlist(text_list)
-        cleaner.cnvrt_text()
-        text = text + cleaner.get_text()
-        len_check = len(text.split())
+        #Format generated text as string
+        # cleaner.set_sentlist(gentext_list)
+        # cleaner.cnvrt_text()
+
+        #Collect generated text into string
+        # generated_text = cleaner.get_text()
+        temp_text = temp_text + generated_text
+        print("collected text......")
+        print(temp_text)
+    
+        #Get length of generated text plus stored text
+        len_check = len(text.split()) + len(temp_text.split())
         print(str(len_check) + " words generated...")
         
-        #Clean text
+        #Clean generated text if page count has been reached
         if len_check >= numwords:
             old_len = len_check
-            print("words before discard: ")
-            print(old_len)
-            cleaner.set_text(text)
+            cleaner.set_text(temp_text)
             cleaner.build_sentlist()
+            print("After building sent list....")
+            print(cleaner.get_text())
             cleaner.remv_nodeclare()
             cleaner.remv_nums()
             cleaner.remv_wtspc()
@@ -163,14 +174,22 @@ elif args.command == "gen":
             cleaner.trim_sentlist(28, 140) 
             cleaner.remv_language()
             cleaner.cnvrt_text()
-            text = cleaner.get_text()
+            cleaned_text = cleaner.get_text()
+            print("After cleaning.....")
+            print(cleaned_text)
+            text = text + cleaner.get_text()
+            temp_text = ""
 
             #Check length again
             new_len = len(text.split())
             disc_len = old_len - new_len
-            print("words after discard: ")
-            print(new_len)
+            print("old length: " + str(old_len))
+            print("new length: " + str(new_len))
+            len_check = new_len
+            
+            ####This wil be negative if no words are discarded###
             print(str(disc_len) + " words discarded...")
+            
 
         #Break loop when word count reached
         if len_check >= numwords:
@@ -181,18 +200,24 @@ elif args.command == "gen":
     cleaner.frmt_textblock(par_len)
     text = cleaner.get_text()
 
-    documenter = Documenter()
+    # documenter = Documenter()
 
-    #Apply title to document
-    documenter.set_text(title)
-    documenter.set_tag("Title")
-    documenter.document_text(filename)
+    # #Apply title to document
+    # documenter.set_text(title)
+    # documenter.set_tag("Title")
+    # documenter.document_text(filename)
 
-    #Apply generated text to document
-    documenter.set_text(text)
-    documenter.set_tag(tag)
-    documenter.document_text(filename)
-       
+    # #Apply generated text to document
+    # documenter.set_text(text)
+    # documenter.set_tag(tag)
+    # documenter.document_text(filename)
+
+    applicator = Applicator()
+    
+    applicator.set_text(text)
+    applicator.set_tag(tag)
+    applicator.split_ext(filename)
+    applicator.apply_text(filename)
 
 elif args.command == "cmd":
     commander = Commander()

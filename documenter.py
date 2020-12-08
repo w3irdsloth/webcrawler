@@ -46,11 +46,11 @@ class Documenter(object):
                     tag_check = True       
                     break
 
-            if tag_check == False:
-                print("tag not found")
-                print("printing to end of file...")
-                doc.add_paragraph(self.text)
-                doc.save(document)
+                if tag_check == False:
+                    print("tag not found")
+                    print("printing to end of file...")
+                    doc.add_paragraph(self.text)
+                    doc.save(document)
 
         else:
             print("no tag selected")

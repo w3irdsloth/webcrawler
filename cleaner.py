@@ -125,16 +125,7 @@ class Cleaner(object):
             if len(errors) > 0:
                 self.sent_list.remove(sentc)
 
-    def cnvrt_text(self):
-        print("Convert list to text...")
-        temp_text = ""
-        for sentc in self.sent_list:
-            temp_text = temp_text + sentc
-            temp_text = temp_text + "  "
-
-        self.text = temp_text
-
-    #Print sentence list to .txt file formatted as a list
+    #Format cleaned text as list
     def frmt_textlist(self):
         print("formatting text as list...")
         temp_text = ""
@@ -144,7 +135,7 @@ class Cleaner(object):
         
         self.text = temp_text
 
-    #Print sentences to .txt file formated as a block
+    #Format cleaned text as block
     def frmt_textblock(self, par_len):
         print("formatting text as block...")
         temp_text = "\t"
