@@ -4,7 +4,7 @@
       ####  ###################  ####           ## Hello, I'm Felow. ##
      #################################       ########################
     #############  FELOW  #############    #####          
-     #################################  ######
+     #############abcdefg############  ######
       ############ ###### ########### ####
         ###########      ###########
                 ############        
@@ -15,10 +15,11 @@ import os
 
 from applicator import Applicator
 from builder import Builder
-from commander import Commander
 from cleaner import Cleaner
+#from documenter import Documenter
 from extractor import Extractor
-#from generator import Generator
+#from finder import Finder
+from generator import Generator
 
 #Construct parsers
 parser = argparse.ArgumentParser()
@@ -46,14 +47,9 @@ generate.add_argument("-tag", "--tag", action="store", dest="tag", default="<con
 generate.add_argument("-f", "--filename", action="store", dest="filename", required=True)
 generate.add_argument("-t", "--title", action="store", dest="title", default="Title")
 
-#command mode subparsers
-mediate = subparsers.add_parser(name="cmd")
 
 #Get arguments
 args = parser.parse_args()
-
-#Construct commander
-commander = Commander()
 
 #Batch text from documents to .txt file
 if args.command == "btc":
@@ -64,43 +60,54 @@ if args.command == "btc":
         extractor = Extractor()
         cleaner = Cleaner()
         for doc in os.listdir(path):
+            #extract text from document
+            ##The splitter function sets the ext internally##
             extractor.split_ext(doc)
-            ext = extractor.get_ext()
-            extractor.set_ext(ext)
+           
+            ##Is this necessary?##
+            # ext = extractor.get_ext()
+            # extractor.set_ext(ext)
+           
             extractor.extract_text(os.path.join(path, doc))
             text = extractor.get_text()
+            
+            #Add text to cleaner
             cleaner.set_text(text)
-            #strip cover
+
+            #clean cover
             string_list = ["Name", "Academic Institution", "Author Note", "Class", "Professor", "Date"]
             cleaner.remv_strings(string_list)
             
-            #strip pars
+            #clean pars
             char1 = "("
             char2 = ")"
             cleaner.remv_slices(char1, char2)
         
-            #strip quotes
+            #clean quotes
             char1 = "\""
             char2 = "\""
             cleaner.remv_slices(char1, char2)
 
-            #strip refs
+            #clean refs
             page_list = ["References", "Works Cited", "Bibliography"]
             cleaner.remv_pages(page_list)
 
             text = text + cleaner.get_text()
+            
     else:
         print("not a path")
         raise SystemExit
 
-    #send text for cleaning
+    #Add collected text to cleaner
     cleaner.set_text(text)
     cleaner.build_sentlist()
     cleaner.remv_nodeclare()
     cleaner.remv_nums()
     cleaner.remv_wtspc()
     cleaner.remv_noalead()
-    cleaner.trim_sentlist(28, 140) 
+    cleaner.trim_sentlist(28, 140)
+    cleaner.remv_excap()
+    #cleaner.fix_language() 
     cleaner.remv_language()
 
     #Format text as list
@@ -126,7 +133,6 @@ elif args.command == "bld":
 #Generate document from weight
 elif args.command == "gen":
     print("generating document...")
-    from generator import Generator
     numwords = args.numwords
     lines = args.lines
     temp = args.temp
@@ -143,17 +149,25 @@ elif args.command == "gen":
     
     #Generate text based on word count
     while True:
-        #Generate text
-        generator.gen_text(numwords, lines, temp)
-        generated_text = generator.get_text()
-    
+        #Get remaining word count
+        text_len = len(text.split())
+        gen_num = numwords - text_len
+        
+        #Generate text based on remaining word count
+        generator.gen_text(gen_num, lines, temp)
+        text_list = generator.get_text_list()
+        
         #Get length of generated text plus stored text
-        len_check = len(text.split()) + len(generated_text.split())
-        print(str(len_check) + " words generated...")
+        gen_len = generator.get_textlength()
+        len_check = text_len + gen_len
+        print(str(len_check) + " words collected...")
+
+        #Store text length before cleaning generated text
         old_len = len_check
 
         #Collect text and build sentence list
-        cleaner.set_text(generated_text)
+        cleaner.set_sentlist(text_list)
+        cleaner.frmt_textstring()
         cleaner.build_sentlist()
 
         #Clean text in sentence list
@@ -162,11 +176,15 @@ elif args.command == "gen":
         cleaner.remv_wtspc()
         cleaner.remv_noalead()
         cleaner.trim_sentlist(28, 140)
+        cleaner.fix_language()
+        cleaner.remv_excap()
         cleaner.remv_language()
         
-        #Format cleaned text list as string
+        #Format cleaned sentence list as string
         cleaner.frmt_textstring()
         cleaned_text = cleaner.get_text()
+        
+        #Collect cleaned text
         text = text + cleaned_text
 
         #Check length again
@@ -187,6 +205,7 @@ elif args.command == "gen":
     par_len = 175
     cleaner.set_text(text)
     cleaner.build_sentlist()
+    cleaner.remv_wtspc()
     cleaner.frmt_textblock(par_len)
     text = cleaner.get_text()
 
@@ -203,11 +222,6 @@ elif args.command == "gen":
     applicator.split_ext(filename)
     applicator.apply_text(filename)
 
-elif args.command == "cmd":
-    commander = Commander()
-    commander.cmd_mode()
-
 else:
     print("command not found")
     print("use -h or --help for available commands")
- 

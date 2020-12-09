@@ -21,23 +21,9 @@ class Cleaner(object):
     def set_sentlist(self, sent_list):
         self.sent_list = sent_list
 
-    #Generate sentence list from text
-    def build_sentlist(self):
-        print("building sentence list...")
-        pun_list = [".", "?", "!"]
-        temp_text = ""
-        temp_list = []
-        for char in self.text:
-            temp_text = temp_text + char
-            if char in pun_list:
-                temp_list.append(temp_text)
-                temp_text = ""
-
-        self.sent_list = temp_list
-
     #Strip string from collected text   
     def remv_string(self, string):
-        print("stripping string...")
+        print("removing string...")
         temp_text = self.text
         if string in temp_text:
             temp_text = temp_text.replace(string, "")
@@ -54,7 +40,7 @@ class Cleaner(object):
        
     #Strip slice from collected text
     def remv_slice(self, char1, char2):
-        print("stripping slice...")
+        print("removing slice...")
         temp_text = self.text
         if char1 in temp_text:
             try:
@@ -77,7 +63,7 @@ class Cleaner(object):
 
     #Discard collected text that appears after the given string
     def remv_page(self, string):
-        print("stripping page...")
+        print("removing page...")
         temp_text = self.text
         if string in temp_text:
             slice_start = temp_text.index(string)
@@ -90,27 +76,23 @@ class Cleaner(object):
     def remv_pages(self, page_list):
         for pg in page_list:
             while pg in self.text:
-                self.remv_page(pg)    
+                self.remv_page(pg) 
     
-    #Trim sentence length in sentence list
-    def trim_sentlist(self, sent_min, sent_max):
-        print("trimming sentence list...")
+    #Generate sentence list from collected text
+    def build_sentlist(self):
+        print("building sentence list...")
+        pun_list = [".", "?", "!"]
+        temp_text = ""
         temp_list = []
-        for sentc in self.sent_list:
-            if len(sentc) >= sent_min and len(sentc) <= sent_max:
-                temp_list.append(sentc)
-                
-        self.sent_list = temp_list
+        for char in self.text:
+            temp_text = temp_text + char
+            if char in pun_list:
+                temp_list.append(temp_text)
+                temp_text = ""
 
-    #remove sentence from sentence list
-    def remv_sen(self, sent_num):
-        try:
-            self.sent_list.pop(sent_num - 1)
-        
-        except:
-            print("sentence not found")
-
-    #Remove sentences starting with non-alphabetical and lowercase characters
+        self.sent_list = temp_list   
+    
+    #Remove sentences that don't begin with uppercase letters from sentence list
     def remv_noalead(self):
         print("checking leading characters...")
         temp_list = []
@@ -126,23 +108,47 @@ class Cleaner(object):
 
         self.sent_list = temp_list
 
-    #Remove non-declarative sentences
-    def remv_nodeclare(self):
+    #Remove sentences with extra capital letters
+    def remv_excap(self):
+        alpha_list = ["A", "B", "C", "D", "E", "F", 
+                        "G", "H", "J", "K", "L", "M", 
+                        "N", "O", "P", "Q", "R", "S", 
+                        "T", "U", "V", "W", "X", "Y", 
+                        "Z"]
+        
         for sentc in self.sent_list:
-            if "?" in sentc or "!" in sentc:
-                self.sent_list.remove(sentc)
+            for char in alpha_list:
+                if char in sentc[1:]:
+                    try:
+                        self.sent_list.remove(sentc)
+    
+                    except:
+                        break
 
-    #Remove sentences with numbers
+    #Remove sentences with numbers from sentence list
     def remv_nums(self):
         print("checking for numbers...")
         num_list = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
         for sentc in self.sent_list:
             for num in num_list:
                 if num in sentc:
+                    try:
+                        self.sent_list.remove(sentc)
+                    
+                    except:
+                        break
+
+    #Remove non-declarative sentences from sentence list
+    def remv_nodeclare(self):
+        for sentc in self.sent_list:
+            if "?" in sentc or "!" in sentc:
+                try:
                     self.sent_list.remove(sentc)
+                
+                except:
                     break
 
-    #Remove empty whitespace from sentences in list
+    #Remove empty whitespace from sentences in sentence list
     def remv_wtspc(self):
         print("cleaning whitespace...")
         temp_list = []
@@ -167,27 +173,46 @@ class Cleaner(object):
 
         self.sent_list = temp_list
 
-    #Fix spelling and grammar issues of sentences in list
+    #Fix spelling and grammar errors in sentence list
     def fix_language(self):
         print("fixing spelling and grammar errors...")
         lang_tool = language_tool_python.LanguageTool('en-US')
         for sentc in self.sent_list:
             errors = lang_tool.check(sentc)
-            if len(errors) > 0:
-                error_index = self.sent_list.index(sentc)
-                print(sentc)
-                fix_sentc = lang_tool.correct(sentc)
-                print(fix_sentc)
-                self.sent_list[error_index] = fix_sentc
+            for err in errors:
+                try:
+                    error_index = self.sent_list.index(sentc)
+                    fix_sentc = lang_tool.correct(sentc)
+                    self.sent_list[error_index] = fix_sentc
+                    errors.remove(err)
 
-    #Remove sentences with spelling and grammar issues from list
+                except:
+                    break
+
+
+    #Remove sentences with spelling and grammar errors from sentence list
     def remv_language(self):
         print("removing spelling and grammar errors...")
         lang_tool = language_tool_python.LanguageTool('en-US')
         for sentc in self.sent_list:
             errors = lang_tool.check(sentc)
-            if len(errors) > 0:
-                self.sent_list.remove(sentc)
+            for err in errors:
+                try:
+                    self.sent_list.remove(sentc)
+                    errors.remove(err)
+
+                except:
+                    break            
+
+    #Remove sentences in sentence list based on sentence length
+    def trim_sentlist(self, sent_min, sent_max):
+        print("trimming sentence list...")
+        temp_list = []
+        for sentc in self.sent_list:
+            if len(sentc) >= sent_min and len(sentc) <= sent_max:
+                temp_list.append(sentc)
+                
+        self.sent_list = temp_list
 
     #Format sentence list as string
     def frmt_textstring(self):
@@ -199,7 +224,7 @@ class Cleaner(object):
         
         self.text = temp_text
     
-    #Format cleaned text as list
+    #Format text as list
     def frmt_textlist(self):
         print("formatting text as list...")
         temp_text = ""
@@ -209,7 +234,7 @@ class Cleaner(object):
         
         self.text = temp_text
 
-    #Format cleaned text as block
+    #Format text as block
     def frmt_textblock(self, par_len):
         print("formatting text as block...")
         temp_text = "\t"
@@ -228,3 +253,5 @@ class Cleaner(object):
                 text_check = ""
 
         self.text = temp_text
+
+    

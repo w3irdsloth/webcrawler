@@ -4,7 +4,7 @@
 
 import os
 from os.path import splitext
-from docx import Document
+#from docx import Document
 
 class Applicator(object):
     """ Creates an object for applying text to a file """
