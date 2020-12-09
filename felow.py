@@ -57,37 +57,41 @@ commander = Commander()
 
 #Batch text from documents to .txt file
 if args.command == "btc":
-    print("batching text...")
     path = args.path
     filename = args.filename
-    extractor = Extractor()
-    cleaner = Cleaner()
-    for doc in os.listdir(path):
-        extractor.split_ext(doc)
-        ext = extractor.get_ext()
-        extractor.set_ext(ext)
-        extractor.extract_text(os.path.join(path, doc))
-        text = extractor.get_text()
-        cleaner.set_text(text)
-        #strip cover
-        string_list = ["Name", "Academic Institution", "Author Note", "Class", "Professor", "Date"]
-        cleaner.strip_strings(string_list)
+    if os.path.isdir(path):
+        print("batching text...")
+        extractor = Extractor()
+        cleaner = Cleaner()
+        for doc in os.listdir(path):
+            extractor.split_ext(doc)
+            ext = extractor.get_ext()
+            extractor.set_ext(ext)
+            extractor.extract_text(os.path.join(path, doc))
+            text = extractor.get_text()
+            cleaner.set_text(text)
+            #strip cover
+            string_list = ["Name", "Academic Institution", "Author Note", "Class", "Professor", "Date"]
+            cleaner.remv_strings(string_list)
+            
+            #strip pars
+            char1 = "("
+            char2 = ")"
+            cleaner.remv_slices(char1, char2)
         
-        #strip pars
-        char1 = "("
-        char2 = ")"
-        cleaner.strip_slices(char1, char2)
-    
-        #strip quotes
-        char1 = "\""
-        char2 = "\""
-        cleaner.strip_slices(char1, char2)
+            #strip quotes
+            char1 = "\""
+            char2 = "\""
+            cleaner.remv_slices(char1, char2)
 
-        #strip refs
-        page_list = ["References", "Works Cited", "Bibliography"]
-        cleaner.strip_pages(page_list)
+            #strip refs
+            page_list = ["References", "Works Cited", "Bibliography"]
+            cleaner.remv_pages(page_list)
 
-        text = text + cleaner.get_text()
+            text = text + cleaner.get_text()
+    else:
+        print("not a path")
+        raise SystemExit
 
     #send text for cleaning
     cleaner.set_text(text)
@@ -132,7 +136,6 @@ elif args.command == "gen":
     title = args.title
     
     text = ""
-    temp_text = ""
     len_check = 0 
     cleaner = Cleaner()
     generator = Generator()
@@ -140,45 +143,41 @@ elif args.command == "gen":
     
     #Generate text based on word count
     while True:
-        #Generate text list
-        generator.gen_text(lines, temp)
-
-        #Convert text list to string
-        generator.cnvrt_text()
+        #Generate text
+        generator.gen_text(numwords, lines, temp)
         generated_text = generator.get_text()
-
-        #Collect generated text into string
-        temp_text = temp_text + generated_text
-        generated_text = ""
     
         #Get length of generated text plus stored text
-        len_check = len(text.split()) + len(temp_text.split())
+        len_check = len(text.split()) + len(generated_text.split())
         print(str(len_check) + " words generated...")
-        
-        #Clean generated text if page count has been reached
-        if len_check >= numwords:
-            old_len = len_check
-            cleaner.set_text(temp_text)
-            cleaner.build_sentlist()
-            cleaner.remv_nodeclare()
-            cleaner.remv_nums()
-            cleaner.remv_wtspc()
-            cleaner.remv_noalead()
-            cleaner.trim_sentlist(28, 140) 
-            cleaner.remv_language()
-            cleaned_text = cleaner.get_text()
-            text = text + cleaner.get_text()
-            temp_text = ""
+        old_len = len_check
 
-            #Check length again
-            new_len = len(text.split())
-            disc_len = old_len - new_len
-            print("old length: " + str(old_len))
-            print("new length: " + str(new_len))
-            len_check = new_len
-            
-            ####This wil be negative if no words are discarded###
-            print(str(disc_len) + " words discarded...")
+        #Collect text and build sentence list
+        cleaner.set_text(generated_text)
+        cleaner.build_sentlist()
+
+        #Clean text in sentence list
+        cleaner.remv_nodeclare()
+        cleaner.remv_nums()
+        cleaner.remv_wtspc()
+        cleaner.remv_noalead()
+        cleaner.trim_sentlist(28, 140)
+        cleaner.remv_language()
+        
+        #Format cleaned text list as string
+        cleaner.frmt_textstring()
+        cleaned_text = cleaner.get_text()
+        text = text + cleaned_text
+
+        #Check length again
+        new_len = len(text.split())
+        disc_len = old_len - new_len
+        print("old length: " + str(old_len))
+        print("new length: " + str(new_len))
+        len_check = new_len
+        
+        ####This wil be negative if no words are discarded###
+        print(str(disc_len) + " words discarded...")
             
         #Break loop when word count reached
         if len_check >= numwords:
@@ -186,7 +185,8 @@ elif args.command == "gen":
 
     #Format generated text
     par_len = 175
-    cleaner.set_text(text) 
+    cleaner.set_text(text)
+    cleaner.build_sentlist()
     cleaner.frmt_textblock(par_len)
     text = cleaner.get_text()
 

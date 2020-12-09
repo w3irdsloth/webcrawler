@@ -26,14 +26,17 @@ class Cleaner(object):
         print("building sentence list...")
         pun_list = [".", "?", "!"]
         temp_text = ""
+        temp_list = []
         for char in self.text:
             temp_text = temp_text + char
             if char in pun_list:
-                self.sent_list.append(temp_text)
+                temp_list.append(temp_text)
                 temp_text = ""
 
+        self.sent_list = temp_list
+
     #Strip string from collected text   
-    def strip_string(self, string):
+    def remv_string(self, string):
         print("stripping string...")
         temp_text = self.text
         if string in temp_text:
@@ -43,14 +46,14 @@ class Cleaner(object):
         else:
             print("string not found...")
 
-    def strip_strings(self, string_list):
+    def remv_strings(self, string_list):
         for strng in string_list:
             while strng in self.text:
-                self.strip_string(strng)
+                self.remv_string(strng)
 
        
     #Strip slice from collected text
-    def strip_slice(self, char1, char2):
+    def remv_slice(self, char1, char2):
         print("stripping slice...")
         temp_text = self.text
         if char1 in temp_text:
@@ -67,13 +70,13 @@ class Cleaner(object):
         else:
             print("slice start not found")
 
-    def strip_slices(self, char1, char2):
+    def remv_slices(self, char1, char2):
         for char1 in self.text:
-            self.strip_slice(char1, char2)
+            self.remv_slice(char1, char2)
 
 
     #Discard collected text that appears after the given string
-    def strip_page(self, string):
+    def remv_page(self, string):
         print("stripping page...")
         temp_text = self.text
         if string in temp_text:
@@ -84,10 +87,10 @@ class Cleaner(object):
         else:
             print("page not found")
 
-    def strip_pages(self, page_list):
+    def remv_pages(self, page_list):
         for pg in page_list:
             while pg in self.text:
-                self.strip_page(pg)    
+                self.remv_page(pg)    
     
     #Trim sentence length in sentence list
     def trim_sentlist(self, sent_min, sent_max):
@@ -100,12 +103,12 @@ class Cleaner(object):
         self.sent_list = temp_list
 
     #remove sentence from sentence list
-    # def remv_sen(self, sent_num):
-    #     try:
-    #         self.sent_list.pop(sent_num - 1)
+    def remv_sen(self, sent_num):
+        try:
+            self.sent_list.pop(sent_num - 1)
         
-    #     except:
-    #         print("sentence not found")
+        except:
+            print("sentence not found")
 
     #Remove sentences starting with non-alphabetical and lowercase characters
     def remv_noalead(self):
@@ -186,6 +189,16 @@ class Cleaner(object):
             if len(errors) > 0:
                 self.sent_list.remove(sentc)
 
+    #Format sentence list as string
+    def frmt_textstring(self):
+        print("formatting text as string...")
+        temp_text = ""
+        for sentc in self.sent_list:
+            temp_text = temp_text + sentc
+            temp_text = temp_text + " "
+        
+        self.text = temp_text
+    
     #Format cleaned text as list
     def frmt_textlist(self):
         print("formatting text as list...")
