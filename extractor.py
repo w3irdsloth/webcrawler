@@ -3,6 +3,7 @@
      ###############
 
 from os.path import splitext
+import os
 
 class Extractor(object):
     """ Creates an object for extracting text from files """
@@ -54,8 +55,44 @@ class Extractor(object):
             except:
                 print("extraction failed")
 
+        elif self.ext == ".pdf":
+            print("extracting from .pdf...")
+            try:
+                import PyPDF2
+                pdf = open(doc, "rb")
+                reader = PyPDF2.PdfFileReader(pdf)
+                pages = reader.numPages
+                temp_text = ""
+                for pg in range(pages):
+                    print(pg + 1)
+                    page = reader.getPage(pg)
+                    temp_text = temp_text + page.extractText()
+
+                pdf.close()
+
+            except:
+                print("extraction failed")
+
         else:
             print("unsupported file type")
 
         self.text = self.text + temp_text
+
+
+# extractor = Extractor()
+# #doc = "America-Celebrates-Walt-Whitman.pdf"
+# #doc = "Roberts-Hite-and-Chorev-2015-The-Globalization-and-Development-Reader.pdf"
+# doc = "Using-Digital-Media-to-Interpret-Poetry-Spiderman-Meets-Walt-Whitman.pdf"
+
+# text = ""
+# for doc in os.listdir("/home/lux/dev/docgen/sources/"):
+#     extractor.split_ext(doc)
+#     extractor.extract_text(os.path.join("/home/lux/dev/docgen/sources/", doc))
+#     text = text + extractor.get_text()
+
+# print(text)
+
+
+
+
 
