@@ -1,43 +1,57 @@
            
-           ##   ###########   ##                            
-        ###########################               ###################
-      ####  ###################  ####           ## Hello, I'm Felow. ##
-     #################################       ########################
-    #############  FELOW  #############    #####          
-     #############abcdefg############  ######
-      ############ ###### ########### ####
-        ###########      ###########
-                ############        
-                 ##########
-                 
+##FELOW##
+
 import argparse
+import textwrap
 import os
+import time
 
 from applicator import Applicator
 from builder import Builder
 from cleaner import Cleaner
 #from documenter import Documenter
 from extractor import Extractor
-#from finder import Finder
+from finder import Finder
 from generator import Generator
 
 #Construct parsers
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser( prog='FELOW',
+      formatter_class=argparse.RawDescriptionHelpFormatter,
+      description=textwrap.dedent('''\
+
+           ##   ###########   ##                   ##########     
+        ###########################              ### Hello! ###
+      ####  ###################  ####         #### I'm FELOW. #######
+     #################################       ### Your Fellow Editor ##
+    #############  FELOW  #############     ### And Logical Office ##       
+     #############abcdefg############    ########### Writer. #######
+      ############ ###### ########### ####         ########### 
+        ###########      ###########
+                ############        
+                 ##########
+------------------------------------------------------------
+Apply | Build | Clean | Document | Extract | Find | Generate
+------------------------------------------------------------ 
+         '''))
+
+
+
+
 subparsers = parser.add_subparsers(title="commands", dest="command")
 
-#batch text subparsers
+#batch subparsers
 batch = subparsers.add_parser(name="btc")
 batch.add_argument("-p", "--path", action="store", dest="path", required=True)
 batch.add_argument("-f", "--filename", action="store", dest="filename", default="extract.txt")
 
-#build weight subparsers
+#set build subparsers
 build = subparsers.add_parser(name="bld")
 build.add_argument("-f", "--filename", action="store", dest="filename", required=True)
 build.add_argument("-epo", "--epochs", action="store", type=int, dest="epochs", required=True) 
 build.add_argument("-num", "--numepochs", action="store", type=int, dest="numepochs", default=False)
 build.add_argument("-wgt", "--weightname", action="store", dest="weightname", default="weight.hdf5")
 
-#generate document subparsers
+#set generate subparsers
 generate = subparsers.add_parser(name="gen")
 generate.add_argument("-num", "--numwords", action="store", dest="numwords", type=int, required=True)
 generate.add_argument("-lns", "--lines", action="store", dest="lines", type=int, default=1)
@@ -47,6 +61,14 @@ generate.add_argument("-tag", "--tag", action="store", dest="tag", default="<con
 generate.add_argument("-f", "--filename", action="store", dest="filename", required=True)
 generate.add_argument("-t", "--title", action="store", dest="title", default="Title")
 
+#set download subparsers
+download = subparsers.add_parser(name="dln")
+download.add_argument("-qry", "--query", action="store", dest="query", required=True)
+download.add_argument("-hdr", "--headers", action="store", dest="headers", default={'user-agent': "Mozilla/5.0 (Linux x86_64; rv:83.0) Gecko/20100101 Firefox/83.0"})
+download.add_argument("-eng", "--engine", action="store", dest="engine", default="g_scholar")
+download.add_argument("-spg", "--startpage", action="store", dest="startpage", default=0)
+download.add_argument("-epg", "--endpage", action="store", dest="endpage", default=50)
+download.add_argument("-prs", "--parseword", action="store", dest="parseword", default=".pdf")
 
 #Get arguments
 args = parser.parse_args()
@@ -56,9 +78,9 @@ if args.command == "btc":
     path = args.path
     filename = args.filename
     if os.path.isdir(path):
-        print("batching text...")
         extractor = Extractor()
         cleaner = Cleaner()
+        print("batching text...")
         for doc in os.listdir(path):
             #extract text from document
             ##The splitter function sets the ext internally##
@@ -122,17 +144,17 @@ if args.command == "btc":
 
 #Build weight from .txt file
 elif args.command == "bld":
-    print("building weight...")
+    
     filename = args.filename
     epochs = args.epochs
     numepochs = args.numepochs
     weightname = args.weightname
     builder = Builder()
+    print("building weight...")
     builder.build_weight(filename, epochs, numepochs, weightname)
 
 #Generate document from weight
 elif args.command == "gen":
-    print("generating document...")
     numwords = args.numwords
     lines = args.lines
     temp = args.temp
@@ -141,13 +163,13 @@ elif args.command == "gen":
     filename = args.filename
     title = args.title
     
+    #Generate text based on word count
     text = ""
     len_check = 0 
     cleaner = Cleaner()
     generator = Generator()
     generator.set_weight(weight)
-    
-    #Generate text based on word count
+    print("generating document...")
     while True:
         #Get remaining word count
         text_len = len(text.split())
@@ -221,6 +243,55 @@ elif args.command == "gen":
     applicator.set_tag(tag)
     applicator.split_ext(filename)
     applicator.apply_text(filename)
+
+elif args.command == "dln":
+    query = args.query
+    headers = args.headers
+    engine = args.engine
+    startpage = args.startpage
+    endpage = args.endpage
+    parseword = args.parseword
+    
+    #Build finder
+    finder = Finder()
+
+    #Set search engine
+    finder.set_searchengine(engine)
+
+    #Retreive HTML
+    link_list = []
+    wait_time = 5
+    page = startpage
+    print("checking page " + str(int(page / 10)) + "...")
+    while page <= endpage: 
+        #Build url from search engine and query
+        finder.build_url(query, page)
+        print("scraping " + finder.get_url + "...")
+
+        #retreive html
+        html = finder.find_html(headers)
+        print(html)
+
+        #parse links from html
+        links = finder.find_links(html)
+
+        for lnk in links:
+            link_list.append(lnk)
+
+        #Page in increments of 10 for google scholar
+        page += 10
+        time.sleep(wait_time)
+        print("checking page " + str(int(page/10)) + "...")
+
+    #Set a file type to parse
+    my_links = finder.filter_links(link_list, parseword)
+    print(my_links)
+
+    #Download links
+    finder.dl_links(my_links)
+
+elif args.command == "--help":
+    print("hello")
 
 else:
     print("command not found")
