@@ -6,14 +6,11 @@ import os
 from os.path import splitext
 
 class Applicator(object):
-    """ Creates an object for applying text to a file """
+    """ Creates an object for applying text to files """
     def __init__(self):
         self.text = ""
         self.ext = ""
         self.tag = ""
-
-    # def get_text(self):
-    #     return self.text
 
     def set_text(self, text):
        self.text = text
@@ -32,7 +29,7 @@ class Applicator(object):
         ext = splitext(source)[1]
         self.ext = ext
 
-    #Apply text to file
+    #Apply text to tag in file
     def apply_text(self, document):
         if self.ext == ".txt":
             print("applying text to .txt file...")

@@ -5,6 +5,7 @@
 import language_tool_python
 
 class Cleaner(object):
+    """ Creates an object for finding and cleaning sentences """
     def __init__(self):
         self.text = ""
         self.sent_list = []
@@ -154,5 +155,3 @@ class Cleaner(object):
                 
         self.sent_list = temp_list
 
-
-    

@@ -3,6 +3,7 @@
  #############
 
 class Formatter(object):
+    """ Creates an object for formatting lists of text into strings """
     def _init_(self):
         self.text = ""
         self.sent_list = []
@@ -12,9 +13,6 @@ class Formatter(object):
 
     def set_text(self, text):
         self.text = text
-
-    # def get_sentlist(self):
-    #     return self.sent_list
 
     def set_sentlist(self, sent_list):
         self.sent_list = sent_list

@@ -45,17 +45,17 @@ download.add_argument("-qry", "--query", action="store", dest="query", required=
 download.add_argument("-hdr", "--headers", action="store", dest="headers", default={'user-agent': "Mozilla/5.0 (Linux x86_64; rv:83.0) Gecko/20100101 Firefox/83.0"})
 download.add_argument("-eng", "--engine", action="store", dest="engine", default="g_scholar")
 download.add_argument("-spg", "--startpage", action="store", dest="startpage", default=0)
-download.add_argument("-epg", "--endpage", action="store", dest="endpage", default=50)
+download.add_argument("-epg", "--endpage", action="store", dest="endpage", default=40)
 download.add_argument("-prs", "--parseword", action="store", dest="parseword", default=".pdf")
 
 #extract subparsers
 extract = subparsers.add_parser(name="ext")
-extract.add_argument("-p", "--path", action="store", dest="path", required=True)
-extract.add_argument("-f", "--filename", action="store", dest="filename", default="extract.txt")
+extract.add_argument("-pth", "--path", action="store", dest="path", required=True)
+extract.add_argument("-fln", "--filename", action="store", dest="filename", default="extract.txt")
 
 #set build subparsers
 build = subparsers.add_parser(name="bld")
-build.add_argument("-f", "--filename", action="store", dest="filename", required=True)
+build.add_argument("-fln", "--filename", action="store", dest="filename", required=True)
 build.add_argument("-epo", "--epochs", action="store", type=int, dest="epochs", required=True) 
 build.add_argument("-num", "--numepochs", action="store", type=int, dest="numepochs", default=False)
 build.add_argument("-wgt", "--weightname", action="store", dest="weightname", default="weight.hdf5")
@@ -64,11 +64,11 @@ build.add_argument("-wgt", "--weightname", action="store", dest="weightname", de
 generate = subparsers.add_parser(name="gen")
 generate.add_argument("-num", "--numwords", action="store", dest="numwords", type=int, required=True)
 generate.add_argument("-wgt", "--weight", action="store", dest="weight", required=True)
-generate.add_argument("-f", "--filename", action="store", dest="filename", required=True)
+generate.add_argument("-fln", "--filename", action="store", dest="filename", required=True)
 generate.add_argument("-lns", "--lines", action="store", dest="lines", type=int, default=1)
 generate.add_argument("-tmp", "--temp", action="store", dest="temp", type=float, default= 0.5)
 generate.add_argument("-tag", "--tag", action="store", dest="tag", default="<content>")
-generate.add_argument("-t", "--title", action="store", dest="title", default="Title")
+generate.add_argument("-ttl", "--title", action="store", dest="title", default="Title")
 
 #Get arguments
 args = parser.parse_args()

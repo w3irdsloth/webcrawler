@@ -8,6 +8,7 @@ import time
 import os
 
 class Downloader(object):
+    """ Creates an object for downloading files from the internet """
     def _init_(self):
         self.engine = ""
         self.url = ""
@@ -40,11 +41,6 @@ class Downloader(object):
             qryreplc = query.replace(" ", "+")
             url = "https://scholar.google.com/scholar?start=" + str(page) + "&q=" + qryreplc
             self.url = url
-        
-        # elif self.engine == "dd_go":
-        #     qryreplc = query.replace(" ", "+")
-        #     url = "https://duckduckgo.com/?q=" + qryreplc
-        #     self.url = url
 
         else:
             print("engine not found")
