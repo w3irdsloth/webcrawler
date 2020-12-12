@@ -1,6 +1,6 @@
-     ###############
-    ##  EXTRACTOR  ##
-     ###############
+ #############
+## Extractor ##
+ #############
 
 from os.path import splitext
 import os
@@ -77,22 +77,4 @@ class Extractor(object):
             print("unsupported file type")
 
         self.text = self.text + temp_text
-
-
-# extractor = Extractor()
-# #doc = "America-Celebrates-Walt-Whitman.pdf"
-# #doc = "Roberts-Hite-and-Chorev-2015-The-Globalization-and-Development-Reader.pdf"
-# doc = "Using-Digital-Media-to-Interpret-Poetry-Spiderman-Meets-Walt-Whitman.pdf"
-
-# text = ""
-# for doc in os.listdir("/home/lux/dev/docgen/sources/"):
-#     extractor.split_ext(doc)
-#     extractor.extract_text(os.path.join("/home/lux/dev/docgen/sources/", doc))
-#     text = text + extractor.get_text()
-
-# print(text)
-
-
-
-
 

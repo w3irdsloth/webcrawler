@@ -9,8 +9,8 @@ class Cleaner(object):
         self.text = ""
         self.sent_list = []
 
-    def get_text(self):
-        return self.text
+    # def get_text(self):
+    #     return self.text
 
     def set_text(self, text):
         self.text = text
@@ -20,6 +20,30 @@ class Cleaner(object):
 
     def set_sentlist(self, sent_list):
         self.sent_list = sent_list
+
+    #Generate sentence list from collected text
+    def build_sentlist(self):
+        print("building sentence list...")
+        pun_list = [".", "?", "!"]
+        temp_text = ""
+        temp_list = []
+        for char in self.text:
+            temp_text = temp_text + char
+            if char in pun_list:
+                temp_list.append(temp_text)
+                temp_text = ""
+
+        self.sent_list = temp_list   
+
+    # #Format sentence list as string
+    # def build_string(self):
+    #     print("formatting text as string...")
+    #     temp_text = ""
+    #     for sentc in self.sent_list:
+    #         temp_text = temp_text + sentc
+    #         temp_text = temp_text + " "
+        
+    #     self.text = temp_text
 
     #Strip string from collected text   
     def remv_string(self, string):
@@ -60,7 +84,6 @@ class Cleaner(object):
         for char1 in self.text:
             self.remv_slice(char1, char2)
 
-
     #Discard collected text that appears after the given string
     def remv_page(self, string):
         print("removing page...")
@@ -77,20 +100,6 @@ class Cleaner(object):
         for pg in page_list:
             while pg in self.text:
                 self.remv_page(pg) 
-    
-    #Generate sentence list from collected text
-    def build_sentlist(self):
-        print("building sentence list...")
-        pun_list = [".", "?", "!"]
-        temp_text = ""
-        temp_list = []
-        for char in self.text:
-            temp_text = temp_text + char
-            if char in pun_list:
-                temp_list.append(temp_text)
-                temp_text = ""
-
-        self.sent_list = temp_list   
     
     #Remove sentences that don't begin with uppercase letters from sentence list
     def remv_noalead(self):
@@ -158,6 +167,7 @@ class Cleaner(object):
             if sentc[end_indx] == " ":
                 try:
                     sentc = sentc.replace(sentc[end_indx], "")
+                
                 except:
                     pass
 
@@ -214,44 +224,36 @@ class Cleaner(object):
                 
         self.sent_list = temp_list
 
-    #Format sentence list as string
-    def frmt_textstring(self):
-        print("formatting text as string...")
-        temp_text = ""
-        for sentc in self.sent_list:
-            temp_text = temp_text + sentc
-            temp_text = temp_text + " "
-        
-        self.text = temp_text
+
     
-    #Format text as list
-    def frmt_textlist(self):
-        print("formatting text as list...")
-        temp_text = ""
-        for sentc in self.sent_list:
-            temp_text = temp_text + sentc
-            temp_text = temp_text + "\n"
+    # #Format string as list
+    # def frmt_textlist(self):
+    #     print("formatting text as list...")
+    #     temp_text = ""
+    #     for sentc in self.sent_list:
+    #         temp_text = temp_text + sentc
+    #         temp_text = temp_text + "\n"
         
-        self.text = temp_text
+    #     self.text = temp_text
 
-    #Format text as block
-    def frmt_textblock(self, par_len):
-        print("formatting text as block...")
-        temp_text = "\t"
-        text_check = ""
-        par_check = 0
-        for sentc in self.sent_list:
-            temp_text = temp_text + sentc
-            temp_text = temp_text + "  "
+    # #Format text as block
+    # def frmt_textblock(self, par_len):
+    #     print("formatting text as block...")
+    #     temp_text = "\t"
+    #     text_check = ""
+    #     par_check = 0
+    #     for sentc in self.sent_list:
+    #         temp_text = temp_text + sentc
+    #         temp_text = temp_text + "  "
            
-            text_check = text_check + sentc
-            text_check = text_check + "  "
-            par_check = len(text_check.split())
-            if par_check >= par_len:
-                temp_text = temp_text + "\n"
-                temp_text = temp_text + "\t"
-                text_check = ""
+    #         text_check = text_check + sentc
+    #         text_check = text_check + "  "
+    #         par_check = len(text_check.split())
+    #         if par_check >= par_len:
+    #             temp_text = temp_text + "\n"
+    #             temp_text = temp_text + "\t"
+    #             text_check = ""
 
-        self.text = temp_text
+    #     self.text = temp_text
 
     

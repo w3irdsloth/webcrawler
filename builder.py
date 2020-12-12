@@ -1,14 +1,12 @@
-     ###########
-    ## Builder ##
-     ###########
+ ###########
+## Builder ##
+ ###########
 
 import os
 
 class Builder(object):
     """ Creates an object for building rnn architectures """
-    def __init__(self):
-        self.weight = ""
-
+    
     #Build weight using textgenrnn
     def build_weight(self, source, epochs, gen_epochs, weight_name):
         print("importing rnn architecture...")

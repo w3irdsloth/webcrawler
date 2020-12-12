@@ -1,5 +1,6 @@
-           
+#########           
 ##FELOW##
+#########
 
 import argparse
 import textwrap
@@ -9,7 +10,7 @@ import time
 from applicator import Applicator
 from builder import Builder
 from cleaner import Cleaner
-#from documenter import Documenter
+from documenter import Documenter
 from extractor import Extractor
 from finder import Finder
 from generator import Generator
@@ -33,9 +34,6 @@ parser = argparse.ArgumentParser( prog='FELOW',
 Apply | Build | Clean | Document | Extract | Find | Generate
 ------------------------------------------------------------ 
          '''))
-
-
-
 
 subparsers = parser.add_subparsers(title="commands", dest="command")
 
@@ -78,22 +76,20 @@ if args.command == "btc":
     path = args.path
     filename = args.filename
     if os.path.isdir(path):
-        extractor = Extractor()
+        applicator = Applicator()
         cleaner = Cleaner()
+        documenter = Documenter()
+        extractor = Extractor()
+
+        sent_list = []
         print("batching text...")
         for doc in os.listdir(path):
             #extract text from document
-            ##The splitter function sets the ext internally##
             extractor.split_ext(doc)
-           
-            ##Is this necessary?##
-            # ext = extractor.get_ext()
-            # extractor.set_ext(ext)
-           
             extractor.extract_text(os.path.join(path, doc))
             text = extractor.get_text()
             
-            #Add text to cleaner
+            #Add extracted text to cleaner
             cleaner.set_text(text)
 
             #clean cover
@@ -114,15 +110,20 @@ if args.command == "btc":
             page_list = ["References", "Works Cited", "Bibliography"]
             cleaner.remv_pages(page_list)
 
-            text = text + cleaner.get_text()
+            #Convert cleaned text into list
+            cleaner.build_sentlist()
+            temp_list = cleaner.get_sentlist()
+
+            #Collect cleaned cleaned sentences
+            for sentc in temp_list:
+                sent_list.append(sentc)
             
     else:
         print("not a path")
         raise SystemExit
 
-    #Add collected text to cleaner
-    cleaner.set_text(text)
-    cleaner.build_sentlist()
+    #Clean collected sentence list
+    cleaner.set_sentlist(sent_list)
     cleaner.remv_nodeclare()
     cleaner.remv_nums()
     cleaner.remv_wtspc()
@@ -131,13 +132,14 @@ if args.command == "btc":
     cleaner.remv_excap()
     #cleaner.fix_language() 
     cleaner.remv_language()
+    sent_list = cleaner.get_sentlist()
 
-    #Format text as list
-    cleaner.frmt_textlist()
-    text = cleaner.get_text()
+    #Format sentences as text list
+    documenter.set_sentlist(sent_list)
+    documenter.frmt_textlist()
+    text = documenter.get_text()
 
     #apply text to .txt doc
-    applicator = Applicator()
     applicator.set_text(text)
     applicator.split_ext(filename)
     applicator.apply_text(filename)
@@ -162,35 +164,30 @@ elif args.command == "gen":
     tag = args.tag
     filename = args.filename
     title = args.title
-    
-    #Generate text based on word count
-    text = ""
-    len_check = 0 
+
     cleaner = Cleaner()
+    documenter = Documenter()
     generator = Generator()
     generator.set_weight(weight)
+    
+    sent_list = []
+    len_check = 0 
     print("generating document...")
     while True:
-        #Get remaining word count
-        text_len = len(text.split())
-        gen_num = numwords - text_len
+        #Check number of words to generate
+        gen_num = numwords - len_check
         
         #Generate text based on remaining word count
         generator.gen_text(gen_num, lines, temp)
-        text_list = generator.get_text_list()
+        gen_list = generator.get_text_list()
         
         #Get length of generated text plus stored text
         gen_len = generator.get_textlength()
-        len_check = text_len + gen_len
-        print(str(len_check) + " words collected...")
+        old_len = len_check + gen_len
+        print(str(old_len) + " words collected...")
 
-        #Store text length before cleaning generated text
-        old_len = len_check
-
-        #Collect text and build sentence list
-        cleaner.set_sentlist(text_list)
-        cleaner.frmt_textstring()
-        cleaner.build_sentlist()
+        #Collect generated text and build sentence list
+        cleaner.set_sentlist(gen_list)
 
         #Clean text in sentence list
         cleaner.remv_nodeclare()
@@ -201,35 +198,32 @@ elif args.command == "gen":
         cleaner.fix_language()
         cleaner.remv_excap()
         cleaner.remv_language()
+        cleaned_list = cleaner.get_sentlist()
         
-        #Format cleaned sentence list as string
-        cleaner.frmt_textstring()
-        cleaned_text = cleaner.get_text()
-        
-        #Collect cleaned text
-        text = text + cleaned_text
+        #Collect cleaned sentences and get length
+        i = 0
+        for sentc in cleaned_list:
+            sent_list.append(sentc)
+            i += len(sentc.split())
 
-        #Check length again
-        new_len = len(text.split())
-        disc_len = old_len - new_len
+        len_check += i
+
+        #Print length of discarded text
+        disc_len = old_len - len_check
         print("old length: " + str(old_len))
-        print("new length: " + str(new_len))
-        len_check = new_len
-        
-        ####This wil be negative if no words are discarded###
+        print("new length: " + str(len_check))
         print(str(disc_len) + " words discarded...")
             
         #Break loop when word count reached
         if len_check >= numwords:
             break
-
-    #Format generated text
+    
+    #Format generated sentences as paragraph
     par_len = 175
-    cleaner.set_text(text)
-    cleaner.build_sentlist()
-    cleaner.remv_wtspc()
-    cleaner.frmt_textblock(par_len)
-    text = cleaner.get_text()
+    documenter = Documenter()
+    documenter.set_sentlist(sent_list)
+    documenter.frmt_textblock(par_len)
+    text = documenter.get_text()
 
     #Apply title to document
     applicator = Applicator()
@@ -252,7 +246,6 @@ elif args.command == "dln":
     endpage = args.endpage
     parseword = args.parseword
     
-    #Build finder
     finder = Finder()
 
     #Set search engine
@@ -278,20 +271,17 @@ elif args.command == "dln":
         for lnk in links:
             link_list.append(lnk)
 
-        #Page in increments of 10 for google scholar
+        #Increment page by 10 for google/scholar
         page += 10
         time.sleep(wait_time)
         print("checking page " + str(int(page/10)) + "...")
 
-    #Set a file type to parse
+    #Parse by filetype
     my_links = finder.filter_links(link_list, parseword)
     print(my_links)
 
     #Download links
     finder.dl_links(my_links)
-
-elif args.command == "--help":
-    print("hello")
 
 else:
     print("command not found")

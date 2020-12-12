@@ -1,10 +1,9 @@
-     ################
-    ##  APPLICATOR  ##
-     ################
+ ##############
+## Applicator ##
+ ##############
 
 import os
 from os.path import splitext
-#from docx import Document
 
 class Applicator(object):
     """ Creates an object for applying text to a file """
@@ -13,8 +12,8 @@ class Applicator(object):
         self.ext = ""
         self.tag = ""
 
-    def get_text(self):
-        return self.text
+    # def get_text(self):
+    #     return self.text
 
     def set_text(self, text):
        self.text = text
@@ -33,7 +32,7 @@ class Applicator(object):
         ext = splitext(source)[1]
         self.ext = ext
 
-    #Apply text to .txt file
+    #Apply text to file
     def apply_text(self, document):
         if self.ext == ".txt":
             print("applying text to .txt file...")

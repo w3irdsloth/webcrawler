@@ -7,21 +7,11 @@ class Generator(object):
     def __init__(self):
         self.weight = ""
         self.text_list = []
-        self.text = ""
         self.textgen = object
         self.gen_loop = True
 
-    def get_text(self):
-        return self.text
-    
-    def set_text(self, text):
-        self.text = text
-
     def get_text_list(self):
         return self.text_list
-
-    def get_weight(self):
-        return self.weight
 
     #Set RNN weight for generating text 
     def set_weight(self, weight):
@@ -54,11 +44,3 @@ class Generator(object):
             len_check += len(txt.split())
         
         return len_check
-
-    #Convert text list to string
-    # def cnvrt_text(self):
-    #     temp_text = ""
-    #     for txt in self.text_list:
-    #         temp_text = temp_text + txt
-    #         temp_text = temp_text + " "
-    #         self.text = self.text + temp_text

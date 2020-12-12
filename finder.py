@@ -28,6 +28,7 @@ class Finder(object):
     def set_url(self, url):
         self.url = url
 
+    #Bulid url from query and page number
     def build_url(self, query, page):
         url = ""
         if self.engine == "ggl":
@@ -48,15 +49,18 @@ class Finder(object):
         else:
             print("engine not found")
 
+    #Retreive HTML from url
     def find_html(self, headers):
         url = self.url
         html = requests.get(url, headers=headers)
         return html.text
 
+    #Scrape HTML for links
     def find_links(self, html):
         links = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', html)
         return links
 
+    #Parse links for  keyword
     def filter_links(self, links, parse_word):
         link_list = []
         for lnk in links:
@@ -65,6 +69,7 @@ class Finder(object):
 
         return link_list
 
+    #Download files from parsed links
     def dl_links(self, links):
         wait_time = 2
         for lnk in links:

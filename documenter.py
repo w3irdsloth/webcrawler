@@ -1,17 +1,11 @@
-     ################
-    ##  Documenter  ##
-     ################
-
-import os
-from docx import Document
+ ##############
+## Documenter ##
+ ##############
 
 class Documenter(object):
-    """Add text to a new or existing document based on a specified placeholder tag """
-
-    def __init__(self):
+    def _init_(self):
         self.text = ""
-        self.ext = ""
-        self.tag = ""
+        self.sent_list = []
 
     def get_text(self):
         return self.text
@@ -19,43 +13,52 @@ class Documenter(object):
     def set_text(self, text):
         self.text = text
 
-    def set_tag(self, tag):
-        self.tag = tag
+    # def get_sentlist(self):
+    #     return self.sent_list
 
-    #Look for selected document and create new one if it doesn't exist before pasting text to tag or at end of file if tag not found
-    def document_text(self, document):
-        if os.path.isfile(document):
-            try:
-                print("printing to .docx file...")
-                doc = Document(document)
-            
-            except:
-                print("unsupported document")
-                raise SystemExit
+    def set_sentlist(self, sent_list):
+        self.sent_list = sent_list
 
-        else:
-            doc = Document()
+    #Format sentence list as string
+    def frmt_textstring(self):
+        print("formatting text as string...")
+        temp_text = ""
+        for sentc in self.sent_list:
+            temp_text = temp_text + sentc
+            temp_text = temp_text + " "
+        
+        self.text = temp_text
+    
+    #Format text as list
+    def frmt_textlist(self):
+        print("formatting text as list...")
+        temp_text = ""
+        for sentc in self.sent_list:
+            temp_text = temp_text + sentc
+            temp_text = temp_text + "\n"
+        
+        self.text = temp_text
 
-        tag_check = False
-        if len(self.tag) >= 1:
-            for prgph in doc.paragraphs:
-                if self.tag in prgph.text:
-                    print("printing to selected tag...")
-                    prgph.text = self.text                    
-                    doc.save(document)
-                    tag_check = True       
-                    break
+    #Format text as block
+    def frmt_textblock(self, par_len):
+        print("formatting text as block...")
+        temp_text = "\t"
+        text_check = ""
+        par_check = 0
+        for sentc in self.sent_list:
+            temp_text = temp_text + sentc
+            temp_text = temp_text + "  "
+           
+            text_check = text_check + sentc
+            text_check = text_check + "  "
+            par_check = len(text_check.split())
+            if par_check >= par_len:
+                temp_text = temp_text + "\n"
+                temp_text = temp_text + "\t"
+                text_check = ""
 
-                if tag_check == False:
-                    print("tag not found")
-                    print("printing to end of file...")
-                    doc.add_paragraph(self.text)
-                    doc.save(document)
+        self.text = temp_text
 
-        else:
-            print("no tag selected")
-            print("printing to end of file...")
-            doc.add_paragraph(self.text)
-            doc.save(document)
+    
 
 
