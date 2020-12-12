@@ -1,13 +1,13 @@
- ##########
-## Finder ##
- ##########
+ ##############
+## Downloader ##
+ ##############
 
 import requests
 import re
 import time
 import os
 
-class Finder(object):
+class Downloader(object):
     def _init_(self):
         self.engine = ""
         self.url = ""
@@ -50,7 +50,7 @@ class Finder(object):
             print("engine not found")
 
     #Retreive HTML from url
-    def find_html(self, headers):
+    def scrape_html(self, headers):
         url = self.url
         html = requests.get(url, headers=headers)
         return html.text

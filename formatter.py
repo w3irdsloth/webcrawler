@@ -1,8 +1,8 @@
- ##############
-## Documenter ##
- ##############
+ #############
+## Formatter ##
+ #############
 
-class Documenter(object):
+class Formatter(object):
     def _init_(self):
         self.text = ""
         self.sent_list = []
