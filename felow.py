@@ -63,11 +63,11 @@ build.add_argument("-wgt", "--weightname", action="store", dest="weightname", de
 #set generate subparsers
 generate = subparsers.add_parser(name="gen")
 generate.add_argument("-num", "--numwords", action="store", dest="numwords", type=int, required=True)
+generate.add_argument("-wgt", "--weight", action="store", dest="weight", required=True)
+generate.add_argument("-f", "--filename", action="store", dest="filename", required=True)
 generate.add_argument("-lns", "--lines", action="store", dest="lines", type=int, default=1)
 generate.add_argument("-tmp", "--temp", action="store", dest="temp", type=float, default= 0.5)
-generate.add_argument("-wgt", "--weight", action="store", dest="weight", required=True)
 generate.add_argument("-tag", "--tag", action="store", dest="tag", default="<content>")
-generate.add_argument("-f", "--filename", action="store", dest="filename", required=True)
 generate.add_argument("-t", "--title", action="store", dest="title", default="Title")
 
 #Get arguments
