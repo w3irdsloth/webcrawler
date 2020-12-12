@@ -132,48 +132,47 @@ elif args.command == "ext":
         extractor = Extractor()
 
         sent_list = []
+        text = ""
         print("extracting text...")
         for doc in os.listdir(path):
             #extract text from document
             extractor.split_ext(doc)
             extractor.extract_text(os.path.join(path, doc))
-            text = extractor.get_text()
+            # text = extractor.get_text()
             
-            #Add extracted text to cleaner
-            cleaner.set_text(text)
+            # #Add extracted text to cleaner
+            # cleaner.set_text(text)
 
             #clean cover
             string_list = ["Name", "Academic Institution", "Author Note", "Class", "Professor", "Date"]
-            cleaner.remv_strings(string_list)
+            extractor.strip_strings(string_list)
             
             #clean pars
             char1 = "("
             char2 = ")"
-            cleaner.remv_slices(char1, char2)
+            extractor.strip_slices(char1, char2)
         
             #clean quotes
             char1 = "\""
             char2 = "\""
-            cleaner.remv_slices(char1, char2)
+            extractor.strip_slices(char1, char2)
 
             #clean refs
             page_list = ["References", "Works Cited", "Bibliography"]
-            cleaner.remv_pages(page_list)
+            extractor.strip_pages(page_list)
 
-            #Convert cleaned text into list
-            cleaner.build_sentlist()
-            temp_list = cleaner.get_sentlist()
+            #Collect text
+            text = text + extractor.get_text()
 
-            #Collect cleaned cleaned sentences
-            for sentc in temp_list:
-                sent_list.append(sentc)
             
     else:
         print("not a path")
         raise SystemExit
 
-    #Clean collected sentence list
-    cleaner.set_sentlist(sent_list)
+    #Clean collected text
+    cleaner.set_text(text)
+    cleaner.build_sentlist()
+
     cleaner.remv_nodeclare()
     cleaner.remv_nums()
     cleaner.remv_wtspc()

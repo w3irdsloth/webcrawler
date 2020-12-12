@@ -9,9 +9,6 @@ class Cleaner(object):
         self.text = ""
         self.sent_list = []
 
-    # def get_text(self):
-    #     return self.text
-
     def set_text(self, text):
         self.text = text
 
@@ -34,72 +31,6 @@ class Cleaner(object):
                 temp_text = ""
 
         self.sent_list = temp_list   
-
-    # #Format sentence list as string
-    # def build_string(self):
-    #     print("formatting text as string...")
-    #     temp_text = ""
-    #     for sentc in self.sent_list:
-    #         temp_text = temp_text + sentc
-    #         temp_text = temp_text + " "
-        
-    #     self.text = temp_text
-
-    #Strip string from collected text   
-    def remv_string(self, string):
-        print("removing string...")
-        temp_text = self.text
-        if string in temp_text:
-            temp_text = temp_text.replace(string, "")
-            self.text = temp_text
- 
-        else:
-            print("string not found...")
-
-    def remv_strings(self, string_list):
-        for strng in string_list:
-            while strng in self.text:
-                self.remv_string(strng)
-
-       
-    #Strip slice from collected text
-    def remv_slice(self, char1, char2):
-        print("removing slice...")
-        temp_text = self.text
-        if char1 in temp_text:
-            try:
-                slice_start = temp_text.find(char1)
-                slice_end = temp_text.find(char2, slice_start + 1)
-                temp_text = temp_text.replace(temp_text[slice_start:slice_end + 1], "")
-                
-                self.text = temp_text
-        
-            except:
-                print("slice end not found")
-
-        else:
-            print("slice start not found")
-
-    def remv_slices(self, char1, char2):
-        for char1 in self.text:
-            self.remv_slice(char1, char2)
-
-    #Discard collected text that appears after the given string
-    def remv_page(self, string):
-        print("removing page...")
-        temp_text = self.text
-        if string in temp_text:
-            slice_start = temp_text.index(string)
-            temp_text = temp_text[:slice_start]
-            self.text = temp_text   
-        
-        else:
-            print("page not found")
-
-    def remv_pages(self, page_list):
-        for pg in page_list:
-            while pg in self.text:
-                self.remv_page(pg) 
     
     #Remove sentences that don't begin with uppercase letters from sentence list
     def remv_noalead(self):
@@ -199,7 +130,6 @@ class Cleaner(object):
                 except:
                     break
 
-
     #Remove sentences with spelling and grammar errors from sentence list
     def remv_language(self):
         print("removing spelling and grammar errors...")
@@ -214,7 +144,7 @@ class Cleaner(object):
                 except:
                     break            
 
-    #Remove sentences in sentence list based on sentence length
+    #Remove sentences in sentence list based on min and max length
     def trim_sentlist(self, sent_min, sent_max):
         print("trimming sentence list...")
         temp_list = []
@@ -224,36 +154,5 @@ class Cleaner(object):
                 
         self.sent_list = temp_list
 
-
-    
-    # #Format string as list
-    # def frmt_textlist(self):
-    #     print("formatting text as list...")
-    #     temp_text = ""
-    #     for sentc in self.sent_list:
-    #         temp_text = temp_text + sentc
-    #         temp_text = temp_text + "\n"
-        
-    #     self.text = temp_text
-
-    # #Format text as block
-    # def frmt_textblock(self, par_len):
-    #     print("formatting text as block...")
-    #     temp_text = "\t"
-    #     text_check = ""
-    #     par_check = 0
-    #     for sentc in self.sent_list:
-    #         temp_text = temp_text + sentc
-    #         temp_text = temp_text + "  "
-           
-    #         text_check = text_check + sentc
-    #         text_check = text_check + "  "
-    #         par_check = len(text_check.split())
-    #         if par_check >= par_len:
-    #             temp_text = temp_text + "\n"
-    #             temp_text = temp_text + "\t"
-    #             text_check = ""
-
-    #     self.text = temp_text
 
     

@@ -27,6 +27,14 @@ class Generator(object):
             print("make sure a valid weight is set")
             raise SystemExit
 
+    #Get length of generated text
+    def get_textlength(self):
+        len_check = 0
+        for txt in self.text_list:
+            len_check += len(txt.split())
+        
+        return len_check
+
     #Generate text list using selected RNN weight
     def gen_text(self, num_words, num_lines, temp):
         print("generating text...")
@@ -38,9 +46,3 @@ class Generator(object):
             len_check = self.get_textlength()
             print(str(len_check) + " words generated...")
 
-    def get_textlength(self):
-        len_check = 0
-        for txt in self.text_list:
-            len_check += len(txt.split())
-        
-        return len_check
