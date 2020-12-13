@@ -66,6 +66,22 @@ class Cleaner(object):
                     except:
                         break
 
+    def remv_noalpha(self):
+        temp_list = []
+        alpha_list = ["A", "a", "B", "b", "C", "c" "D", "d", "E", "e" "F", "f", 
+                        "G", "g", "H", "h", "I", "i", "J", "j", "K", "k" "L", "l", 
+                        "M", "m", "N", "n", "O", "o", "P", "p", "Q", "q", "R", "r", 
+                        "S", "s", "T", "t", "U", "u", "V", "v", "W", "w", "X", "x", 
+                        "Y", "y", "Z", "z"]
+        
+        for sentc in self.sent_list:
+            for char in alpha_list:
+                if char in sentc:
+                    temp_list.append(sentc)
+                    break
+
+        self.sent_list = temp_list
+
     #Remove sentences with numbers from sentence list
     def remv_nums(self):
         print("checking for numbers...")
@@ -75,6 +91,7 @@ class Cleaner(object):
                 if num in sentc:
                     try:
                         self.sent_list.remove(sentc)
+                        break
                     
                     except:
                         break

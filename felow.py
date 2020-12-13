@@ -70,6 +70,10 @@ generate.add_argument("-tmp", "--temp", action="store", dest="temp", type=float,
 generate.add_argument("-tag", "--tag", action="store", dest="tag", default="<content>")
 generate.add_argument("-ttl", "--title", action="store", dest="title", default="Title")
 
+#set keyword subparser
+test = subparsers.add_parser(name="tst")
+test.add_argument("-src", "--source", action="store", dest="source", required=True)
+
 #Get arguments
 args = parser.parse_args()
 
@@ -83,7 +87,7 @@ if args.command == "dnl":
     parseword = args.parseword
     
     # finder = Finder()
-    downloader = downloader()
+    downloader = Downloader()
 
     #Set search engine
     downloader.set_searchengine(engine)
@@ -96,11 +100,10 @@ if args.command == "dnl":
     while page <= endpage: 
         #Build url from search engine and query
         downloader.build_url(query, page)
-        print("scraping " + downloader.get_url + "...")
+        print("scraping " + downloader.get_url() + "...")
 
         #retreive html
-        html = downloader.find_html(headers)
-        print(html)
+        html = downloader.scrape_html(headers)
 
         #parse links from html
         links = downloader.find_links(html)
@@ -115,7 +118,6 @@ if args.command == "dnl":
 
     #Parse by filetype
     my_links = downloader.filter_links(link_list, parseword)
-    print(my_links)
 
     #Download links
     downloader.dl_links(my_links)
@@ -286,6 +288,23 @@ elif args.command == "gen":
     applicator.set_tag(tag)
     applicator.split_ext(filename)
     applicator.apply_text(filename)
+
+elif args.command == "tst":
+    source = args.source
+    extractor = Extractor()
+    cleaner = Cleaner()
+
+    extractor.split_ext(source)
+    extractor.extract_text(source)
+    keywords = extractor.extract_kywrds()
+    print("keywords: " + str(keywords))
+    cleaner.set_sentlist(keywords)
+    cleaner.remv_nums()
+    cleaner.remv_noalpha()
+    cleaner.remv_language()
+    keywords = cleaner.get_sentlist()
+    print(keywords)
+
 
 else:
     print("command not found")

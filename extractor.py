@@ -5,17 +5,19 @@
 from os.path import splitext
 import os
 
+from rake_nltk import Rake
+
 class Extractor(object):
     """ Creates an object for extracting text from files """
     def __init__(self):
         self.text = ""
         self.ext = ""
 
-    def get_ext(self):
-        return self.ext
+    # def get_ext(self):
+    #     return self.ext
 
-    def set_ext(self, ext):
-        self.ext = ext
+    # def set_ext(self, ext):
+    #     self.ext = ext
 
     def get_text(self):
         return self.text
@@ -58,10 +60,10 @@ class Extractor(object):
                 import PyPDF2
                 pdf = open(source, "rb")
                 reader = PyPDF2.PdfFileReader(pdf)
+                print("reader set")
                 pages = reader.numPages
                 temp_text = ""
                 for pg in range(pages):
-                    print(pg + 1)
                     page = reader.getPage(pg)
                     temp_text = temp_text + page.extractText()
 
@@ -74,6 +76,15 @@ class Extractor(object):
             print("unsupported file type")
 
         self.text = self.text + temp_text
+
+    #Extract keywords from text
+    def extract_kywrds(self):
+        print(self.text)
+        r = Rake(max_length=1)
+        r.extract_keywords_from_text(self.text)
+        keywords = r.get_ranked_phrases()
+        return keywords
+
 
     #Strip string from collected text   
     def strip_string(self, string):
