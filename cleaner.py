@@ -33,103 +33,125 @@ class Cleaner(object):
 
         self.sent_list = temp_list   
     
-    #Remove sentences that don't begin with uppercase letters from sentence list
-    def remv_noalead(self):
+    #Keep sentences that contain a keyword
+    def check_kywrds(self, keywords):
+        temp_list = []
+        for sentc in self.sent_list:
+            for wrd in keywords:
+                if wrd in sentc:
+                    print("keyword found: " + wrd)
+                    temp_list.append(sentc)
+                    print("sentence" + sentc)
+                    break
+
+        self.sent_list = temp_list
+
+    def remv_newlines(self):
+        temp_list = []
+        for sentc in self.sent_list:
+            for char in sentc:
+                if char == "\n":
+                    sentc = sentc.replace(char, "")
+
+            temp_list.append(sentc)
+
+        self.sent_list = temp_list
+
+    #Remove non-declarative sentences from sentence list
+    def remv_nodeclare(self):
+        temp_list = []
+        for sentc in self.sent_list:
+            if "." in sentc:
+                temp_list.append(sentc)
+            
+        self.sent_list = temp_list
+
+    #Remove sentences with numbers
+    def remv_nums(self):
+        print("checking for numbers...")
+        temp_list = []
+        temp_list = temp_list + self.sent_list
+        for sentc in self.sent_list:
+            for char in sentc:
+                if char.isdigit():
+                    try:
+                        temp_list.remove(sentc)
+
+                    except:
+                        break
+
+        self.sent_list = temp_list
+                    
+    #Strip spaces from beginning and end of sentences
+    def remv_wtspc(self):
+        temp_list = []
+        for sentc in self.sent_list:
+            sentc = sentc.strip()
+            temp_list.append(sentc)
+        
+        self.sent_list = temp_list
+
+    #Remove extra spaces from sentences
+    def remv_dblspaces(self):
+        temp_list = []
+        for sentc in self.sent_list:
+            for char in sentc:
+                if char == "  ":
+                    sentc = sentc.replace(char, " ")
+
+            temp_list.append(sentc)
+
+        self.sent_list = temp_list
+
+    #Remove sentences that don't begin with uppercase letters
+    def remv_noleadcap(self):
         print("checking leading characters...")
         temp_list = []
-        alpha_list = ["A", "B", "C", "D", "E", "F", 
-                        "G", "H", "I", "J", "K", "L", 
-                        "M", "N", "O", "P", "Q", "R", 
-                        "S", "T", "U", "V", "W", "X", 
-                        "Y", "Z"]
-
         for sentc in self.sent_list:
-            if sentc[0] in alpha_list:
+            if sentc[0].isupper():
                 temp_list.append(sentc)
 
         self.sent_list = temp_list
 
     #Remove sentences with extra capital letters
     def remv_excap(self):
-        alpha_list = ["A", "B", "C", "D", "E", "F", 
-                        "G", "H", "J", "K", "L", "M", 
-                        "N", "O", "P", "Q", "R", "S", 
-                        "T", "U", "V", "W", "X", "Y", 
-                        "Z"]
-        
+        temp_list = [] 
+        temp_list = temp_list + self.sent_list
         for sentc in self.sent_list:
-            for char in alpha_list:
-                if char in sentc[1:]:
+            for char in sentc[1:]:
+                if char.isupper():
                     try:
-                        self.sent_list.remove(sentc)
-    
-                    except:
-                        break
-
-    def remv_noalpha(self):
-        temp_list = []
-        alpha_list = ["A", "a", "B", "b", "C", "c" "D", "d", "E", "e" "F", "f", 
-                        "G", "g", "H", "h", "I", "i", "J", "j", "K", "k" "L", "l", 
-                        "M", "m", "N", "n", "O", "o", "P", "p", "Q", "q", "R", "r", 
-                        "S", "s", "T", "t", "U", "u", "V", "v", "W", "w", "X", "x", 
-                        "Y", "y", "Z", "z"]
-        
-        for sentc in self.sent_list:
-            for char in alpha_list:
-                if char in sentc:
-                    temp_list.append(sentc)
-                    break
-
-        self.sent_list = temp_list
-
-    #Remove sentences with numbers from sentence list
-    def remv_nums(self):
-        print("checking for numbers...")
-        num_list = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
-        for sentc in self.sent_list:
-            for num in num_list:
-                if num in sentc:
-                    try:
-                        self.sent_list.remove(sentc)
-                        break
+                        temp_list.remove(sentc)
                     
                     except:
                         break
 
-    #Remove non-declarative sentences from sentence list
-    def remv_nodeclare(self):
-        for sentc in self.sent_list:
-            if "?" in sentc or "!" in sentc:
-                try:
-                    self.sent_list.remove(sentc)
-                
-                except:
-                    break
+        self.sent_list = temp_list
 
-    #Remove empty whitespace from sentences in sentence list
-    def remv_wtspc(self):
-        print("cleaning whitespace...")
+    #Remove empty whitespace from before punctuation
+    def remv_endspc(self):
+        print("cleaning endspaces...")
         temp_list = []
-        for sentc in self.sent_list:           
-            sentc = sentc.strip()
+        for sentc in self.sent_list:  
+            sentc.strip()         
             end_indx = len(sentc) - 1
-            if sentc[end_indx] == " ":
-                try:
-                    sentc = sentc.replace(sentc[end_indx], "")
-                
-                except:
-                    pass
-
             if sentc[end_indx - 1] == " ":
-                try:
-                    sentc = sentc[:end_indx - 1:end_indx]
-                
-                except:
-                    pass
+                print(sentc)
+                sentc = sentc[:end_indx - 1:end_indx]
+                print(sentc)
             
-            if "\t" not in sentc:
-                temp_list.append(sentc)
+            temp_list.append(sentc)
 
+        self.sent_list = temp_list
+
+    #Remove sentences in sentence list based on min and max word length
+    def trim_sentlist(self, sent_min, sent_max):
+        print("trimming sentence list...")
+        temp_list = []
+        for sentc in self.sent_list:
+            if len(sentc.split()) >= sent_min and len(sentc.split()) <= sent_max:
+                temp_list.append(sentc)
+                
         self.sent_list = temp_list
 
     #Fix spelling and grammar errors in sentence list
@@ -138,37 +160,24 @@ class Cleaner(object):
         lang_tool = language_tool_python.LanguageTool('en-US')
         for sentc in self.sent_list:
             errors = lang_tool.check(sentc)
-            for err in errors:
+            if len(errors) > 0:
                 try:
                     error_index = self.sent_list.index(sentc)
                     fix_sentc = lang_tool.correct(sentc)
                     self.sent_list[error_index] = fix_sentc
-                    errors.remove(err)
 
                 except:
                     break
 
     #Remove sentences with spelling and grammar errors from sentence list
-    def remv_language(self):
+    def remv_badlanguage(self):
         print("removing spelling and grammar errors...")
         lang_tool = language_tool_python.LanguageTool('en-US')
-        for sentc in self.sent_list:
-            errors = lang_tool.check(sentc)
-            for err in errors:
-                try:
-                    self.sent_list.remove(sentc)
-                    errors.remove(err)
-
-                except:
-                    break            
-
-    #Remove sentences in sentence list based on min and max length
-    def trim_sentlist(self, sent_min, sent_max):
-        print("trimming sentence list...")
         temp_list = []
         for sentc in self.sent_list:
-            if len(sentc) >= sent_min and len(sentc) <= sent_max:
+            errors = lang_tool.check(sentc)
+            if len(errors) == 0:
                 temp_list.append(sentc)
-                
-        self.sent_list = temp_list
+
+        self.sent_list = temp_list      
 

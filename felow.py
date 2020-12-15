@@ -52,6 +52,7 @@ download.add_argument("-prs", "--parseword", action="store", dest="parseword", d
 extract = subparsers.add_parser(name="ext")
 extract.add_argument("-pth", "--path", action="store", dest="path", required=True)
 extract.add_argument("-fln", "--filename", action="store", dest="filename", default="extract.txt")
+extract.add_argument("-kwd", "--keyword", action="store", dest="keyword", type=bool, default=False)
 
 #set build subparsers
 build = subparsers.add_parser(name="bld")
@@ -70,9 +71,7 @@ generate.add_argument("-tmp", "--temp", action="store", dest="temp", type=float,
 generate.add_argument("-tag", "--tag", action="store", dest="tag", default="<content>")
 generate.add_argument("-ttl", "--title", action="store", dest="title", default="Title")
 
-#set keyword subparser
 test = subparsers.add_parser(name="tst")
-test.add_argument("-src", "--source", action="store", dest="source", required=True)
 
 #Get arguments
 args = parser.parse_args()
@@ -126,24 +125,23 @@ if args.command == "dnl":
 elif args.command == "ext":
     path = args.path
     filename = args.filename
+    keyword = args.keyword
     if os.path.isdir(path):
         applicator = Applicator()
         cleaner = Cleaner()
-        # documenter = Documenter()
         formatter = Formatter()
         extractor = Extractor()
 
         sent_list = []
+        keyword_list = []
         text = ""
+        sent_min = 5
+        sent_max = 25
         print("extracting text...")
         for doc in os.listdir(path):
             #extract text from document
             extractor.split_ext(doc)
             extractor.extract_text(os.path.join(path, doc))
-            # text = extractor.get_text()
-            
-            # #Add extracted text to cleaner
-            # cleaner.set_text(text)
 
             #clean cover
             string_list = ["Name", "Academic Institution", "Author Note", "Class", "Professor", "Date"]
@@ -165,24 +163,24 @@ elif args.command == "ext":
 
             #Collect text
             text = text + extractor.get_text()
-
             
     else:
         print("not a path")
         raise SystemExit
 
     #Clean collected text
+    print("collected text: " + text)
     cleaner.set_text(text)
     cleaner.build_sentlist()
-
+    cleaner.remv_newlines()
     cleaner.remv_nodeclare()
     cleaner.remv_nums()
     cleaner.remv_wtspc()
-    cleaner.remv_noalead()
-    cleaner.trim_sentlist(28, 140)
+    cleaner.remv_noleadcap()
+    cleaner.trim_sentlist(sent_min, sent_max)
     cleaner.remv_excap()
     #cleaner.fix_language() 
-    cleaner.remv_language()
+    cleaner.remv_badlanguage()
     sent_list = cleaner.get_sentlist()
 
     #Format sentences as text list
@@ -194,6 +192,25 @@ elif args.command == "ext":
     applicator.set_text(text)
     applicator.split_ext(filename)
     applicator.apply_text(filename)
+
+    #Generate keyword list if necessary
+    if keyword == True:
+        extractor.set_text(text)
+        kywrds = extractor.extract_kywrds()
+        print("keywords: " + str(kywrds))
+        for kywrd in kywrds:
+            keyword_list.append(kywrd)
+
+        # cleaner.set_sentlist(keyword_list)
+        # cleaner.remv_nums()
+        # cleaner.remv_badlanguage()
+        # keyword_list = cleaner.get_sentlist()
+        formatter.set_sentlist(keyword_list)
+        formatter.frmt_textlist()
+        keyword_list = formatter.get_text()
+        applicator.set_text(keyword_list)
+        applicator.set_ext(".txt")
+        applicator.apply_text("keywords.txt")
 
 #Build weight from .txt file
 elif args.command == "bld":
@@ -217,13 +234,25 @@ elif args.command == "gen":
     title = args.title
 
     cleaner = Cleaner()
-    # documenter = Documenter()
     formatter = Formatter()
     generator = Generator()
     generator.set_weight(weight)
     
     sent_list = []
     len_check = 0 
+    word_min = 5
+    word_max = 35
+
+    #Check for keyword text file and build list
+    if os.path.exists("keywords.txt"):
+        print("keyword .txt found")
+        print("building keyword list...")
+        kywrd_text = open("keywords.txt", "r")
+        kywrd_list =[]
+        for line in kywrd_text:
+            line = line.rstrip("\n")
+            kywrd_list.append(line)
+
     print("generating document...")
     while True:
         #Check number of words to generate
@@ -245,13 +274,22 @@ elif args.command == "gen":
         cleaner.remv_nodeclare()
         cleaner.remv_nums()
         cleaner.remv_wtspc()
-        cleaner.remv_noalead()
-        cleaner.trim_sentlist(28, 140)
+        cleaner.remv_noleadcap()
+        cleaner.trim_sentlist(word_min, word_max)
         cleaner.fix_language()
         cleaner.remv_excap()
-        cleaner.remv_language()
-        cleaned_list = cleaner.get_sentlist()
+        cleaner.remv_badlanguage()
         
+        #Check for keywords
+        try:
+            cleaner.check_kywrds(kywrd_list)
+
+        except:
+            pass
+
+        #Get cleaned text from cleaner
+        cleaned_list = cleaner.get_sentlist()
+
         #Collect cleaned sentences and get length
         i = 0
         for sentc in cleaned_list:
@@ -290,20 +328,25 @@ elif args.command == "gen":
     applicator.apply_text(filename)
 
 elif args.command == "tst":
-    source = args.source
     extractor = Extractor()
     cleaner = Cleaner()
-
-    extractor.split_ext(source)
-    extractor.extract_text(source)
-    keywords = extractor.extract_kywrds()
-    print("keywords: " + str(keywords))
-    cleaner.set_sentlist(keywords)
+    extractor.split_ext("baudrillard.theartauction%20.pdf")
+    extractor.extract_text("baudrillard.theartauction%20.pdf")
+    text = extractor.get_text()
+    cleaner.set_text(text)
+    cleaner.build_sentlist()
+    cleaner.remv_newlines()
     cleaner.remv_nums()
-    cleaner.remv_noalpha()
-    cleaner.remv_language()
-    keywords = cleaner.get_sentlist()
-    print(keywords)
+    cleaner.remv_nodeclare()
+    cleaner.remv_dblspaces()
+    cleaner.remv_noleadcap()
+    cleaner.remv_excap()
+    cleaner.remv_endspc()
+    cleaner.fix_language()
+    cleaner.remv_badlanguage()
+    #cleaner.strip_sentcs()
+    cleaner.trim_sentlist(5, 50)
+    print(cleaner.get_sentlist())
 
 
 else:
