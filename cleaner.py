@@ -46,6 +46,39 @@ class Cleaner(object):
 
         self.sent_list = temp_list
 
+    def remv_quotes(self):
+        char1 = "\""
+        char2 = "\""
+        temp_list = []
+        for sentc in self.sent_list:
+            for char in sentc:
+                if char == char1:
+                    slice_start = sentc.find(char1)
+                    slice_end = sentc.find(char2, slice_start + 1)
+                    sentc = sentc.replace(sentc[slice_start:slice_end + 1], "")
+
+            temp_list.append(sentc)
+
+        self.sentc_list = temp_list
+
+    #Remove paranthesis from sentences
+    def remv_pars(self):
+        char1 = "("
+        char2 = ")"
+        temp_list = []
+        for sentc in self.sent_list:
+            for char in sentc:
+                if char == char1:
+                    slice_start = sentc.find(char1)
+                    slice_end = sentc.find(char2, slice_start + 1)
+                    sentc = sentc.replace(sentc[slice_start:slice_end + 1], "")
+
+            temp_list.append(sentc)
+
+        self.sentc_list = temp_list
+            
+
+    #Remove newline characters from sentence list
     def remv_newlines(self):
         temp_list = []
         for sentc in self.sent_list:

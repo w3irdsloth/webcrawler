@@ -5,7 +5,7 @@
 from os.path import splitext
 import os
 
-from rake_nltk import Rake
+#from rake_nltk import Rake
 import pdftotext
 
 class Extractor(object):
@@ -68,7 +68,6 @@ class Extractor(object):
 
                 pdf.close()
 
-
             # try:
             #     import PyPDF2
             #     pdf = open(source, "rb")
@@ -91,68 +90,68 @@ class Extractor(object):
         self.text.strip()
         self.text = self.text + temp_text
 
-    #Extract keywords from text
-    def extract_kywrds(self):
-        r = Rake(max_length=1)
-        r.extract_keywords_from_text(self.text)
-        keywords = r.get_ranked_phrases()
-        return keywords
+    # #Extract keywords from text
+    # def extract_kywrds(self):
+    #     r = Rake(max_length=1)
+    #     r.extract_keywords_from_text(self.text)
+    #     keywords = r.get_ranked_phrases()
+    #     return keywords
 
-    #Strip string from collected text   
-    def strip_string(self, string):
-        print("stripping string...")
-        temp_text = "" 
-        temp_text += self.text
-        if string in self.text:
-            temp_text = temp_text.replace(string, "")
-            self.text = temp_text
+    # #Strip string from collected text   
+    # def strip_string(self, string):
+    #     print("stripping string...")
+    #     temp_text = "" 
+    #     temp_text += self.text
+    #     if string in self.text:
+    #         temp_text = temp_text.replace(string, "")
+    #         self.text = temp_text
  
-        else:
-            print("string not found...")
+    #     else:
+    #         print("string not found...")
 
-    def strip_strings(self, string_list):
-        for strng in string_list:
-            while strng in self.text:
-                self.strip_string(strng)
+    # def strip_strings(self, string_list):
+    #     for strng in string_list:
+    #         while strng in self.text:
+    #             self.strip_string(strng)
 
-    #Strip slice from collected text
-    def strip_slice(self, char1, char2):
-        print("stripping slice...")
-        temp_text = ""
-        temp_text += self.text
-        if char1 in temp_text:
-            try:
-                slice_start = temp_text.find(char1)
-                slice_end = temp_text.find(char2, slice_start + 1)
-                temp_text = temp_text.replace(temp_text[slice_start:slice_end + 1], "")
+    # #Strip slice from collected text
+    # def strip_slice(self, char1, char2):
+    #     print("stripping slice...")
+    #     temp_text = ""
+    #     temp_text += self.text
+    #     if char1 in temp_text:
+    #         try:
+    #             slice_start = temp_text.find(char1)
+    #             slice_end = temp_text.find(char2, slice_start + 1)
+    #             temp_text = temp_text.replace(temp_text[slice_start:slice_end + 1], "")
                 
-                self.text = temp_text
+    #             self.text = temp_text
         
-            except:
-                print("slice end not found")
+    #         except:
+    #             print("slice end not found")
 
-        else:
-            print("slice start not found")
+    #     else:
+    #         print("slice start not found")
 
-    def strip_slices(self, char1, char2):
-        for char in self.text:
-            if char == char1:
-                self.strip_slice(char1, char2)
+    # def strip_slices(self, char1, char2):
+    #     for char in self.text:
+    #         if char == char1:
+    #             self.strip_slice(char1, char2)
 
-    #Discard collected text that appears after the given string
-    def strip_page(self, string):
-        print("stripping page...")
-        temp_text = ""
-        temp_text += self.text
-        if string in temp_text:
-            slice_start = temp_text.index(string)
-            temp_text = temp_text[:slice_start]
-            self.text = temp_text   
+    # #Discard collected text that appears after the given string
+    # def strip_page(self, string):
+    #     print("stripping page...")
+    #     temp_text = ""
+    #     temp_text += self.text
+    #     if string in temp_text:
+    #         slice_start = temp_text.index(string)
+    #         temp_text = temp_text[:slice_start]
+    #         self.text = temp_text   
         
-        else:
-            print("page not found")
+    #     else:
+    #         print("page not found")
 
-    def strip_pages(self, page_list):
-        for pg in page_list:
-            if pg in self.text:
-                self.strip_page(pg) 
+    # def strip_pages(self, page_list):
+    #     for pg in page_list:
+    #         if pg in self.text:
+    #             self.strip_page(pg) 

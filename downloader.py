@@ -60,8 +60,10 @@ class Downloader(object):
     def filter_links(self, links, parse_word):
         link_list = []
         for lnk in links:
+            print(lnk)
             if parse_word in lnk:
                 link_list.append(lnk)
+                print(link_list)
 
         return link_list
 

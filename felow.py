@@ -50,13 +50,13 @@ download.add_argument("-prs", "--parseword", action="store", dest="parseword", d
 
 #extract subparsers
 extract = subparsers.add_parser(name="ext")
-extract.add_argument("-pth", "--path", action="store", dest="path", required=True)
-extract.add_argument("-fln", "--filename", action="store", dest="filename", default="extract.txt")
+extract.add_argument("-p", "--path", action="store", dest="path", required=True)
+extract.add_argument("-f", "--filename", action="store", dest="filename", default="extract.txt")
 extract.add_argument("-kwd", "--keyword", action="store", dest="keyword", type=bool, default=False)
 
 #set build subparsers
 build = subparsers.add_parser(name="bld")
-build.add_argument("-fln", "--filename", action="store", dest="filename", required=True)
+build.add_argument("-f", "--filename", action="store", dest="filename", required=True)
 build.add_argument("-epo", "--epochs", action="store", type=int, dest="epochs", required=True) 
 build.add_argument("-num", "--numepochs", action="store", type=int, dest="numepochs", default=False)
 build.add_argument("-wgt", "--weightname", action="store", dest="weightname", default="weight.hdf5")
@@ -65,11 +65,11 @@ build.add_argument("-wgt", "--weightname", action="store", dest="weightname", de
 generate = subparsers.add_parser(name="gen")
 generate.add_argument("-num", "--numwords", action="store", dest="numwords", type=int, required=True)
 generate.add_argument("-wgt", "--weight", action="store", dest="weight", required=True)
-generate.add_argument("-fln", "--filename", action="store", dest="filename", required=True)
+generate.add_argument("-f", "--filename", action="store", dest="filename", required=True)
 generate.add_argument("-lns", "--lines", action="store", dest="lines", type=int, default=1)
 generate.add_argument("-tmp", "--temp", action="store", dest="temp", type=float, default= 0.5)
 generate.add_argument("-tag", "--tag", action="store", dest="tag", default="<content>")
-generate.add_argument("-ttl", "--title", action="store", dest="title", default="Title")
+generate.add_argument("-ttl", "--title", action="store", dest="title", default="")
 
 test = subparsers.add_parser(name="tst")
 
@@ -93,6 +93,7 @@ if args.command == "dnl":
 
     #Retreive HTML
     link_list = []
+    scraped_html = ""
     wait_time = 5
     page = startpage
     print("checking page " + str(int(page / 10)) + "...")
@@ -104,16 +105,21 @@ if args.command == "dnl":
         #retreive html
         html = downloader.scrape_html(headers)
 
-        #parse links from html
-        links = downloader.find_links(html)
+        scraped_html = scraped_html + html
 
-        for lnk in links:
-            link_list.append(lnk)
+        # #parse links from html
+        # links = downloader.find_links(html)
+
+        # for lnk in links:
+        #     link_list.append(lnk)
 
         #Increment page by 10 for google/scholar
         page += 10
         time.sleep(wait_time)
         print("checking page " + str(int(page/10)) + "...")
+
+    #Get links from collected html
+    link_list = downloader.find_links(scraped_html)
 
     #Parse by filetype
     my_links = downloader.filter_links(link_list, parseword)
@@ -121,55 +127,41 @@ if args.command == "dnl":
     #Download links
     downloader.dl_links(my_links)
 
-#extract text from documents to .txt file
+#extract text from document(s) to .txt file
 elif args.command == "ext":
     path = args.path
     filename = args.filename
     keyword = args.keyword
-    if os.path.isdir(path):
-        applicator = Applicator()
-        cleaner = Cleaner()
-        formatter = Formatter()
-        extractor = Extractor()
 
-        sent_list = []
-        keyword_list = []
-        text = ""
-        sent_min = 5
-        sent_max = 25
-        print("extracting text...")
+    applicator = Applicator()
+    cleaner = Cleaner()
+    formatter = Formatter()
+    extractor = Extractor()
+
+    sent_list = []
+    text = ""
+    sent_min = 5
+    sent_max = 25
+    #If path is folder
+    if os.path.isdir(path):
         for doc in os.listdir(path):
-            #extract text from document
+            print("extracting from " + doc + "...")
             extractor.split_ext(doc)
             extractor.extract_text(os.path.join(path, doc))
-
-            #clean cover
-            string_list = ["Name", "Academic Institution", "Author Note", "Class", "Professor", "Date"]
-            extractor.strip_strings(string_list)
-            
-            #clean pars
-            char1 = "("
-            char2 = ")"
-            extractor.strip_slices(char1, char2)
-        
-            #clean quotes
-            char1 = "\""
-            char2 = "\""
-            extractor.strip_slices(char1, char2)
-
-            #clean refs
-            page_list = ["References", "Works Cited", "Bibliography"]
-            extractor.strip_pages(page_list)
-
-            #Collect text
             text = text + extractor.get_text()
-            
+
+    #If path is file
+    elif os.path.isfile(path):
+        print("extracting from " + doc + "...")
+        extractor.split_ext(doc)
+        extractor.extract_text(doc)
+        text = extractor.get_text()
+
     else:
         print("not a path")
         raise SystemExit
 
     #Clean collected text
-    print("collected text: " + text)
     cleaner.set_text(text)
     cleaner.build_sentlist()
     cleaner.remv_newlines()
@@ -179,7 +171,7 @@ elif args.command == "ext":
     cleaner.remv_noleadcap()
     cleaner.trim_sentlist(sent_min, sent_max)
     cleaner.remv_excap()
-    #cleaner.fix_language() 
+    cleaner.fix_language() 
     cleaner.remv_badlanguage()
     sent_list = cleaner.get_sentlist()
 
@@ -195,20 +187,16 @@ elif args.command == "ext":
 
     #Generate keyword list if necessary
     if keyword == True:
-        extractor.set_text(text)
-        kywrds = extractor.extract_kywrds()
-        print("keywords: " + str(kywrds))
-        for kywrd in kywrds:
-            keyword_list.append(kywrd)
+        from rake_nltk import Rake
+        r = Rake(max_length=1)
+        r.extract_keywords_from_text(text)
+        keyword_list = r.get_ranked_phrases()
 
-        # cleaner.set_sentlist(keyword_list)
-        # cleaner.remv_nums()
-        # cleaner.remv_badlanguage()
-        # keyword_list = cleaner.get_sentlist()
+        #Apply keyword list to text
         formatter.set_sentlist(keyword_list)
         formatter.frmt_textlist()
-        keyword_list = formatter.get_text()
-        applicator.set_text(keyword_list)
+        keyword_text = formatter.get_text()
+        applicator.set_text(keyword_text)
         applicator.set_ext(".txt")
         applicator.apply_text("keywords.txt")
 
@@ -233,16 +221,16 @@ elif args.command == "gen":
     filename = args.filename
     title = args.title
 
+    applicator = Applicator()
     cleaner = Cleaner()
     formatter = Formatter()
     generator = Generator()
-    generator.set_weight(weight)
     
     sent_list = []
     len_check = 0 
     word_min = 5
     word_max = 35
-
+    
     #Check for keyword text file and build list
     if os.path.exists("keywords.txt"):
         print("keyword .txt found")
@@ -253,6 +241,8 @@ elif args.command == "gen":
             line = line.rstrip("\n")
             kywrd_list.append(line)
 
+    #Generate weight in loop
+    generator.set_weight(weight)
     print("generating document...")
     while True:
         #Check number of words to generate
@@ -315,39 +305,39 @@ elif args.command == "gen":
     text = formatter.get_text()
 
     #Apply title to document
-    applicator = Applicator()
-    applicator.set_text(title)
-    applicator.set_tag("Title")
-    applicator.split_ext(filename)
-    applicator.apply_text(filename)
+    if len (title) >= 1:
+        title_tag = "Title"
+        applicator.set_text(title)
+        applicator.set_tag(title_tag)
+        applicator.split_ext(filename)
+        applicator.apply_text(filename)
     
-    #Apply generated text to document
+    #Apply formatted text to document
     applicator.set_text(text)
     applicator.set_tag(tag)
     applicator.split_ext(filename)
     applicator.apply_text(filename)
 
 elif args.command == "tst":
-    extractor = Extractor()
     cleaner = Cleaner()
-    extractor.split_ext("baudrillard.theartauction%20.pdf")
-    extractor.extract_text("baudrillard.theartauction%20.pdf")
-    text = extractor.get_text()
-    cleaner.set_text(text)
+    downloader = Downloader()
+    downloader.set_url("https://www.google.com/books/edition/An_Enquiry_Concerning_the_Principles_of/xGFE53T5yd8C?hl=en&gbpv=1")
+    html = downloader.scrape_html({'user-agent': "Mozilla/5.0 (Linux x86_64; rv:83.0) Gecko/20100101 Firefox/83.0"})
+    print(html)
+
+    cleaner.set_text(html)
     cleaner.build_sentlist()
     cleaner.remv_newlines()
-    cleaner.remv_nums()
     cleaner.remv_nodeclare()
-    cleaner.remv_dblspaces()
+    cleaner.remv_nums()
+    cleaner.remv_wtspc()
     cleaner.remv_noleadcap()
+    cleaner.trim_sentlist(12, 32)
     cleaner.remv_excap()
-    cleaner.remv_endspc()
-    cleaner.fix_language()
+    cleaner.fix_language() 
     cleaner.remv_badlanguage()
-    #cleaner.strip_sentcs()
-    cleaner.trim_sentlist(5, 50)
-    print(cleaner.get_sentlist())
 
+    print(cleaner.get_sentlist())
 
 else:
     print("command not found")
