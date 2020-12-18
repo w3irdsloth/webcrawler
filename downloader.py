@@ -13,7 +13,6 @@ class Downloader(object):
     """ Creates an object for downloading files from the internet """
     def _init_(self):
         self.engine = ""
-        self.url = ""
 
     def set_searchengine(self, search_engine):
         self.engine = search_engine

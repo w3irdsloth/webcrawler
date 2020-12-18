@@ -11,8 +11,8 @@ class Formatter(object):
     def get_text(self):
         return self.text
 
-    def set_text(self, text):
-        self.text = text
+    # def set_text(self, text):
+    #     self.text = text
 
     def set_sentlist(self, sent_list):
         self.sent_list = sent_list

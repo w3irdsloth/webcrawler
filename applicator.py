@@ -13,7 +13,7 @@ class Applicator(object):
 
     def set_text(self, text):
        self.text = text
-    
+
     def set_tag(self, tag):
         self.tag = tag
 

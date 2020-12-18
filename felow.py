@@ -198,7 +198,6 @@ elif args.command == "ext":
     text = formatter.get_text()
 
     #apply text to .txt doc
-    applicator.set_text(text)
     applicator.apply_text(filename)
 
     #Generate keyword list if necessary
@@ -332,13 +331,7 @@ elif args.command == "gen":
     applicator.apply_text(filename)
 
 elif args.command == "tst":
-    #print("for testing...")
-    downloader = Downloader()
-    url = "https://scholar.google.com/scholar?hl=en&as_sdt=0%2C15&q=hume&btnG="
-    html = downloader.scrape_html(url, {'user-agent': "Mozilla/5.0 (Linux x86_64; rv:83.0) Gecko/20100101 Firefox/83.0"})
-    
-    print(downloader.scrape_text(html))
-    print(downloader.scrape_links(html))
+    print("for testing...")
 
 else:
     print("command not found")
