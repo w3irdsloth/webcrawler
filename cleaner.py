@@ -39,13 +39,12 @@ class Cleaner(object):
         for sentc in self.sent_list:
             for wrd in keywords:
                 if wrd in sentc:
-                    print("keyword found: " + wrd)
                     temp_list.append(sentc)
-                    print("sentence" + sentc)
                     break
 
         self.sent_list = temp_list
 
+    #Remove quotes from sentences
     def remv_quotes(self):
         char1 = "\""
         char2 = "\""

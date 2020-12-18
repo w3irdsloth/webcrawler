@@ -47,6 +47,7 @@ download.add_argument("-eng", "--engine", action="store", dest="engine", default
 download.add_argument("-spg", "--startpage", action="store", dest="startpage", default=0)
 download.add_argument("-epg", "--endpage", action="store", dest="endpage", default=40)
 download.add_argument("-prs", "--parseword", action="store", dest="parseword", default=".pdf")
+download.add_argument("-scp", "--scrape", action="store", dest="scrape", type=bool, default=False)
 
 #extract subparsers
 extract = subparsers.add_parser(name="ext")
@@ -56,7 +57,7 @@ extract.add_argument("-kwd", "--keyword", action="store", dest="keyword", type=b
 
 #set build subparsers
 build = subparsers.add_parser(name="bld")
-build.add_argument("-f", "--filename", action="store", dest="filename", required=True)
+build.add_argument("-src", "--source", action="store", dest="source", required=True)
 build.add_argument("-epo", "--epochs", action="store", type=int, dest="epochs", required=True) 
 build.add_argument("-num", "--numepochs", action="store", type=int, dest="numepochs", default=False)
 build.add_argument("-wgt", "--weightname", action="store", dest="weightname", default="weight.hdf5")
@@ -84,8 +85,9 @@ if args.command == "dnl":
     startpage = args.startpage
     endpage = args.endpage
     parseword = args.parseword
+    scrape = args.scrape
     
-    # finder = Finder()
+    cleaner = Cleaner()
     downloader = Downloader()
 
     #Set search engine
@@ -96,36 +98,53 @@ if args.command == "dnl":
     scraped_html = ""
     wait_time = 5
     page = startpage
-    print("checking page " + str(int(page / 10)) + "...")
+    
     while page <= endpage: 
+        print("checking page " + str(int(page / 10 + 1)) + "...")
         #Build url from search engine and query
         downloader.build_url(query, page)
         print("scraping " + downloader.get_url() + "...")
 
         #retreive html
         html = downloader.scrape_html(headers)
-
         scraped_html = scraped_html + html
-
-        # #parse links from html
-        # links = downloader.find_links(html)
-
-        # for lnk in links:
-        #     link_list.append(lnk)
 
         #Increment page by 10 for google/scholar
         page += 10
         time.sleep(wait_time)
-        print("checking page " + str(int(page/10)) + "...")
 
     #Get links from collected html
     link_list = downloader.find_links(scraped_html)
+    scrape_list = link_list
 
     #Parse by filetype
-    my_links = downloader.filter_links(link_list, parseword)
+    if len(parseword) >= 1:
+        link_list = downloader.filter_links(link_list, parseword)
 
     #Download links
-    downloader.dl_links(my_links)
+    downloader.dl_links(link_list)
+
+    if scrape == True:
+        scraped_html = ""
+        for lnk in scrape_list:
+            print("scraping link...")
+            downloader.set_url(lnk)
+            scraped_html = scraped_html + downloader.scrape_html(headers)
+            time.sleep(wait_time)
+        
+        cleaner.set_text(scraped_html)
+        cleaner.build_sentlist()
+        cleaner.remv_newlines()
+        cleaner.remv_nodeclare()
+        cleaner.remv_nums()
+        cleaner.remv_wtspc()
+        cleaner.remv_noleadcap()
+        cleaner.trim_sentlist(12, 32)
+        cleaner.remv_excap()
+        cleaner.fix_language() 
+        cleaner.remv_badlanguage()
+
+        print(cleaner.get_sentlist())
 
 #extract text from document(s) to .txt file
 elif args.command == "ext":
@@ -203,13 +222,13 @@ elif args.command == "ext":
 #Build weight from .txt file
 elif args.command == "bld":
     
-    filename = args.filename
+    source = args.source
     epochs = args.epochs
     numepochs = args.numepochs
     weightname = args.weightname
     builder = Builder()
     print("building weight...")
-    builder.build_weight(filename, epochs, numepochs, weightname)
+    builder.build_weight(source, epochs, numepochs, weightname)
 
 #Generate document from weight
 elif args.command == "gen":
@@ -319,25 +338,13 @@ elif args.command == "gen":
     applicator.apply_text(filename)
 
 elif args.command == "tst":
-    cleaner = Cleaner()
+    #print("for testing...")
     downloader = Downloader()
-    downloader.set_url("https://www.google.com/books/edition/An_Enquiry_Concerning_the_Principles_of/xGFE53T5yd8C?hl=en&gbpv=1")
-    html = downloader.scrape_html({'user-agent': "Mozilla/5.0 (Linux x86_64; rv:83.0) Gecko/20100101 Firefox/83.0"})
-    print(html)
-
-    cleaner.set_text(html)
-    cleaner.build_sentlist()
-    cleaner.remv_newlines()
-    cleaner.remv_nodeclare()
-    cleaner.remv_nums()
-    cleaner.remv_wtspc()
-    cleaner.remv_noleadcap()
-    cleaner.trim_sentlist(12, 32)
-    cleaner.remv_excap()
-    cleaner.fix_language() 
-    cleaner.remv_badlanguage()
-
-    print(cleaner.get_sentlist())
+    url = "https://scholar.google.com/scholar?hl=en&as_sdt=0%2C15&q=hume&btnG="
+    html = downloader.scrape_html(url, {'user-agent': "Mozilla/5.0 (Linux x86_64; rv:83.0) Gecko/20100101 Firefox/83.0"})
+    
+    print(downloader.scrape_text(html))
+    print(downloader.scrape_links(html))
 
 else:
     print("command not found")
