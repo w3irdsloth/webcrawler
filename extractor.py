@@ -11,29 +11,18 @@ class Extractor(object):
     """ Creates an object for extracting text from files """
     def __init__(self):
         self.text = ""
-        self.ext = ""
-
-    def get_ext(self):
-        return self.ext
-
-    def set_ext(self, ext):
-        self.ext = ext
 
     def get_text(self):
         return self.text
 
-    def set_text(self, text):
-        self.text = text
-
-    #Split filepath for extension
-    def split_ext(self, source):
-        ext = splitext(source)[1]
-        self.ext = ext
+    # def set_text(self, text):
+    #     self.text = text
 
     #Extract text from source file
     def extract_text(self, source):
+        ext = splitext(source)[1]
         temp_text = ""
-        if self.ext == ".txt":
+        if ext == ".txt":
             print("extracting from .txt...")
             try:
                 temp_doc = open(source, "r")
@@ -42,11 +31,12 @@ class Extractor(object):
             except:
                 print("extraction failed")
 
-        elif self.ext == ".docx":
+        elif ext == ".docx":
             print("extracting from .docx...")
             try:
                 from docx import Document
                 temp_doc = Document(source)
+
                 for prgrph in temp_doc.paragraphs:
                     for char in prgrph.text:
                         temp_text = temp_text + char
@@ -54,14 +44,11 @@ class Extractor(object):
             except:
                 print("extraction failed")
 
-        elif self.ext == ".pdf":
+        elif ext == ".pdf":
             print("extracting from .pdf...")
             try:
-                print("trying...")
                 pdfobj = open(source, "rb")
-                print("object set")
                 pdf = pdftotext.PDF(pdfobj)
-                print("pdf set")
                 for pg in pdf:
                     temp_text = temp_text + pg
 

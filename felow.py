@@ -102,11 +102,11 @@ if args.command == "dnl":
     while page <= endpage: 
         print("checking page " + str(int(page / 10 + 1)) + "...")
         #Build url from search engine and query
-        downloader.build_url(query, page)
-        print("scraping " + downloader.get_url() + "...")
+        url = downloader.build_url(query, page)
+        print("scraping " + url + "...")
 
         #retreive html
-        html = downloader.scrape_html(headers)
+        html = downloader.scrape_html(url, headers)
         scraped_html = scraped_html + html
 
         #Increment page by 10 for google/scholar
@@ -114,7 +114,7 @@ if args.command == "dnl":
         time.sleep(wait_time)
 
     #Get links from collected html
-    link_list = downloader.find_links(scraped_html)
+    link_list = downloader.scrape_links(scraped_html)
     scrape_list = link_list
 
     #Parse by filetype
@@ -128,8 +128,8 @@ if args.command == "dnl":
         scraped_html = ""
         for lnk in scrape_list:
             print("scraping link...")
-            downloader.set_url(lnk)
-            scraped_html = scraped_html + downloader.scrape_html(headers)
+            url = lnk
+            scraped_html = scraped_html + downloader.scrape_html(url, headers)
             time.sleep(wait_time)
         
         cleaner.set_text(scraped_html)
@@ -165,14 +165,12 @@ elif args.command == "ext":
     if os.path.isdir(path):
         for doc in os.listdir(path):
             print("extracting from " + doc + "...")
-            extractor.split_ext(doc)
             extractor.extract_text(os.path.join(path, doc))
             text = text + extractor.get_text()
 
     #If path is file
     elif os.path.isfile(path):
         print("extracting from " + doc + "...")
-        extractor.split_ext(doc)
         extractor.extract_text(doc)
         text = extractor.get_text()
 
@@ -201,7 +199,6 @@ elif args.command == "ext":
 
     #apply text to .txt doc
     applicator.set_text(text)
-    applicator.split_ext(filename)
     applicator.apply_text(filename)
 
     #Generate keyword list if necessary
@@ -216,7 +213,6 @@ elif args.command == "ext":
         formatter.frmt_textlist()
         keyword_text = formatter.get_text()
         applicator.set_text(keyword_text)
-        applicator.set_ext(".txt")
         applicator.apply_text("keywords.txt")
 
 #Build weight from .txt file
@@ -328,13 +324,11 @@ elif args.command == "gen":
         title_tag = "Title"
         applicator.set_text(title)
         applicator.set_tag(title_tag)
-        applicator.split_ext(filename)
         applicator.apply_text(filename)
     
     #Apply formatted text to document
     applicator.set_text(text)
     applicator.set_tag(tag)
-    applicator.split_ext(filename)
     applicator.apply_text(filename)
 
 elif args.command == "tst":

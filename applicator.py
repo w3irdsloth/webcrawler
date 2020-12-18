@@ -9,7 +9,6 @@ class Applicator(object):
     """ Creates an object for applying text to files """
     def __init__(self):
         self.text = ""
-        self.ext = ""
         self.tag = ""
 
     def set_text(self, text):
@@ -18,20 +17,10 @@ class Applicator(object):
     def set_tag(self, tag):
         self.tag = tag
 
-    def get_ext(self):
-        return self.ext
-    
-    def set_ext(self, ext):
-        self.ext = ext
-    
-    #Split filepath for extension
-    def split_ext(self, source):
-        ext = splitext(source)[1]
-        self.ext = ext
-
     #Apply text to tag in file
     def apply_text(self, document):
-        if self.ext == ".txt":
+        ext = splitext(document)[1]
+        if ext == ".txt":
             print("applying text to .txt file...")
             try:
                 with open(document, "a") as temp_file:
@@ -42,7 +31,7 @@ class Applicator(object):
                 print("text application failed")
                 raise SystemExit
 
-        elif self.ext == ".docx":
+        elif ext == ".docx":
             from docx import Document
             print("printing to .docx file...")
             try:
