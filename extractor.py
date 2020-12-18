@@ -5,8 +5,6 @@
 from os.path import splitext
 import os
 
-import pdftotext
-
 class Extractor(object):
     """ Creates an object for extracting text from files """
     def __init__(self):
@@ -14,9 +12,6 @@ class Extractor(object):
 
     def get_text(self):
         return self.text
-
-    # def set_text(self, text):
-    #     self.text = text
 
     #Extract text from source file
     def extract_text(self, source):
@@ -47,6 +42,7 @@ class Extractor(object):
         elif ext == ".pdf":
             print("extracting from .pdf...")
             try:
+                import pdftotext
                 pdfobj = open(source, "rb")
                 pdf = pdftotext.PDF(pdfobj)
                 for pg in pdf:
@@ -54,6 +50,7 @@ class Extractor(object):
 
                 pdf.close()
 
+            # #Use pypdf2 instead of pdftotext
             # try:
             #     import PyPDF2
             #     pdf = open(source, "rb")

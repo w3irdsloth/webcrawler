@@ -11,9 +11,6 @@ class Formatter(object):
     def get_text(self):
         return self.text
 
-    # def set_text(self, text):
-    #     self.text = text
-
     def set_sentlist(self, sent_list):
         self.sent_list = sent_list
 
@@ -31,7 +28,7 @@ class Formatter(object):
         except:
             print("error, no text formatted")
     
-    #Format text as list
+    #Format sentence list as text list
     def frmt_textlist(self):
         print("formatting text as list...")
         temp_text = ""
@@ -45,7 +42,7 @@ class Formatter(object):
         except:
             print("error, no text formatted")
 
-    #Format text as block
+    #Format sentence list as text block
     def frmt_textblock(self, par_len):
         print("formatting text as block...")
         temp_text = "\t"

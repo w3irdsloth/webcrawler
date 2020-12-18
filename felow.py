@@ -2,11 +2,6 @@
 ##FELOW##
 #########
 
-import argparse
-import textwrap
-import os
-import time
-
 from applicator import Applicator
 from builder import Builder
 from cleaner import Cleaner
@@ -14,6 +9,11 @@ from downloader import Downloader
 from extractor import Extractor
 from formatter import Formatter
 from generator import Generator
+
+import argparse
+import textwrap
+import os
+import time
 
 #Construct parsers
 parser = argparse.ArgumentParser( prog='FELOW',
@@ -44,8 +44,8 @@ download = subparsers.add_parser(name="dnl")
 download.add_argument("-qry", "--query", action="store", dest="query", required=True)
 download.add_argument("-hdr", "--headers", action="store", dest="headers", default={'user-agent': "Mozilla/5.0 (Linux x86_64; rv:83.0) Gecko/20100101 Firefox/83.0"})
 download.add_argument("-eng", "--engine", action="store", dest="engine", default="g_scholar")
-download.add_argument("-spg", "--startpage", action="store", dest="startpage", default=0)
-download.add_argument("-epg", "--endpage", action="store", dest="endpage", default=40)
+download.add_argument("-spg", "--startpage", action="store", dest="startpage", type=int, default=0)
+download.add_argument("-epg", "--endpage", action="store", dest="endpage", type=int, default=40)
 download.add_argument("-prs", "--parseword", action="store", dest="parseword", default=".pdf")
 download.add_argument("-scp", "--scrape", action="store", dest="scrape", type=bool, default=False)
 
