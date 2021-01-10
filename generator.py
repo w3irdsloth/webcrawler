@@ -13,6 +13,14 @@ class Generator(object):
     def get_text_list(self):
         return self.text_list
 
+    #Get length of generated text
+    def get_textlength(self):
+        len_check = 0
+        for txt in self.text_list:
+            len_check += len(txt.split())
+        
+        return len_check
+
     #Set RNN weight for generating text 
     def set_weight(self, weight):
         try:
@@ -26,14 +34,6 @@ class Generator(object):
             print("import failed")
             print("make sure a valid weight is set")
             raise SystemExit
-
-    #Get length of generated text
-    def get_textlength(self):
-        len_check = 0
-        for txt in self.text_list:
-            len_check += len(txt.split())
-        
-        return len_check
 
     #Generate text list using selected RNN weight
     def gen_text(self, num_words, num_lines, temp):

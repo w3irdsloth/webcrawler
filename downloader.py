@@ -19,6 +19,7 @@ class Downloader(object):
 
     #Bulid url from query and page number
     def build_url(self, query, page):
+        print("building url...")
         url = ""
         if self.engine == "ggl":
             qryreplc = query.replace(" ", "+")
@@ -35,31 +36,51 @@ class Downloader(object):
 
     #Scrape HTML from url
     def scrape_html(self, url, headers):
-        html = requests.get(url, headers=headers)
-        return html.text
+        print("scraping " + url + "...")
+        html = ""
+        try:
+            html = requests.get(url, headers=headers, timeout=5)
+            return html
+
+        except requests.exceptions.Timeout:
+            print("timeout")
+
+        except requests.exceptions.TooManyRedirects:
+            print("too many redirects")
+
+        except requests.exceptions.HTTPError:
+            print("HTTP error")
+
+        except requests.exceptions.RequestException as e:
+            raise SystemExit(e)
+
 
     #Scrape html for text
     def scrape_text(self, html):
+        print("scraping text...")
         soup = BeautifulSoup(html, 'html.parser')
         text = soup.text
         return text
 
+
     #Scrape HTML for links
     def scrape_links(self, html):
-        soup = BeautifulSoup(html, 'html.parser')
-        links = []
-        for link in soup.find_all('a'):
-            link = link.get('href')
-            if "http" in link:
-                links.append(link)
+        print("scraping links...")
+        # soup = BeautifulSoup(html, 'html.parser')
+        # links = []
+        # for link in soup.find_all('a'):
+        #     link = link.get('href')
+        #     if "http" in link:
+        #         links.append(link)
    
         # #To use regular expressions instead of beautiful soup      
-        # links = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', html)
+        links = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', html)
         
         return links
 
     #Parse links for  keyword
     def filter_links(self, links, parse_word):
+        print("filtering links...")
         link_list = []
         for lnk in links:
             if parse_word in lnk:
@@ -72,8 +93,8 @@ class Downloader(object):
         wait_time = 2
         for lnk in links:
             try:
-                print("attempting download from " + lnk + "...")
-                r = requests.get(lnk)
+                print("downloading from " + lnk + "...")
+                r = requests.get(lnk, timeout=5)
                 flname = os.path.split(lnk)[1]
                 with open(flname, "wb") as f:
                     f.write(r.content)
