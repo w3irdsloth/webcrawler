@@ -27,6 +27,7 @@ class Formatter(object):
 
         except:
             print("error, no text formatted")
+
     
     #Format sentence list as text list
     def frmt_textlist(self):
@@ -41,6 +42,7 @@ class Formatter(object):
 
         except:
             print("error, no text formatted")
+
 
     #Format sentence list as text block
     def frmt_textblock(self, par_len):
@@ -65,6 +67,7 @@ class Formatter(object):
 
         except:
             print("error, no text formatted")
+
 
     
 

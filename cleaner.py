@@ -33,17 +33,17 @@ class Cleaner(object):
 
         self.sent_list = temp_list   
     
-    #Keep sentences that contain a keyword
-    def check_kywrds(self, keywords):
-        print("checking keywords...")
-        temp_list = []
-        for sentc in self.sent_list:
-            for wrd in keywords:
-                if wrd in sentc:
-                    temp_list.append(sentc)
-                    break
+    # #Keep sentences that contain a keyword
+    # def check_kywrds(self, keywords):
+    #     print("checking keywords...")
+    #     temp_list = []
+    #     for sentc in self.sent_list:
+    #         for wrd in keywords:
+    #             if wrd in sentc:
+    #                 temp_list.append(sentc)
+    #                 break
 
-        self.sent_list = temp_list
+    #     self.sent_list = temp_list
 
     #Remove duplicate sentences
     def remv_duplicates(self):
@@ -159,12 +159,6 @@ class Cleaner(object):
         print("removing excess spaces...")
         temp_list = []
         for sentc in self.sent_list:
-        #     for char in sentc:
-        #         if char == "  ":
-        #             sentc = sentc.replace(char, " ")
-
-        #     temp_list.append(sentc)
-
             sentc = " ".join(sentc.split())
             temp_list.append(sentc)
 
@@ -205,9 +199,7 @@ class Cleaner(object):
                 sentc.strip()         
                 end_indx = len(sentc) - 1
                 if sentc[end_indx - 1] == " ":
-                    print(sentc)
                     sentc = sentc[:end_indx - 1:end_indx]
-                    print(sentc)
 
             except:
                 pass
@@ -238,7 +230,6 @@ class Cleaner(object):
                 temp_list.append(sentc)
             
         self.sent_list = temp_list
-
 
     # #LANGUAGE=TOOL Functions
     # #Fix spelling and grammar errors in sentence list

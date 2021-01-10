@@ -16,10 +16,9 @@ import os
 import time
 
 class Felow(object):
-    def download_files(self, query, headers, engine, startpage, endpage, filetype):
-        print("scraping documents...")
+    def download_files(self, query, engine, headers, startpage, endpage, filetypes):
+        print("downloading files...", flush=True)
 
-        #Build downloader
         downloader = Downloader()
 
         #Set search engine
@@ -28,12 +27,11 @@ class Felow(object):
         #Retreive HTML
         link_list = []
         scraped_html = ""
-        wait_time = 10
+        wait_time = 5
         page = startpage
 
         #Scrape HTML from pages
         while page <= endpage: 
-            print("checking page " + str(int(page / 10 + 1)) + "...")
             
             #build url from search engine and query
             url = downloader.build_url(query, page)
@@ -49,12 +47,12 @@ class Felow(object):
         #Get links from collected html
         link_list = downloader.scrape_links(scraped_html)
 
-        #Parse by filetype
-        if len(filetype) >= 1:
+        #Parse by filetypes
+        if len(filetypes) >= 1:
             temp_list = []
-            for fltype in filetype:
-                fltr_list = downloader.filter_links(link_list, fltype)
-                temp_list = temp_list + fltr_list
+            for fltype in filetypes:
+                filter_list = downloader.filter_links(link_list, fltype)
+                temp_list = temp_list + filter_list
 
             link_list = temp_list
 
@@ -62,7 +60,7 @@ class Felow(object):
         downloader.dl_links(link_list)
 
     def extract_text(self, path, filename):
-        print("extracting...")
+        print("extracting text...")
 
         applicator = Applicator()
         cleaner = Cleaner()
@@ -93,10 +91,10 @@ class Felow(object):
 
         else:
             print("invalid path")
+
             raise SystemExit
 
         #Clean collected text
-        print(text)
         cleaner.set_text(text)
         cleaner.build_sentlist()
         
@@ -119,11 +117,15 @@ class Felow(object):
         applicator.set_text(text)
         applicator.apply_text(filename)
 
-    def build_weight(self, source, epochs, numepochs, weightname):
+    def build_weight(self, epochs, source, weightname, numepochs):
+        print("building weight...")
+
         builder = Builder()
         builder.build_weight(source, epochs, numepochs, weightname)
 
-    def generate_document(self, numwords, lines, temp, weight, tag, filename, title):
+    def generate_document(self, numwords, weightname, filename, title, tag, lines, temp):
+        print("generating document...")
+
         applicator = Applicator()
         cleaner = Cleaner()
         formatter = Formatter()
@@ -135,7 +137,7 @@ class Felow(object):
         word_max = 28
 
         #Set selected weight
-        generator.set_weight(weight)
+        generator.set_weight(weightname)
 
         #Generate text in loop
         while True:
@@ -209,7 +211,8 @@ class Felow(object):
         applicator.set_tag(tag)
         applicator.apply_text(filename)
 
-
+#Construct felow object
+felow = Felow()
 
 #Construct parsers
 parser = argparse.ArgumentParser( prog='FELOW',
@@ -235,55 +238,52 @@ Apply | Build | Clean | Download | Extract | Format | Generate
 
 subparsers = parser.add_subparsers(title="commands", dest="command")
 
-#set download subparsers
+#download subparsers
 download = subparsers.add_parser(name="dnl")
 download.add_argument("-qry", "--query", action="store", dest="query", required=True)
-download.add_argument("-hdr", "--headers", action="store", dest="headers", default={'user-agent': "Mozilla/5.0 (Linux x86_64; rv:83.0) Gecko/20100101 Firefox/83.0"})
 download.add_argument("-eng", "--engine", action="store", dest="engine", default="g_scholar")
+download.add_argument("-hdr", "--headers", action="store", dest="headers", default={'user-agent': "Mozilla/5.0 (Linux x86_64; rv:83.0) Gecko/20100101 Firefox/83.0"})
 download.add_argument("-spg", "--startpage", action="store", dest="startpage", type=int, default=0)
 download.add_argument("-epg", "--endpage", action="store", dest="endpage", type=int, default=40)
-download.add_argument("-ftp", "--filetype", action = "store", dest="filetype", default=[".pdf", ".doc"])
+download.add_argument("-fts", "--filetypes", action = "store", dest="filetypes", default=[".pdf", ".doc"])
 
 #extract subparsers
 extract = subparsers.add_parser(name="ext")
 extract.add_argument("-p", "--path", action="store", dest="path", required=True)
 extract.add_argument("-f", "--filename", action="store", dest="filename", default="extract.txt")
 
-#set build subparsers
+#build subparsers
 build = subparsers.add_parser(name="bld")
-build.add_argument("-src", "--source", action="store", dest="source", required=True)
-build.add_argument("-epo", "--epochs", action="store", type=int, dest="epochs", required=True) 
-build.add_argument("-num", "--numepochs", action="store", type=int, dest="numepochs", default=False)
+build.add_argument("-epo", "--epochs", action="store", type=int, dest="epochs", required=True)
+build.add_argument("-src", "--source", action="store", dest="source", default="extract.txt")
 build.add_argument("-wgt", "--weightname", action="store", dest="weightname", default="weight.hdf5")
+build.add_argument("-num", "--numepochs", action="store", type=int, dest="numepochs", default=False)
 
-#set generate subparsers
+#generate subparsers
 generate = subparsers.add_parser(name="gen")
 generate.add_argument("-num", "--numwords", action="store", dest="numwords", type=int, required=True)
-generate.add_argument("-wgt", "--weight", action="store", dest="weight", required=True)
+generate.add_argument("-wgt", "--weightname", action="store", dest="weightname", required=True)
 generate.add_argument("-f", "--filename", action="store", dest="filename", required=True)
+generate.add_argument("-ttl", "--title", action="store", dest="title", default="")
+generate.add_argument("-tag", "--tag", action="store", dest="tag", default="<content>")
 generate.add_argument("-lns", "--lines", action="store", dest="lines", type=int, default=1)
 generate.add_argument("-tmp", "--temp", action="store", dest="temp", type=float, default= 0.5)
-generate.add_argument("-tag", "--tag", action="store", dest="tag", default="<content>")
-generate.add_argument("-ttl", "--title", action="store", dest="title", default="")
 
-#set test subparsers
+#test subparsers
 test = subparsers.add_parser(name="tst")
 
 #Get arguments
 args = parser.parse_args()
 
-#Construct felow object
-felow = Felow()
-
 #download documents from the internet
 if args.command == "dnl":
     query = args.query
-    headers = args.headers
     engine = args.engine
+    headers = args.headers
     startpage = args.startpage
     endpage = args.endpage
-    filetype = args.filetype
-    felow.download_files(query, headers, engine, startpage, endpage, filetype)
+    filetypes = args.filetypes
+    felow.download_files(query, engine, headers, startpage, endpage, filetypes)
 
 #extract text from document(s) to .txt file
 elif args.command == "ext":
@@ -294,22 +294,22 @@ elif args.command == "ext":
 #Build weight from .txt file
 elif args.command == "bld":
     print("building...")
-    source = args.source
     epochs = args.epochs
-    numepochs = args.numepochs
+    source = args.source
     weightname = args.weightname
-    felow.build_weight(source, epochs, numepochs, weightname)
+    numepochs = args.numepochs
+    felow.build_weight(epochs, source, weightname, numepochs)
 
 #Generate document from weight
 elif args.command == "gen":
     numwords = args.numwords
-    lines = args.lines
-    temp = args.temp
-    weight = args.weight
-    tag = args.tag
+    weightname = args.weightname
     filename = args.filename
     title = args.title
-    felow.generate_document(numwords, lines, temp, weight, tag, filename, title)
+    tag = args.tag
+    lines = args.lines
+    temp = args.temp
+    felow.generate_document(numwords, weightname, filename, title, tag, lines, temp)
 
 # elif args.command == "tst":
 #     #Add test function here

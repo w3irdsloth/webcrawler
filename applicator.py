@@ -45,20 +45,23 @@ class Applicator(object):
                 for prgph in doc.paragraphs:
                     if self.tag in prgph.text:
                         print("printing to selected tag...")
+        
                         prgph.text = self.text                    
                         doc.save(document)
                         tag_check = True       
                         break
 
                 if tag_check == False:
-                    print("tag not found")
+                    print("tag not found", flush=True)
                     print("printing to end of file...")
+    
                     doc.add_paragraph(self.text)
                     doc.save(document)
 
             else:
-                print("no tag selected")
+                print("no tag selected", flush=True)
                 print("printing to end of file...")
+
                 doc.add_paragraph(self.text)
                 doc.save(document)
 

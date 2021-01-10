@@ -7,7 +7,7 @@ import re
 import time
 import os
 
-from bs4 import BeautifulSoup
+# from bs4 import BeautifulSoup
 
 class Downloader(object):
     """ Creates an object for downloading files from the internet """
@@ -54,14 +54,12 @@ class Downloader(object):
         except requests.exceptions.RequestException as e:
             raise SystemExit(e)
 
-
-    #Scrape html for text
-    def scrape_text(self, html):
-        print("scraping text...")
-        soup = BeautifulSoup(html, 'html.parser')
-        text = soup.text
-        return text
-
+    # #Scrape html for text
+    # def scrape_text(self, html):
+    #     print("scraping text...")
+    #     soup = BeautifulSoup(html, 'html.parser')
+    #     text = soup.text
+    #     return text
 
     #Scrape HTML for links
     def scrape_links(self, html):
@@ -78,12 +76,12 @@ class Downloader(object):
         
         return links
 
-    #Parse links for  keyword
-    def filter_links(self, links, parse_word):
+    #Parse links for filetype
+    def filter_links(self, links, filetype):
         print("filtering links...")
         link_list = []
         for lnk in links:
-            if parse_word in lnk:
+            if filetype in lnk:
                 link_list.append(lnk)
 
         return link_list
