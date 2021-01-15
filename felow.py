@@ -68,8 +68,8 @@ class Felow(object):
         extractor = Extractor()
 
         text = ""
-        sent_min = 12
-        sent_max = 72
+        sent_min = 8
+        sent_max = 32
 
         #If path is directory
         if os.path.isdir(path):
@@ -97,15 +97,21 @@ class Felow(object):
         #Clean collected text
         cleaner.set_text(text)
         cleaner.build_sentlist()
-        
-        cleaner.remv_dblspaces()
+        cleaner.remv_wtspace()
+        cleaner.remv_noalpha()
         cleaner.remv_nodeclare()
         cleaner.remv_nums()
-        cleaner.remv_wtspc()
+        cleaner.remv_endspc()
         cleaner.remv_noleadcap()
         cleaner.remv_excap()
+        cleaner.remv_firstperson()
+        cleaner.remv_secondperson()
+        cleaner.remv_duplicates()
+        cleaner.remv_letters()
         cleaner.trim_sentlist(sent_min, sent_max)
-        cleaner.check_spelling()
+        #cleaner.check_spelling()
+        cleaner.remv_badlanguage()
+        #print(str(cleaner.get_sentlist()))
         sent_list = cleaner.get_sentlist()
 
         #Format sentences as text list
@@ -123,7 +129,7 @@ class Felow(object):
         builder = Builder()
         builder.build_weight(source, epochs, numepochs, weightname)
 
-    def generate_document(self, numwords, weightname, filename, title, tag, lines, temp):
+    def generate_document(self, numwords, filename, weightname, title, tag, lines, temp, clean):
         print("generating document...")
 
         applicator = Applicator()
@@ -133,8 +139,8 @@ class Felow(object):
         
         sent_list = []
         len_check = 0 
-        word_min = 14
-        word_max = 28
+        word_min = 8
+        word_max = 24
 
         #Set selected weight
         generator.set_weight(weightname)
@@ -153,25 +159,29 @@ class Felow(object):
             old_len = len_check + gen_len
             print(str(old_len) + " words collected...")
 
-            #Collect generated text and clean
-            cleaner.set_sentlist(gen_list)
+            print("generated text: " + str(gen_list))
 
-            #Clean text in sentence list
-            cleaner.remv_nodeclare()
-            cleaner.remv_nums()
-            cleaner.remv_wtspc()
-            cleaner.remv_noleadcap()
-            cleaner.remv_excap()
-            cleaner.remv_dupwrds()
-            cleaner.remv_duplicates()
-            cleaner.remv_firstperson()
-            cleaner.remv_secondperson()
-            cleaner.check_spelling()
-            cleaner.trim_sentlist(word_min, word_max)
+            #Clean generated text
+            if clean == True:
+                cleaner.set_sentlist(gen_list)
+                cleaner.remv_wtspace()
+                cleaner.trim_sentlist(word_min, word_max)
+                cleaner.remv_nodeclare()
+                cleaner.remv_nums()
+                cleaner.remv_noleadcap()
+                cleaner.remv_excap()
+                cleaner.remv_firstperson()
+                cleaner.remv_secondperson()
+                cleaner.remv_dupwords()
+                #cleaner.remv_badspelling()
+                #cleaner.fix_language()
+                cleaner.remv_badlanguage()
+                gen_list = cleaner.get_sentlist()
 
-            #Add cleaned text to collected text and check for duplicate sentences
-            cleaned_list = cleaner.get_sentlist()
-            temp_list = sent_list + cleaned_list
+                print("cleaned text: " + str(gen_list))
+
+            #Add generated text to collected text and check for duplicate sentences
+            temp_list = sent_list + gen_list
             cleaner.set_sentlist(temp_list)
             cleaner.remv_duplicates()
             sent_list = cleaner.get_sentlist()
@@ -238,7 +248,7 @@ Apply | Build | Clean | Download | Extract | Format | Generate
 
 subparsers = parser.add_subparsers(title="commands", dest="command")
 
-#download subparsers
+#dnl subparsers
 download = subparsers.add_parser(name="dnl")
 download.add_argument("-qry", "--query", action="store", dest="query", required=True)
 download.add_argument("-eng", "--engine", action="store", dest="engine", default="g_scholar")
@@ -247,32 +257,33 @@ download.add_argument("-spg", "--startpage", action="store", dest="startpage", t
 download.add_argument("-epg", "--endpage", action="store", dest="endpage", type=int, default=40)
 download.add_argument("-fts", "--filetypes", action = "store", dest="filetypes", default=[".pdf", ".doc"])
 
-#extract subparsers
+#ext subparsers
 extract = subparsers.add_parser(name="ext")
 extract.add_argument("-p", "--path", action="store", dest="path", required=True)
 extract.add_argument("-f", "--filename", action="store", dest="filename", default="extract.txt")
 
-#build subparsers
+#bld subparsers
 build = subparsers.add_parser(name="bld")
 build.add_argument("-epo", "--epochs", action="store", type=int, dest="epochs", required=True)
 build.add_argument("-src", "--source", action="store", dest="source", default="extract.txt")
 build.add_argument("-wgt", "--weightname", action="store", dest="weightname", default="weight.hdf5")
 build.add_argument("-num", "--numepochs", action="store", type=int, dest="numepochs", default=False)
 
-#generate subparsers
+#gen subparsers
 generate = subparsers.add_parser(name="gen")
 generate.add_argument("-num", "--numwords", action="store", dest="numwords", type=int, required=True)
-generate.add_argument("-wgt", "--weightname", action="store", dest="weightname", required=True)
 generate.add_argument("-f", "--filename", action="store", dest="filename", required=True)
+generate.add_argument("-wgt", "--weightname", action="store", dest="weightname", default="weight.hdf5")
 generate.add_argument("-ttl", "--title", action="store", dest="title", default="")
 generate.add_argument("-tag", "--tag", action="store", dest="tag", default="<content>")
 generate.add_argument("-lns", "--lines", action="store", dest="lines", type=int, default=1)
 generate.add_argument("-tmp", "--temp", action="store", dest="temp", type=float, default= 0.5)
+generate.add_argument("-cln", "--clean", action="store", dest="clean", default=True)
 
-#test subparsers
+#tst subparsers
 test = subparsers.add_parser(name="tst")
 
-#Get arguments
+#set arguments
 args = parser.parse_args()
 
 #download documents from the internet
@@ -303,13 +314,14 @@ elif args.command == "bld":
 #Generate document from weight
 elif args.command == "gen":
     numwords = args.numwords
-    weightname = args.weightname
     filename = args.filename
+    weightname = args.weightname
     title = args.title
     tag = args.tag
     lines = args.lines
     temp = args.temp
-    felow.generate_document(numwords, weightname, filename, title, tag, lines, temp)
+    clean = args.clean
+    felow.generate_document(numwords, filename, weightname, title, tag, lines, temp, clean)
 
 # elif args.command == "tst":
 #     #Add test function here

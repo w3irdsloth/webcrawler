@@ -27,23 +27,42 @@ class Cleaner(object):
         temp_list = []
         for char in self.text:
             temp_text = temp_text + char
+
             if char in pun_list:
                 temp_list.append(temp_text)
                 temp_text = ""
 
-        self.sent_list = temp_list   
-    
-    # #Keep sentences that contain a keyword
-    # def check_kywrds(self, keywords):
-    #     print("checking keywords...")
-    #     temp_list = []
-    #     for sentc in self.sent_list:
-    #         for wrd in keywords:
-    #             if wrd in sentc:
-    #                 temp_list.append(sentc)
-    #                 break
+        self.sent_list = temp_list
 
-    #     self.sent_list = temp_list
+    def remv_noalpha(self):
+        print("removing non-alphabetical characters...")
+        pun_list = [".", "?", "!"]
+        pass_list = [" ", ",", "'"]
+        temp_list = []
+        for sentc in self.sent_list:
+            temp_sent = ""
+            for char in sentc:
+                if char.isalpha() or char in pass_list:
+                    temp_sent = temp_sent + char
+
+                elif char in pun_list:
+                    temp_sent = temp_sent + char
+                    temp_list.append(temp_sent)
+                    break
+
+            self.sent_list = temp_list
+    
+    #Keep sentences that contain a keyword
+    def check_kywrds(self, keywords):
+        print("checking keywords...")
+        temp_list = []
+        for sentc in self.sent_list:
+            for wrd in keywords:
+                if wrd in sentc:
+                    temp_list.append(sentc)
+                    break
+
+        self.sent_list = temp_list
 
     #Remove duplicate sentences
     def remv_duplicates(self):
@@ -56,8 +75,10 @@ class Cleaner(object):
         self.sent_list = temp_list
 
     #Remove sentences with duplicate words
-    def remv_dupwrds(self):
+    def remv_dupwords(self):
         print("removing duplicate words...")
+        #List of commonly used conjunctions, articles, and prepositions to ignore
+        pass_list = ["for", "and", "the", "a", "an", "at", "of", "to", "in", "on"]
         temp_list = []
         temp_list = temp_list + self.sent_list
         for sentc in self.sent_list:
@@ -65,7 +86,10 @@ class Cleaner(object):
             check_list = temp_sentc.split()
             word_list = []
             for wrd in check_list:
-                if wrd.lower() not in word_list:
+                if wrd in pass_list:
+                    pass
+                    
+                elif wrd.lower() not in word_list:
                     word_list.append(wrd.lower())
 
                 else:
@@ -74,7 +98,7 @@ class Cleaner(object):
 
         self.sent_list = temp_list
 
-    #Remove sentences with firs-person language
+    #Remove sentences with first-person language
     def remv_firstperson(self):
         print("removing first-person language...")
         word_list = ["I", "me", "Me", "my", "My", "mine", "Mine", "our", "Our", "ours", "Ours", "us", "Us", "we", "We"]
@@ -144,19 +168,19 @@ class Cleaner(object):
 
         self.sent_list = temp_list
                     
-    #Strip spaces from beginning and end of sentences
-    def remv_wtspc(self):
-        print("removing whitespace...")
-        temp_list = []
-        for sentc in self.sent_list:
-            sentc = sentc.strip()
-            temp_list.append(sentc)
+    # #Strip spaces from beginning and end of sentences
+    # def remv_wtspc(self):
+    #     print("removing whitespace...")
+    #     temp_list = []
+    #     for sentc in self.sent_list:
+    #         sentc = sentc.strip()
+    #         temp_list.append(sentc)
         
-        self.sent_list = temp_list
+    #     self.sent_list = temp_list
 
-    #Remove extra spaces from sentences
-    def remv_dblspaces(self):
-        print("removing excess spaces...")
+    #Remove whitespace from sentences
+    def remv_wtspace(self):
+        print("removing whitespace...")
         temp_list = []
         for sentc in self.sent_list:
             sentc = " ".join(sentc.split())
@@ -166,7 +190,7 @@ class Cleaner(object):
 
     #Remove sentences that don't begin with uppercase letters
     def remv_noleadcap(self):
-        print("removing unwanted leading characters...")
+        print("removing non-capital leading characters...")
         temp_list = []
         for sentc in self.sent_list:
             if sentc[0].isupper():
@@ -190,7 +214,7 @@ class Cleaner(object):
 
         self.sent_list = temp_list
 
-    #Remove empty whitespace from before punctuation
+    # #Remove empty whitespace from before punctuation
     def remv_endspc(self):
         print("removing endspaces...")
         temp_list = []
@@ -208,6 +232,25 @@ class Cleaner(object):
 
         self.sent_list = temp_list
 
+    def remv_letters(self):
+        print("removing extra letters...")
+        temp_list = []
+        temp_list = temp_list + self.sent_list
+        for sentc in self.sent_list:
+            temp_sentc = re.sub(r'[^\w\s]', '', sentc)
+            check_list = temp_sentc.split()
+            for wrd in check_list:
+                if len(wrd) == 1 and wrd != "a":
+                    print("removing single leter sentc: " + sentc)
+                    temp_list.remove(sentc)
+                    break
+
+            self.sent_list = temp_list
+
+
+
+
+
     #Remove sentences in sentence list based on min and max word length
     def trim_sentlist(self, sent_min, sent_max):
         print("trimming sentence list...")
@@ -218,20 +261,22 @@ class Cleaner(object):
                 
         self.sent_list = temp_list
 
-    def check_spelling(self):
+    def remv_badspelling(self):
         print("checking for spelling errors...")
         from spellchecker import SpellChecker
         spellchecker = SpellChecker()
         temp_list = []
+        temp_list = temp_list + self.sent_list
         for sentc in self.sent_list:
             word_list = re.sub(r'[^\w\s]', '', sentc).split()
             misspelled = spellchecker.unknown(word_list)
-            if len(misspelled) == 0:
-                temp_list.append(sentc)
+            print(str(misspelled))
+            if len(misspelled) > 0:
+                temp_list.remove(sentc)
             
         self.sent_list = temp_list
 
-    # #LANGUAGE=TOOL Functions
+    # #LANGUAGE-TOOL Functions
     # #Fix spelling and grammar errors in sentence list
     # def fix_language(self):
     #     import language_tool_python
@@ -247,16 +292,15 @@ class Cleaner(object):
 
     #     self.sent_list = temp_list
 
-    # #Remove sentences with spelling and grammar errors from sentence list
-    # def remv_badlanguage(self):
-    #     import language_tool_python
-    #     print("removing spelling and grammar errors...")
-    #     lang_tool = language_tool_python.LanguageTool('en-US')
-    #     temp_list = []
-    #     for sentc in self.sent_list:
-    #         errors = lang_tool.check(sentc)
-    #         if len(errors) == 0:
-    #             temp_list.append(sentc)
+    # # #Remove sentences with spelling and grammar errors from sentence list
+    def remv_badlanguage(self):
+        import language_tool_python
+        print("removing spelling and grammar errors...")
+        lang_tool = language_tool_python.LanguageTool('en-US')
+        temp_list = []
+        for sentc in self.sent_list:
+            errors = lang_tool.check(sentc)
+            if len(errors) == 0:
+                temp_list.append(sentc)
 
-    #     self.sent_list = temp_list      
-
+        self.sent_list = temp_list      
