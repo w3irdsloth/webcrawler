@@ -18,8 +18,7 @@ import time
 class Felow(object):
     def download_files(self, query, engine, headers, startpage, endpage, filetypes):
         print("downloading files...")
-
-        applicator = Applicator()
+        # applicator = Applicator()
         downloader = Downloader()
 
         #Set search engine
@@ -31,7 +30,7 @@ class Felow(object):
         wait_time = 5
         page = startpage
 
-        scrape = True
+        # scrape = True
 
         #Scrape HTML from pages
         while page <= endpage: 
@@ -50,36 +49,33 @@ class Felow(object):
         #Get links from collected html
         link_list = downloader.scrape_links(scraped_html)
 
-        #Parse by filetypes
-        #if len(filetypes) >= 1:
-        filter_list = []
-        for fltype in filetypes:
-            temp_list = downloader.filter_links(link_list, fltype)
-            filter_list = filter_list + temp_list
-
-        #link_list = filter_list
+        #Filter links by filetype
+        filter_list = downloader.filter_links(link_list, filetypes)
 
         #Download files from filtered links
         downloader.dl_links(filter_list)
 
-        if scrape == True:
-            print("collecting scraped html...")
-            scraped_html = ""
-            for lnk in link_list:
-                if lnk not in filter_list:
-                    try:
-                        html = downloader.scrape_html(lnk, headers)
-                        scraped_html = scraped_html + html.text
+        # if scrape == True:
+        #     print("collecting scraped html...")
+        #     for lnk in link_list:
+        #         if lnk not in filter_list:
+        #             try:
+        #                 html = downloader.scrape_html(lnk, headers)
+        #                 scraped_html = scraped_html + html.text
 
-                    except:
-                        print("scrape failed")
+        #                 #Use Beautiful Soup to scrape raw html for text
+        #                 html_text = downloader.scrape_text(scraped_html)
 
-            applicator.set_text(scraped_html)
-            applicator.apply_text("scraped.txt")
+        #                 applicator.set_text(html_text)
+        #                 applicator.apply_text("scraped.txt")
+
+        #                 time.sleep(wait_time)
+
+        #             except:
+        #                 print("scrape failed")
 
     def extract_text(self, path, filename, keywords):
         print("extracting text...")
-
         applicator = Applicator()
         cleaner = Cleaner()
         formatter = Formatter()
@@ -87,70 +83,53 @@ class Felow(object):
 
         text = ""
         sent_min = 4
-        sent_max = 28
+        sent_max = 24
 
         #If path is directory
         if os.path.isdir(path):
             for doc in os.listdir(path):
                 extractor.extract_text(os.path.join(path, doc))
-                # extractor.strip_newlines()
-                # extractor.strip_bars()
-                # extractor.strip_quotes()
-                # extractor.strip_numbers()
-
-                extractor.strip_pars()
-                extractor.strip_tags()
-                extractor.strip_chars()
-                
                 text = text + extractor.get_text()
  
         #If path is file
         elif os.path.isfile(path):
             doc = os.path.split(path)[1]
             extractor.extract_text(doc)
-            # extractor.strip_newlines()
-            # extractor.strip_bars()
-            # extractor.strip_quotes()
-            # extractor.strip_numbers()
-
-            extractor.strip_pars()
-            extractor.strip_tags()
-            extractor.strip_chars()
-
             text = extractor.get_text()
 
         else:
             print("invalid path")
-
             raise SystemExit
 
         #Clean collected text
         cleaner.set_text(text)
-        cleaner.sort_sentcs()        
-        cleaner.remv_wtspace()
-
-        # #Dead with regex
-        # cleaner.build_sentlist()
-        # cleaner.remv_noalpha()
-        # cleaner.remv_noleadcap()
-
-        # #Moved to extractor
-        # cleaner.remv_exchars()        
-        # cleaner.remv_exnums()
-        
+        cleaner.sort_sentcs() 
+        cleaner.remv_newlines()
         cleaner.remv_duplicates()
-        cleaner.remv_misspelled("/home/lux/dev/felow/words")
         
-        cleaner.remv_endspc()
-        cleaner.remv_punspace()
-        cleaner.trim_sentlist(sent_min, sent_max)
-
-        # #These remove a lot of extra text
-        # cleaner.remv_excap()
-        # cleaner.remv_exletters()
-        # cleaner.remv_nodeclare()
+        #Remove parenthetical text before filtering characters
+        cleaner.remv_pars()
+        cleaner.remv_noalpha()
+        
+        #Remove unwanted sentences
+        cleaner.remv_nodeclare()
         # cleaner.remv_firstperson()
         # cleaner.remv_secondperson()
+
+        #Specific items to remove
+        cleaner.remv_excaps()
+        cleaner.remv_exletters()
+        cleaner.remv_badpgs()
+        cleaner.remv_badcoms()
+
+        #Fix sentence spacing after removing characters
+        # cleaner.remv_wtspace()
+        # cleaner.remv_endspace()
+        cleaner.remv_punspace()
+        
+        #Trim the length and check spelling
+        cleaner.trim_sentlist(sent_min, sent_max)
+        cleaner.check_misspelled("/home/lux/dev/felow/words")
 
         sent_list = cleaner.get_sentlist()
 
@@ -179,13 +158,11 @@ class Felow(object):
 
     def build_weight(self, epochs, source, weightname, numepochs):
         print("building weight...")
-
         builder = Builder()
         builder.build_weight(source, epochs, numepochs, weightname)
 
     def generate_document(self, numwords, filename, weightname, title, lines, temp, clean):
         print("generating document...")
-
         applicator = Applicator()
         cleaner = Cleaner()
         extractor = Extractor()
@@ -236,26 +213,23 @@ class Felow(object):
             #Clean generated text
             if clean == True:
                 cleaner.set_sentlist(gen_list)
-                cleaner.remv_wtspace()
-                cleaner.remv_noalpha()
-                cleaner.remv_nodeclare()
-                cleaner.remv_nums()
-                cleaner.remv_endspc()
-                cleaner.remv_noleadcap()
-                cleaner.remv_excap()
-                cleaner.remv_firstperson()
-                cleaner.remv_secondperson()
-                cleaner.remv_letters()
-                cleaner.remv_dupwords()
+                # cleaner.remv_wtspace()
+                # cleaner.remv_noalpha()
+                # cleaner.remv_nodeclare()
+                # cleaner.remv_nums()
+                # cleaner.remv_endspc()
+                # cleaner.remv_noleadcap()
+                # cleaner.remv_excap()
+                # cleaner.remv_firstperson()
+                # cleaner.remv_secondperson()
+                # cleaner.remv_letters()
+                # cleaner.remv_dupwords()
                 cleaner.trim_sentlist(sent_min, sent_max)
-                #cleaner.remv_badspelling()
-                #cleaner.fix_language()
-                #cleaner.remv_badlanguage()
-                cleaner.remv_misspelled("/home/lux/dev/felow/words")
+                cleaner.check_misspelled("/home/lux/dev/felow/words")
 
-                #Check for keywords
-                if keywords == True:
-                    cleaner.check_keywords(keyword_list)
+                # #Check for keywords
+                # if keywords == True:
+                #     cleaner.check_keywords(keyword_list)
 
                 gen_list = cleaner.get_sentlist()
 
@@ -337,7 +311,7 @@ download.add_argument("-eng", "--engine", action="store", dest="engine", default
 download.add_argument("-hdr", "--headers", action="store", dest="headers", default={'user-agent': "Mozilla/5.0 (Linux x86_64; rv:83.0) Gecko/20100101 Firefox/83.0"})
 download.add_argument("-spg", "--startpage", action="store", dest="startpage", type=int, default=0)
 download.add_argument("-epg", "--endpage", action="store", dest="endpage", type=int, default=40)
-download.add_argument("-fts", "--filetypes", action = "store", dest="filetypes", default=[".pdf", ".doc"])
+download.add_argument("-fts", "--filetypes", action = "store", dest="filetypes", default=["pdf", "doc"])
 
 #ext subparsers
 extract = subparsers.add_parser(name="ext")
@@ -405,13 +379,9 @@ elif args.command == "gen":
     clean = args.clean
     felow.generate_document(numwords, filename, weightname, title, lines, temp, clean)
 
-elif args.command == "tst":
+# elif args.command == "tst":
 #     #Add test function here
 #     print("for testing...")
-    extractor = Extractor()
-    extractor.extract_text("1998_Reason_Induction.pdf")
-    print(extractor.get_text())
-
 
 else:
     print("command not found")

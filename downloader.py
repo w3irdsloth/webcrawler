@@ -11,6 +11,7 @@ import os
 
 class Downloader(object):
     """ Creates an object for downloading files from the internet """
+
     def _init_(self):
         self.engine = ""
 
@@ -54,55 +55,74 @@ class Downloader(object):
         except requests.exceptions.RequestException as e:
             raise SystemExit(e)
 
-    # #Scrape html for text
+    # #Scrape text from html
     # def scrape_text(self, html):
     #     print("scraping text...")
     #     soup = BeautifulSoup(html, 'html.parser')
     #     text = soup.text
     #     return text
 
-    #Scrape HTML for links
+    #Scrape html for links
     def scrape_links(self, html):
         print("scraping links...")
+        # #To use BeautifulSoup
         # soup = BeautifulSoup(html, 'html.parser')
         # links = []
-        # for link in soup.find_all('a'):
-        #     link = link.get('href')
-        #     if "http" in link:
+        # for lnk in soup.find_all('a',  attrs={'href': re.compile("^http")}):
+        #     link = lnk.get('href')
+        #     if link not in links:
         #         links.append(link)
    
-        # #To use regular expressions instead of beautiful soup      
-        links = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', html)
+        # #To use regular expressions instead of beautiful soup
+        link_list = []      
+        links = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', html)
+        for lnk in links:
+            if lnk not in link_list:
+                link_list.append(lnk)
         
-        return links
+        return link_list
 
     #Parse links for filetype
-    def filter_links(self, links, filetype):
-        print("filtering links...")
+    def filter_links(self, links, filetypes):
         link_list = []
+        # wait_time = 2
         for lnk in links:
-            if filetype in lnk:
-                link_list.append(lnk)
+            try:
+                r = requests.head(lnk)
+                headers = r.headers
+                content_type = headers.get('Content-Type')
+                print(content_type)
+                # time.sleep(wait_time)
+                
+                for fltp in filetypes:
+                    if fltp in content_type:
+                        link_list.append(lnk)
+                        print(lnk + " added to queue...")
+                        break
+
+            except:
+                print("no response")
+                print(lnk)
+                # time.sleep(wait_time)
 
         return link_list
 
     #Download files from links
     def dl_links(self, links):
-        wait_time = 2
+        # wait_time = 2
         for lnk in links:
+            print("downloading " + lnk + "...")
             try:
-                print("downloading from " + lnk + "...")
-                r = requests.get(lnk, timeout=5)
+                r = requests.get(lnk, allow_redirects=True)
                 flname = os.path.split(lnk)[1]
-                with open(flname, "wb") as f:
-                    f.write(r.content)
+                open(flname, "wb").write(r.content)
                 
                 print("done")
-                time.sleep(wait_time)
+                # time.sleep(wait_time)
 
             except:
-                print("file not found...")
-                time.sleep(wait_time)
+                print("file not found")
+                # time.sleep(wait_time)
 
 
 

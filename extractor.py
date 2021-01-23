@@ -74,12 +74,10 @@ class Extractor(object):
         r.extract_keywords_from_text(self.text)
         return r.get_ranked_phrases()[0:50]
 
-    def strip_pars(self):
-        temp_text = self.text
-        #temp_text = re.sub(r'\([^)]*\)', '', temp_text)
-        temp_text = re.sub(r"[\(\[].*?[\)\]]", "", temp_text)
-        self.text = temp_text
-
+    # def strip_pars(self):
+    #     temp_text = self.text
+    #     temp_text = re.sub(r"[\(\[].*?[\)\]]", "", temp_text)
+    #     self.text = temp_text
 
     # def strip_pars(self):
     #     print("stripping parentheses..")
@@ -103,13 +101,13 @@ class Extractor(object):
     #     temp_text = temp_text.replace("'", '')
     #     self.text = temp_text
 
-    def strip_tags(self):
-        print("stripping tags...")
-        temp_text = self.text
-        cleaner = re.compile('<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});')
-        temp_text = re.sub(cleaner, '', temp_text)
-        #temp_text = re.sub(r" ?\<[^)]+\>", "", temp_text)
-        self.text = temp_text
+    # def strip_tags(self):
+    #     print("stripping tags...")
+    #     temp_text = self.text
+    #     cleaner = re.compile('<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});')
+    #     temp_text = re.sub(cleaner, '', temp_text)
+    #     #temp_text = re.sub(r" ?\<[^)]+\>", "", temp_text)
+    #     self.text = temp_text
 
     # #This functionality was added to strip_tags
     # def strip_codes(self):
@@ -133,17 +131,17 @@ class Extractor(object):
 
     #     self.text = temp_text
 
-    def strip_numbers(self):
-        print("stripping numbers...")
-        pattern = r'[0-9]'
-        temp_text = re.sub(pattern, '', self.text)
-        self.text = temp_text
+    # def strip_numbers(self):
+    #     print("stripping numbers...")
+    #     pattern = r'[0-9]'
+    #     temp_text = re.sub(pattern, '', self.text)
+    #     self.text = temp_text
 
-    def strip_chars(self):
-        bad_chars = ["{", "}", "#", "+", "-", "=", ">", "<" "@", "$", "|", "*", "_", "(", ")", "[", "]", ":", "\n", '"', ";", "/", "~", "`"]
-        temp_text = self.text
-        temp_text = ''.join(i for i in temp_text if not i in bad_chars)
+    # def strip_chars(self):
+    #     bad_chars = ["{", "}", "#", "+", "-", "=", ">", "<" "@", "$", "|", "*", "_", "(", ")", "[", "]", ":", "\n", '"', ";", "/", "~", "`", "  "]
+    #     temp_text = self.text
+    #     temp_text = ''.join(i for i in temp_text if not i in bad_chars)
         
-        self.text = temp_text
+        # self.text = temp_text
 
     
