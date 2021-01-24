@@ -68,6 +68,35 @@ class Formatter(object):
         except:
             print("error, no text formatted")
 
+    def frmt_references(self, ref_list, style):
+        if style == "MLA":
+            template = "<author>. <title>. <subject>. <date>. <file>. \n"
+
+        template_list = []
+        for ref_dict in ref_list:
+            temp_string = template
+            if "file" in ref_dict:
+                temp_string = temp_string.replace("<file>", ref_dict["file"])
+            
+            if "author" in ref_dict:
+                temp_string = temp_string.replace("<author>", ref_dict["author"])
+
+            if "title" in ref_dict:
+                temp_string = temp_string.replace("<title>", ref_dict["title"])
+
+            if "subject" in ref_dict:
+                temp_string = temp_string.replace("<subject>", ref_dict["subject"])
+
+            if "date" in ref_dict:
+                temp_string = temp_string.replace("<date>", ref_dict["date"])
+
+            template_list.append(temp_string)
+        
+        return template_list
+
+
+
+
 
     
 

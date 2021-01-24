@@ -20,16 +20,21 @@ class Downloader(object):
 
     #Bulid url from query and page number
     def build_url(self, query, page):
-        print("building url...")
         url = ""
         if self.engine == "ggl":
-            qryreplc = query.replace(" ", "+")
-            url = "https://google.com/search?start=" + str(page) + "&q=" + qryreplc
+            print("building url for page " + str(page) + "...")
+            i = page
+            i = (i - 1) * 10
+            qry_string = query.replace(" ", "+")
+            url = "https://google.com/search?start=" + str(page) + "&q=" + qry_string
             return url
         
         elif self.engine == "g_scholar":
-            qryreplc = query.replace(" ", "+")
-            url = "https://scholar.google.com/scholar?start=" + str(page) + "&q=" + qryreplc
+            print("building url for page " + str(page) + "...")
+            i = page
+            i = (i - 1) * 10
+            qry_string = query.replace(" ", "+")
+            url = "https://scholar.google.com/scholar?start=" + str(i) + "&q=" + qry_string
             return url
 
         else:
@@ -82,22 +87,24 @@ class Downloader(object):
         
         return link_list
 
-    #Parse links for filetype
+    #Filter links for files
     def filter_links(self, links, filetypes):
         link_list = []
         # wait_time = 2
         for lnk in links:
+            print("querying " + lnk + "...")
             try:
                 r = requests.head(lnk)
                 headers = r.headers
                 content_type = headers.get('Content-Type')
+                print("content type:")
                 print(content_type)
                 # time.sleep(wait_time)
                 
                 for fltp in filetypes:
                     if fltp in content_type:
                         link_list.append(lnk)
-                        print(lnk + " added to queue...")
+                        print("file added to queue...")
                         break
 
             except:
@@ -111,12 +118,11 @@ class Downloader(object):
     def dl_links(self, links):
         # wait_time = 2
         for lnk in links:
-            print("downloading " + lnk + "...")
+            filename = os.path.split(lnk)[1]
+            print("downloading " + filename + "...")
             try:
                 r = requests.get(lnk, allow_redirects=True)
-                flname = os.path.split(lnk)[1]
-                open(flname, "wb").write(r.content)
-                
+                open(filename, "wb").write(r.content)
                 print("done")
                 # time.sleep(wait_time)
 

@@ -17,7 +17,7 @@ import time
 
 class Felow(object):
     def download_files(self, query, engine, headers, startpage, endpage, filetypes):
-        print("downloading files...")
+        print("downloader selected...")
         # applicator = Applicator()
         downloader = Downloader()
 
@@ -27,7 +27,7 @@ class Felow(object):
         #Retreive HTML
         link_list = []
         scraped_html = ""
-        wait_time = 5
+        wait_time = 3
         page = startpage
 
         # scrape = True
@@ -43,7 +43,7 @@ class Felow(object):
             scraped_html = scraped_html + html.text
 
             #increment page by 10 for google/scholar
-            page += 10
+            page += 1
             time.sleep(wait_time)
 
         #Get links from collected html
@@ -75,7 +75,7 @@ class Felow(object):
         #                 print("scrape failed")
 
     def extract_text(self, path, filename, keywords):
-        print("extracting text...")
+        print("extractor selected...")
         applicator = Applicator()
         cleaner = Cleaner()
         formatter = Formatter()
@@ -84,18 +84,25 @@ class Felow(object):
         text = ""
         sent_min = 4
         sent_max = 24
+        ref_list = []
 
         #If path is directory
         if os.path.isdir(path):
             for doc in os.listdir(path):
                 extractor.extract_text(os.path.join(path, doc))
                 text = text + extractor.get_text()
+
+                temp_refs = extractor.extract_references(os.path.join(path, doc))
+                ref_list.append(temp_refs)
  
         #If path is file
         elif os.path.isfile(path):
             doc = os.path.split(path)[1]
             extractor.extract_text(doc)
             text = extractor.get_text()
+
+            temp_refs = extractor.extract_references(os.path.join(path, doc))
+            ref_list.append(temp_refs)
 
         else:
             print("invalid path")
@@ -142,27 +149,34 @@ class Felow(object):
         applicator.set_text(text)
         applicator.apply_text(filename)
 
-        #Create keyword list
-        if keywords == True:
-            print("keyword extraction selected...")
-            print("creating keywords.txt...")
-            extractor.set_text(text)
-            keyword_list = extractor.extract_keywords()
-            kwd_text = ""
-            for kwd in keyword_list:
-                kwd_text = kwd_text + kwd
-                kwd_text = kwd_text + "\n"
+        #Add extracted references to text file
+        formatted_refs = formatter.frmt_references(ref_list, "MLA")
+        
+        for refrnc in formatted_refs:
+            applicator.set_text(refrnc)
+            applicator.apply_text("references.txt")
 
-            applicator.set_text(kwd_text)    
-            applicator.apply_text("keywords.txt")
+        # #Create keyword list
+        # if keywords == True:
+        #     print("keyword extraction selected...")
+        #     print("creating keywords.txt...")
+        #     extractor.set_text(text)
+        #     keyword_list = extractor.extract_keywords()
+        #     kwd_text = ""
+        #     for kwd in keyword_list:
+        #         kwd_text = kwd_text + kwd
+        #         kwd_text = kwd_text + "\n"
+
+        #     applicator.set_text(kwd_text)    
+        #     applicator.apply_text("keywords.txt")
 
     def build_weight(self, epochs, source, weightname, numepochs):
-        print("building weight...")
+        print("builder selected...")
         builder = Builder()
         builder.build_weight(source, epochs, numepochs, weightname)
 
     def generate_document(self, numwords, filename, weightname, title, lines, temp, clean):
-        print("generating document...")
+        print("generator selected...")
         applicator = Applicator()
         cleaner = Cleaner()
         extractor = Extractor()
@@ -172,27 +186,27 @@ class Felow(object):
         sent_list = []
         len_check = 0 
         sent_min = 4
-        sent_max = 12
-        keywords = False
+        sent_max = 24
+        # keywords = False
 
         #Set selected weight
         generator.set_weight(weightname)
 
-        #Check for keyword text and build list
-        if os.path.exists("keywords.txt"):
-            print("keywords.txt found...")
-            extractor.extract_text("keywords.txt")
-            keyword_text = extractor.get_text()
-            temp_text = ""
-            keyword_list = []
-            keywords = True
-            for char in keyword_text:
-                if char == "\n":
-                    keyword_list.append(temp_text)
-                    temp_text = ""
+        # #Check for keyword text and build list
+        # if os.path.exists("keywords.txt"):
+        #     print("keywords.txt found...")
+        #     extractor.extract_text("keywords.txt")
+        #     keyword_text = extractor.get_text()
+        #     temp_text = ""
+        #     keyword_list = []
+        #     keywords = True
+        #     for char in keyword_text:
+        #         if char == "\n":
+        #             keyword_list.append(temp_text)
+        #             temp_text = ""
                 
-                else:
-                    temp_text = temp_text + char
+        #         else:
+        #             temp_text = temp_text + char
 
         #Generate text in loop
         while True:
@@ -265,16 +279,23 @@ class Felow(object):
         text = formatter.get_text()
 
         #Apply selected title to document
-        if len (title) >= 1:
-            title_tag = "<title>"
-            applicator.set_text(title)
-            applicator.set_tag(title_tag)
-            applicator.apply_text(filename)
+        title_tag = "<title>"
+        applicator.set_text(title)
+        applicator.set_tag(title_tag)
+        applicator.apply_text(filename)
         
         #Apply formatted text to document
         content_tag = "<content>"
         applicator.set_text(text)
         applicator.set_tag(content_tag)
+        applicator.apply_text(filename)
+
+        #Apply references to document
+        reference_tag = "<references>"
+        extractor.extract_text("references.txt")
+        references = extractor.get_text()
+        applicator.set_tag(reference_tag)
+        applicator.set_text(references)
         applicator.apply_text(filename)
 
 #Construct felow object
@@ -309,8 +330,8 @@ download = subparsers.add_parser(name="dnl")
 download.add_argument("-qry", "--query", action="store", dest="query", required=True)
 download.add_argument("-eng", "--engine", action="store", dest="engine", default="g_scholar")
 download.add_argument("-hdr", "--headers", action="store", dest="headers", default={'user-agent': "Mozilla/5.0 (Linux x86_64; rv:83.0) Gecko/20100101 Firefox/83.0"})
-download.add_argument("-spg", "--startpage", action="store", dest="startpage", type=int, default=0)
-download.add_argument("-epg", "--endpage", action="store", dest="endpage", type=int, default=40)
+download.add_argument("-spg", "--startpage", action="store", dest="startpage", type=int, default=1)
+download.add_argument("-epg", "--endpage", action="store", dest="endpage", type=int, default=3)
 download.add_argument("-fts", "--filetypes", action = "store", dest="filetypes", default=["pdf", "doc"])
 
 #ext subparsers
@@ -379,9 +400,47 @@ elif args.command == "gen":
     clean = args.clean
     felow.generate_document(numwords, filename, weightname, title, lines, temp, clean)
 
-# elif args.command == "tst":
+elif args.command == "tst":
 #     #Add test function here
 #     print("for testing...")
+    extractor = Extractor()
+    #Check for keyword text and build list
+    if os.path.exists("metadata.txt"):
+        print("metadata.txt found...")
+        f = open("metadata.txt", "r")
+        meta_list = f.readlines()
+        print(meta_list)
+
+    new_list = []
+    remove_list = ["\n", "{", "}"]
+    for meta in meta_list:
+        for char in remove_list:  
+            meta = meta.strip(char)
+
+        new_list.append(meta)
+
+    meta_list = new_list
+    
+    new_list = []
+    for dct in meta_list:
+        # print(dct)
+        temp_dict = {}
+        field_list = dct.split(",")
+        for fld in field_list:
+            values = fld.split(":")
+            print(values)
+            try:
+                temp_dict[values[0]] = values[1]
+                print(values[0])
+                print(values[1])
+
+            except:
+                print("value not found")
+
+        new_list.append(temp_dict)
+
+    print(new_list)
+
 
 else:
     print("command not found")

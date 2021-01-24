@@ -74,6 +74,32 @@ class Extractor(object):
         r.extract_keywords_from_text(self.text)
         return r.get_ranked_phrases()[0:50]
 
+    def extract_references(self, source):
+        import fitz
+        temp_refs = {}
+        doc = fitz.open(source)
+        temp_refs["file"] = os.path.basename(source)
+        if len(doc.metadata["author"]) > 0:
+            temp_refs["author"] = doc.metadata["author"]
+       
+        if len(doc.metadata["title"]) > 0:
+            temp_refs["title"] = doc.metadata["title"]
+        
+        if len(doc.metadata["subject"]) > 0:
+            temp_refs["subject"] = doc.metadata["subject"]
+        
+        if len(doc.metadata["creationDate"]) > 0:
+            temp_refs["date"] = doc.metadata["creationDate"]
+        
+        return temp_refs
+
+    # def extract_meta(self, source):
+    #     import fitz
+    #     doc = fitz.open(source)
+    #     return doc.metadata
+
+
+
     # def strip_pars(self):
     #     temp_text = self.text
     #     temp_text = re.sub(r"[\(\[].*?[\)\]]", "", temp_text)
