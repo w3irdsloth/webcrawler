@@ -20,7 +20,7 @@ class Applicator(object):
     #Apply text to tag in file
     def apply_text(self, document):
         ext = splitext(document)[1]
-        if ext == ".txt":
+        if ".txt" in ext:
             print("applying text to .txt file...")
             try:
                 with open(document, "a") as temp_file:
@@ -31,7 +31,7 @@ class Applicator(object):
                 print("text application failed")
                 raise SystemExit
 
-        elif ext == ".docx":
+        elif ".doc" in ext:
             from docx import Document
             print("printing to .docx file...")
             try:
@@ -52,14 +52,14 @@ class Applicator(object):
                         break
 
                 if tag_check == False:
-                    print("tag not found", flush=True)
+                    print("tag not found")
                     print("printing to end of file...")
     
                     doc.add_paragraph(self.text)
                     doc.save(document)
 
             else:
-                print("no tag selected", flush=True)
+                print("no tag selected")
                 print("printing to end of file...")
 
                 doc.add_paragraph(self.text)

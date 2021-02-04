@@ -13,24 +13,21 @@ from generator import Generator
 import argparse
 import textwrap
 import os
-import time
 
 class Felow(object):
-    def download_files(self, query, engine, headers, startpage, endpage, filetypes):
+    def download_files(self, query, engine, headers, waittime, startpage, endpage, filetypes, scrape):
         print("downloader selected...")
-        # applicator = Applicator()
+        applicator = Applicator()
         downloader = Downloader()
 
         #Set search engine
         downloader.set_searchengine(engine)
-
-        #Retreive HTML
+        downloader.set_waittime(waittime)
+        
+        
+        page = startpage
         link_list = []
         scraped_html = ""
-        wait_time = 3
-        page = startpage
-
-        # scrape = True
 
         #Scrape HTML from pages
         while page <= endpage: 
@@ -44,10 +41,11 @@ class Felow(object):
 
             #increment page by 10 for google/scholar
             page += 1
-            time.sleep(wait_time)
+            # time.sleep(wait_time)
 
         #Get links from collected html
         link_list = downloader.scrape_links(scraped_html)
+        print(link_list)
 
         #Filter links by filetype
         filter_list = downloader.filter_links(link_list, filetypes)
@@ -55,35 +53,40 @@ class Felow(object):
         #Download files from filtered links
         downloader.dl_links(filter_list)
 
-        # if scrape == True:
-        #     print("collecting scraped html...")
-        #     for lnk in link_list:
-        #         if lnk not in filter_list:
-        #             try:
-        #                 html = downloader.scrape_html(lnk, headers)
-        #                 scraped_html = scraped_html + html.text
+        if scrape == True:
+            print("collecting scraped html...")
+            for lnk in link_list:
+                if lnk not in filter_list:
+                    try:
+                        html = downloader.scrape_html(lnk, headers)
+                        scraped_html = scraped_html + html.text
 
-        #                 #Use Beautiful Soup to scrape raw html for text
-        #                 html_text = downloader.scrape_text(scraped_html)
+                        html_text = scraped_html
+                        #Use Beautiful Soup to scrape raw html for text
+                        # html_text = downloader.scrape_text(scraped_html)
 
-        #                 applicator.set_text(html_text)
-        #                 applicator.apply_text("scraped.txt")
+                        applicator.set_text(html_text)
+                        applicator.apply_text("scraped.txt")
 
-        #                 time.sleep(wait_time)
+                        # time.sleep(wait_time)
 
-        #             except:
-        #                 print("scrape failed")
+                    except:
+                        print("scrape failed")
 
-    def extract_text(self, path, filename, keywords):
+    def extract_text(self, path, filename, sentmin, sentmax, style, keywords, keyphraselen, maxkeywords):
         print("extractor selected...")
         applicator = Applicator()
         cleaner = Cleaner()
         formatter = Formatter()
         extractor = Extractor()
 
+        dictionary = "/home/lux/dev/felow/words"
+        sent_min = sentmin
+        sent_max = sentmax
+        phrase_len = keyphraselen
+        max_keywords = maxkeywords
+
         text = ""
-        sent_min = 4
-        sent_max = 24
         ref_list = []
 
         #If path is directory
@@ -120,8 +123,8 @@ class Felow(object):
         
         #Remove unwanted sentences
         cleaner.remv_nodeclare()
-        # cleaner.remv_firstperson()
-        # cleaner.remv_secondperson()
+        cleaner.remv_firstperson()
+        cleaner.remv_secondperson()
 
         #Specific items to remove
         cleaner.remv_excaps()
@@ -129,14 +132,12 @@ class Felow(object):
         cleaner.remv_badpgs()
         cleaner.remv_badcoms()
 
-        #Fix sentence spacing after removing characters
-        # cleaner.remv_wtspace()
-        # cleaner.remv_endspace()
+        #Fix punctuation spacing resulting from removed characters
         cleaner.remv_punspace()
         
         #Trim the length and check spelling
         cleaner.trim_sentlist(sent_min, sent_max)
-        cleaner.check_misspelled("/home/lux/dev/felow/words")
+        cleaner.check_misspelled(dictionary)
 
         sent_list = cleaner.get_sentlist()
 
@@ -149,33 +150,36 @@ class Felow(object):
         applicator.set_text(text)
         applicator.apply_text(filename)
 
-        #Add extracted references to text file
-        formatted_refs = formatter.frmt_references(ref_list, "MLA")
-        
-        for refrnc in formatted_refs:
-            applicator.set_text(refrnc)
-            applicator.apply_text("references.txt")
+        if len(style) > 0:
+            #Add extracted references to text file
+            formatted_refs = formatter.frmt_references(ref_list, style)
+            
+            for refrnc in formatted_refs:
+                applicator.set_text(refrnc)
+                applicator.apply_text("references.txt")
 
-        # #Create keyword list
-        # if keywords == True:
-        #     print("keyword extraction selected...")
-        #     print("creating keywords.txt...")
-        #     extractor.set_text(text)
-        #     keyword_list = extractor.extract_keywords()
-        #     kwd_text = ""
-        #     for kwd in keyword_list:
-        #         kwd_text = kwd_text + kwd
-        #         kwd_text = kwd_text + "\n"
+        #Create keyword list
+        if keywords == True:
+            print("keyword extraction selected...")
+            print("creating keywords.txt...")
+            # phrase_len = 2
+            # max_keywords = 50
+            extractor.set_text(text)
+            keyword_list = extractor.extract_keywords(phrase_len, max_keywords)
+            kwd_text = ""
+            for kwd in keyword_list:
+                kwd_text = kwd_text + kwd
+                kwd_text = kwd_text + "\n"
 
-        #     applicator.set_text(kwd_text)    
-        #     applicator.apply_text("keywords.txt")
+            applicator.set_text(kwd_text)    
+            applicator.apply_text("keywords.txt")
 
     def build_weight(self, epochs, source, weightname, numepochs):
         print("builder selected...")
         builder = Builder()
         builder.build_weight(source, epochs, numepochs, weightname)
 
-    def generate_document(self, numwords, filename, weightname, title, lines, temp, clean):
+    def generate_document(self, filename, numwords, sentmin, sentmax, title, weightname, lines, temp, clean):
         print("generator selected...")
         applicator = Applicator()
         cleaner = Cleaner()
@@ -183,30 +187,30 @@ class Felow(object):
         formatter = Formatter()
         generator = Generator()
         
+        keywords = False
+        par_len = 175
+
         sent_list = []
-        len_check = 0 
-        sent_min = 4
-        sent_max = 24
-        # keywords = False
+        len_check = 0
 
         #Set selected weight
         generator.set_weight(weightname)
 
-        # #Check for keyword text and build list
-        # if os.path.exists("keywords.txt"):
-        #     print("keywords.txt found...")
-        #     extractor.extract_text("keywords.txt")
-        #     keyword_text = extractor.get_text()
-        #     temp_text = ""
-        #     keyword_list = []
-        #     keywords = True
-        #     for char in keyword_text:
-        #         if char == "\n":
-        #             keyword_list.append(temp_text)
-        #             temp_text = ""
+        #Check for keyword text and build list
+        if os.path.exists("keywords.txt"):
+            print("keywords.txt found...")
+            extractor.extract_text("keywords.txt")
+            keyword_text = extractor.get_text()
+            temp_text = ""
+            keyword_list = []
+            keywords = True
+            for char in keyword_text:
+                if char == "\n":
+                    keyword_list.append(temp_text)
+                    temp_text = ""
                 
-        #         else:
-        #             temp_text = temp_text + char
+                else:
+                    temp_text = temp_text + char
 
         #Generate text in loop
         while True:
@@ -227,23 +231,21 @@ class Felow(object):
             #Clean generated text
             if clean == True:
                 cleaner.set_sentlist(gen_list)
-                # cleaner.remv_wtspace()
-                # cleaner.remv_noalpha()
-                # cleaner.remv_nodeclare()
-                # cleaner.remv_nums()
-                # cleaner.remv_endspc()
-                # cleaner.remv_noleadcap()
-                # cleaner.remv_excap()
-                # cleaner.remv_firstperson()
-                # cleaner.remv_secondperson()
-                # cleaner.remv_letters()
-                # cleaner.remv_dupwords()
-                cleaner.trim_sentlist(sent_min, sent_max)
+                
+                cleaner.remv_noalpha()
+                cleaner.remv_nodeclare()
+                cleaner.remv_excaps()
+                cleaner.remv_exletters()
+                cleaner.remv_firstperson()
+                cleaner.remv_secondperson()
+                cleaner.remv_dupwords()
+
+                cleaner.trim_sentlist(sentmin, sentmax)
                 cleaner.check_misspelled("/home/lux/dev/felow/words")
 
-                # #Check for keywords
-                # if keywords == True:
-                #     cleaner.check_keywords(keyword_list)
+                #Check for keywords
+                if keywords == True:
+                    cleaner.check_keywords(keyword_list)
 
                 gen_list = cleaner.get_sentlist()
 
@@ -273,7 +275,6 @@ class Felow(object):
                 break
 
         #Format generated sentences as paragraph
-        par_len = 175
         formatter.set_sentlist(sent_list)
         formatter.frmt_textblock(par_len)
         text = formatter.get_text()
@@ -330,32 +331,42 @@ download = subparsers.add_parser(name="dnl")
 download.add_argument("-qry", "--query", action="store", dest="query", required=True)
 download.add_argument("-eng", "--engine", action="store", dest="engine", default="g_scholar")
 download.add_argument("-hdr", "--headers", action="store", dest="headers", default={'user-agent': "Mozilla/5.0 (Linux x86_64; rv:83.0) Gecko/20100101 Firefox/83.0"})
+download.add_argument("-wtm", "--waittime", action="store", dest="waittime", type=int, default=5)
 download.add_argument("-spg", "--startpage", action="store", dest="startpage", type=int, default=1)
 download.add_argument("-epg", "--endpage", action="store", dest="endpage", type=int, default=3)
 download.add_argument("-fts", "--filetypes", action = "store", dest="filetypes", default=["pdf", "doc"])
+download.add_argument("-scp", "--scrape", action="store_true", dest="scrape")
 
 #ext subparsers
 extract = subparsers.add_parser(name="ext")
 extract.add_argument("-p", "--path", action="store", dest="path", required=True)
 extract.add_argument("-f", "--filename", action="store", dest="filename", default="extract.txt")
-extract.add_argument("-kwd", "--keywords", action="store", dest="keywords", default=True)
+extract.add_argument("-min", "--sentmin", action="store", dest="sentmin", type=int, default=4)
+extract.add_argument("-max", "--sentmax", action="store", dest="sentmax", type=int, default=12)
+extract.add_argument("-stl", "--style", action="store", dest="style", default="")
+extract.add_argument("-kwd", "--keywords", action="store_true", dest="keywords")
+extract.add_argument("-kpl", "--keyphraselength", action="store", dest="keyphraselength", type=int, default=2)
+extract.add_argument("-mkw", "--maxkeywords", action="store", dest="maxkeywords", type=int, default=50)
+
 
 #bld subparsers
 build = subparsers.add_parser(name="bld")
-build.add_argument("-epo", "--epochs", action="store", type=int, dest="epochs", required=True)
+build.add_argument("-epo", "--epochs", action="store", dest="epochs", type=int, default=50)
 build.add_argument("-src", "--source", action="store", dest="source", default="extract.txt")
 build.add_argument("-wgt", "--weightname", action="store", dest="weightname", default="weight.hdf5")
 build.add_argument("-num", "--numepochs", action="store", type=int, dest="numepochs", default=False)
 
 #gen subparsers
 generate = subparsers.add_parser(name="gen")
-generate.add_argument("-num", "--numwords", action="store", dest="numwords", type=int, required=True)
 generate.add_argument("-f", "--filename", action="store", dest="filename", required=True)
-generate.add_argument("-wgt", "--weightname", action="store", dest="weightname", default="weight.hdf5")
+generate.add_argument("-num", "--numwords", action="store", dest="numwords", type=int, required=True)
+generate.add_argument("-min", "--sentmin", action="store", dest="sentmin", type=int, default=4)
+generate.add_argument("-max", "--sentmax", action="store", dest="sentmax", type=int, default=12)
 generate.add_argument("-ttl", "--title", action="store", dest="title", default="Title")
+generate.add_argument("-wgt", "--weightname", action="store", dest="weightname", default="weight.hdf5")
 generate.add_argument("-lns", "--lines", action="store", dest="lines", type=int, default=1)
-generate.add_argument("-tmp", "--temp", action="store", dest="temp", type=float, default=[0.2, 0.5])
-generate.add_argument("-cln", "--clean", action="store", dest="clean", default=True)
+generate.add_argument("-tmp", "--temp", action="store", dest="temp", type=float, default=0.5)
+generate.add_argument("-ncl", "--noclean", action="store_false", dest="noclean")
 
 #tst subparsers
 test = subparsers.add_parser(name="tst")
@@ -368,17 +379,24 @@ if args.command == "dnl":
     query = args.query
     engine = args.engine
     headers = args.headers
+    waittime = args.waittime
     startpage = args.startpage
     endpage = args.endpage
     filetypes = args.filetypes
-    felow.download_files(query, engine, headers, startpage, endpage, filetypes)
+    scrape = args.scrape
+    felow.download_files(query, engine, headers, waittime, startpage, endpage, filetypes, scrape)
 
 #extract text from document(s) to .txt file
 elif args.command == "ext":
     path = args.path
     filename = args.filename
+    sentmin = args.sentmin
+    sentmax = args.sentmax
+    style = args.style
     keywords = args.keywords
-    felow.extract_text(path, filename, keywords)
+    keyphraselen = args.keyphraselength
+    maxkeywords = args.maxkeywords
+    felow.extract_text(path, filename, sentmin, sentmax, style, keywords, keyphraselen, maxkeywords)
 
 #Build weight from .txt file
 elif args.command == "bld":
@@ -391,56 +409,20 @@ elif args.command == "bld":
 
 #Generate document from weight
 elif args.command == "gen":
-    numwords = args.numwords
     filename = args.filename
-    weightname = args.weightname
+    numwords = args.numwords
+    sentmin = args.sentmin
+    sentmax = args.sentmax
     title = args.title
+    weightname = args.weightname
     lines = args.lines
     temp = args.temp
-    clean = args.clean
-    felow.generate_document(numwords, filename, weightname, title, lines, temp, clean)
+    noclean = args.noclean
+    felow.generate_document(filename, numwords, sentmin, sentmax, title, weightname, lines, temp, noclean)
 
-elif args.command == "tst":
+# elif args.command == "tst":
 #     #Add test function here
 #     print("for testing...")
-    extractor = Extractor()
-    #Check for keyword text and build list
-    if os.path.exists("metadata.txt"):
-        print("metadata.txt found...")
-        f = open("metadata.txt", "r")
-        meta_list = f.readlines()
-        print(meta_list)
-
-    new_list = []
-    remove_list = ["\n", "{", "}"]
-    for meta in meta_list:
-        for char in remove_list:  
-            meta = meta.strip(char)
-
-        new_list.append(meta)
-
-    meta_list = new_list
-    
-    new_list = []
-    for dct in meta_list:
-        # print(dct)
-        temp_dict = {}
-        field_list = dct.split(",")
-        for fld in field_list:
-            values = fld.split(":")
-            print(values)
-            try:
-                temp_dict[values[0]] = values[1]
-                print(values[0])
-                print(values[1])
-
-            except:
-                print("value not found")
-
-        new_list.append(temp_dict)
-
-    print(new_list)
-
 
 else:
     print("command not found")

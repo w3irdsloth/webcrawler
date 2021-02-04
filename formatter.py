@@ -71,6 +71,8 @@ class Formatter(object):
     def frmt_references(self, ref_list, style):
         if style == "MLA":
             template = "<author>. <title>. <subject>. <date>. <file>. \n"
+        elif style == "APA":
+            template = "<author>. (<date>). <title>. <subject>. <file>. \n"
 
         template_list = []
         for ref_dict in ref_list:

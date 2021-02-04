@@ -18,6 +18,9 @@ class Downloader(object):
     def set_searchengine(self, search_engine):
         self.engine = search_engine
 
+    def set_waittime(self, wait_time):
+        self.wait_time = wait_time
+
     #Bulid url from query and page number
     def build_url(self, query, page):
         url = ""
@@ -46,6 +49,7 @@ class Downloader(object):
         html = ""
         try:
             html = requests.get(url, headers=headers, timeout=5)
+            time.sleep(self.wait_time)
             return html
 
         except requests.exceptions.Timeout:
@@ -58,7 +62,8 @@ class Downloader(object):
             print("HTTP error")
 
         except requests.exceptions.RequestException as e:
-            raise SystemExit(e)
+            print("request error: " + e)
+            pass
 
     # #Scrape text from html
     # def scrape_text(self, html):
@@ -90,45 +95,60 @@ class Downloader(object):
     #Filter links for files
     def filter_links(self, links, filetypes):
         link_list = []
-        # wait_time = 2
         for lnk in links:
             print("querying " + lnk + "...")
             try:
                 r = requests.head(lnk)
                 headers = r.headers
                 content_type = headers.get('Content-Type')
+                time.sleep(self.wait_time)
                 print("content type:")
                 print(content_type)
-                # time.sleep(wait_time)
                 
                 for fltp in filetypes:
-                    if fltp in content_type:
+                    if content_type != None and fltp in content_type:
                         link_list.append(lnk)
                         print("file added to queue...")
                         break
 
-            except:
-                print("no response")
-                print(lnk)
-                # time.sleep(wait_time)
+            except requests.exceptions.Timeout:
+                print("timeout")
+
+            except requests.exceptions.TooManyRedirects:
+                print("too many redirects")
+
+            except requests.exceptions.HTTPError:
+                print("HTTP error")
+
+            except requests.exceptions.RequestException as e:
+                print("request error: " + e)
+                pass
 
         return link_list
 
     #Download files from links
     def dl_links(self, links):
-        # wait_time = 2
         for lnk in links:
             filename = os.path.split(lnk)[1]
             print("downloading " + filename + "...")
             try:
-                r = requests.get(lnk, allow_redirects=True)
+                r = requests.get(lnk, allow_redirects=True, timeout=5)
                 open(filename, "wb").write(r.content)
+                time.sleep(self.wait_time)
                 print("done")
-                # time.sleep(wait_time)
 
-            except:
-                print("file not found")
-                # time.sleep(wait_time)
+            except requests.exceptions.Timeout:
+                print("timeout")
+
+            except requests.exceptions.TooManyRedirects:
+                print("too many redirects")
+
+            except requests.exceptions.HTTPError:
+                print("HTTP error")
+
+            except requests.exceptions.RequestException as e:
+                print("requst error: " + e)
+                pass
 
 
 

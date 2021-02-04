@@ -13,11 +13,11 @@ class Cleaner(object):
     def set_text(self, text):
         self.text = text
 
-    def get_sentlist(self):
-        return self.sent_list
-
     def set_sentlist(self, sent_list):
         self.sent_list = sent_list
+
+    def get_sentlist(self):
+        return self.sent_list
 
     # def sort_sentcs(self):
     #     from nltk.tokenize import sent_tokenize
@@ -45,46 +45,32 @@ class Cleaner(object):
         temp_list = list(set(self.sent_list))
         self.sent_list = temp_list
         
-    # #Remove sentences with duplicate words
-    # def remv_dupwords(self):
-    #     print("removing duplicate words...")
-    #     #List of commonly used conjunctions, articles, and prepositions to ignore
-    #     pass_list = ["is", "for", "and", "or", "are", "the", "a", "an", "at", "of", "to", "in", "on", "they", "there"]
-    #     temp_list = []
-    #     temp_list = temp_list + self.sent_list
-    #     for sentc in self.sent_list:
-    #         temp_sentc = re.sub(r'[^\w\s]', '', sentc)
-    #         check_list = temp_sentc.split()
-    #         word_list = []
-    #         for wrd in check_list:
-    #             if wrd in pass_list:
-    #                 pass
+    #Remove sentences with duplicate words
+    def remv_dupwords(self):
+        print("removing duplicate words...")
+        #List of commonly used conjunctions, articles, and prepositions to ignore
+        pass_list = ["is", "for", "and", "or", "are", "the", "a", "an", "at", "of", "to", "in", "on", "they", "there"]
+        temp_list = []
+        temp_list = temp_list + self.sent_list
+        for sentc in self.sent_list:
+            temp_sentc = re.sub(r'[^\w\s]', '', sentc)
+            check_list = temp_sentc.split()
+            word_list = []
+            for wrd in check_list:
+                if wrd in pass_list:
+                    pass
                     
-    #             elif wrd.lower() not in word_list:
-    #                 word_list.append(wrd.lower())
+                elif wrd.lower() not in word_list:
+                    word_list.append(wrd.lower())
 
-    #             else:
-    #                 with open("duplicatewords.txt", "a") as temp_file:
-    #                     temp_file.write(wrd + "\n")
-    #                     temp_file.close()
-    #                 temp_list.remove(sentc)
-    #                 break
+                else:
+                    with open("duplicatewords.txt", "a") as temp_file:
+                        temp_file.write(wrd + "\n")
+                        temp_file.close()
+                    temp_list.remove(sentc)
+                    break
 
-    #     self.sent_list = temp_list
-
-    # #Keep sentences that contain a keyword
-    # def check_keywords(self, keywords):
-    #     print("checking for keywords...")
-    #     temp_list = []
-    #     for sentc in self.sent_list:
-    #         for kywrd in keywords:
-    #             if kywrd in sentc:
-    #                 print(sentc)
-    #                 print(kywrd)
-    #                 temp_list.append(sentc)
-    #                 break
-
-        # self.sent_list = temp_list
+        self.sent_list = temp_list
 
     def remv_pars(self):
         print("removing parentheses...")
@@ -329,3 +315,17 @@ class Cleaner(object):
     #             temp_list.append(sentc)
 
     #     self.sent_list = temp_list      
+
+    #Keep sentences that contain a keyword
+    def check_keywords(self, keywords):
+        print("checking for keywords...")
+        temp_list = []
+        for sentc in self.sent_list:
+            for kywrd in keywords:
+                if kywrd in sentc:
+                    print(sentc)
+                    print(kywrd)
+                    temp_list.append(sentc)
+                    break
+
+        self.sent_list = temp_list
