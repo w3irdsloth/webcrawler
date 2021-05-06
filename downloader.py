@@ -62,7 +62,7 @@ class Downloader(object):
             print("HTTP error")
 
         except requests.exceptions.RequestException as e:
-            print("request error: " + e)
+            print("request error: " + str(e))
             pass
 
     # #Scrape text from html
@@ -121,7 +121,7 @@ class Downloader(object):
                 print("HTTP error")
 
             except requests.exceptions.RequestException as e:
-                print("request error: " + e)
+                print("request error: " + str(e))
                 pass
 
         return link_list
@@ -147,7 +147,7 @@ class Downloader(object):
                 print("HTTP error")
 
             except requests.exceptions.RequestException as e:
-                print("requst error: " + e)
+                print("requst error: " + str(e))
                 pass
 
 

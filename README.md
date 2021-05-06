@@ -6,12 +6,11 @@ Requirements:
 python 3.8
 tensorflow 
 textgenrnn
-python-language-tool
-requests
 
-optional (for file support):
-python-docx
-PyPDF2
+optional:
+python-docx (for .doc(x) support)
+PyMuPDF (for .pdf support)
+rake-nltk (keyword support)
 
 Installation:
 FELOW can be installed by cloning from the git repository and running /path/to/felow.py

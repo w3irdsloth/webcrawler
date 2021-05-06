@@ -130,13 +130,16 @@ class Felow(object):
         cleaner.remv_excaps()
         cleaner.remv_exletters()
         cleaner.remv_badpgs()
-        cleaner.remv_badcoms()
 
         #Fix punctuation spacing resulting from removed characters
         cleaner.remv_punspace()
-        
+        cleaner.remv_badcoms()
+
         #Trim the length and check spelling
         cleaner.trim_sentlist(sent_min, sent_max)
+
+        # cleaner.check_sentlen(40)
+
         cleaner.check_misspelled(dictionary)
 
         sent_list = cleaner.get_sentlist()
@@ -187,6 +190,7 @@ class Felow(object):
         formatter = Formatter()
         generator = Generator()
         
+        dictionary = "/home/lux/dev/felow/words"
         keywords = False
         par_len = 175
 
@@ -241,7 +245,7 @@ class Felow(object):
                 cleaner.remv_dupwords()
 
                 cleaner.trim_sentlist(sentmin, sentmax)
-                cleaner.check_misspelled("/home/lux/dev/felow/words")
+                cleaner.check_misspelled(dictionary)
 
                 #Check for keywords
                 if keywords == True:
@@ -348,7 +352,6 @@ extract.add_argument("-kwd", "--keywords", action="store_true", dest="keywords")
 extract.add_argument("-kpl", "--keyphraselength", action="store", dest="keyphraselength", type=int, default=2)
 extract.add_argument("-mkw", "--maxkeywords", action="store", dest="maxkeywords", type=int, default=50)
 
-
 #bld subparsers
 build = subparsers.add_parser(name="bld")
 build.add_argument("-epo", "--epochs", action="store", dest="epochs", type=int, default=50)
@@ -420,9 +423,12 @@ elif args.command == "gen":
     noclean = args.noclean
     felow.generate_document(filename, numwords, sentmin, sentmax, title, weightname, lines, temp, noclean)
 
-# elif args.command == "tst":
-#     #Add test function here
-#     print("for testing...")
+elif args.command == "tst":
+    #Add test function here
+    # print("for testing...")
+    applicator = Applicator()
+    applicator.set_tag("Hi")
+    applicator.apply_text("Bye", "newdoc.docx")
 
 else:
     print("command not found")

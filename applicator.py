@@ -3,67 +3,83 @@
  ##############
 
 import os
-from os.path import splitext
+from os.path import splitext, isfile
 
 class Applicator(object):
-    """ Creates an object for applying text to files """
+    """ Apply text to file at tag (if tag is provided/exists) """
     def __init__(self):
-        self.text = ""
         self.tag = ""
-
-    def set_text(self, text):
-       self.text = text
 
     def set_tag(self, tag):
         self.tag = tag
 
+    def get_tag(self):
+        return self.tag
+
+    def is_tag(self):
+        if len(self.tag) > 0:
+            return True
+
+        else:
+            return False
+
+    def tag_len(self):
+        return len(self.tag)
+
     #Apply text to tag in file
-    def apply_text(self, document):
+    def apply_text(self, text, document):
         ext = splitext(document)[1]
         if ".txt" in ext:
-            print("applying text to .txt file...")
-            try:
-                with open(document, "a") as temp_file:
-                    temp_file.write(self.text)
-                    temp_file.close()
+            if os.path.isfile(document):
+                f = open(document, "r")
+                doc_text = f.read()
 
-            except:
-                print("text application failed")
-                raise SystemExit
+            else:
+                doc_text = ""
+
+            f = open(document, "w")
+            if self.is_tag() and self.tag in doc_text:
+                slice_index_start = doc_text.index(self.tag)
+                slice_index_end = slice_index_start + self.tag_len()
+                new_doc_text = ''.join(doc_text[:slice_index_start] + text + doc_text[slice_index_end:])
+                new_text = new_doc_text
+
+            else:
+                if len(doc_text) > 0:
+                    new_text = doc_text + "\n"
+                    new_text = new_text + text
+
+                else:
+                    new_text = text
+
+            f.write(new_text)    
+            f.close()
+            return True
 
         elif ".doc" in ext:
             from docx import Document
-            print("printing to .docx file...")
-            try:
+
+            if os.path.isfile(document):
                 doc = Document(document)
             
-            except:
+            else:
                 doc = Document()
 
-            tag_check = False
-            if len(self.tag) >= 1:
+            if self.is_tag():
                 for prgph in doc.paragraphs:
                     if self.tag in prgph.text:
-                        print("printing to selected tag...")
-        
-                        prgph.text = self.text                    
-                        doc.save(document)
-                        tag_check = True       
+                        prgph_string = prgph.text
+                        slice_index_start = prgph_string.index(self.tag)
+                        slice_index_end = slice_index_start + self.tag_len()
+                        new_prgph_text = ''.join(prgph_string[:slice_index_start] + text + prgph_string[slice_index_end:])
+                        prgph.text = new_prgph_text       
                         break
 
-                if tag_check == False:
-                    print("tag not found")
-                    print("printing to end of file...")
-    
-                    doc.add_paragraph(self.text)
-                    doc.save(document)
-
             else:
-                print("no tag selected")
-                print("printing to end of file...")
-
-                doc.add_paragraph(self.text)
-                doc.save(document)
+                doc.add_paragraph(text)
+                
+            doc.save(document)
+            return True
 
         else:
-            print("unsupported file type")
+            return False

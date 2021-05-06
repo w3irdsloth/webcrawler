@@ -245,6 +245,16 @@ class Cleaner(object):
                 
         self.sent_list = temp_list
 
+    # def check_sentlen(self, max_words):
+    #     print("checking max sentence length")
+    #     temp_list = []
+    #     for sentc in self.sent_list:
+    #         temp_sentc = sentc.replace(" ", "")
+    #         if len(temp_sentc) <= 40:
+    #             temp_list.append(sentc)
+
+    #     self.sent_list = temp_list
+
     #Check words against dictionary
     def check_misspelled(self, words):
         print("checking for spelling errors...")
