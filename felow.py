@@ -15,6 +15,71 @@ import textwrap
 import os
 
 class Felow(object):
+    def apply_text(self, text, document):
+        applicator = Applicator()
+        extractor = Extractor()
+
+        if os.path.isfile(text):
+            if extractor.extract_text(text):
+                new_text = extractor.get_text()
+
+            else:
+                print("unsupported file type")
+                raise SystemExit
+
+        else:
+            new_text = text
+
+        applicator.apply_text(text=new_text, document=document)
+
+    def build_weight(self, epochs, source, weightname, numepochs):
+        print("builder selected...")
+        builder = Builder()
+        builder.build_weight(source, epochs, numepochs, weightname)
+
+    def clean_text(self, text):
+        sentmin = 8
+        sentmax = 24
+        dictionary = "/home/lux/dev/felow/words"
+        clean_doc = "clean.txt"
+
+        applicator = Applicator()
+        cleaner = Cleaner()
+        extractor = Extractor()
+        formatter = Formatter()
+
+        if os.path.isfile(text):
+            if extractor.extract_text(text):
+                new_text = extractor.get_text()
+
+            else:
+                print("unsupported file type")
+                raise SystemExit
+
+        else:
+            new_text = text
+
+        cleaner.create_sentc_list(new_text)
+                
+        cleaner.remv_noalpha()
+        cleaner.remv_nodeclare()
+        cleaner.remv_excaps()
+        cleaner.remv_exletters()
+        cleaner.remv_firstperson()
+        cleaner.remv_secondperson()
+        cleaner.remv_dupwords()
+        cleaner.remv_duplicates()
+        cleaner.trim_sentlist(sentmin, sentmax)
+        cleaner.check_misspelled(dictionary)
+
+        sentc_list = cleaner.get_sentc_list()
+
+        formatter.set_sentlist(sentc_list)
+        formatter.frmt_textstring()
+        clean_text = formatter.get_text()
+
+        applicator.apply_text(text=clean_text, document=clean_doc)
+
     def download_files(self, query, engine, headers, waittime, startpage, endpage, filetypes, scrape):
         print("downloader selected...")
         applicator = Applicator()
@@ -73,21 +138,21 @@ class Felow(object):
                     except:
                         print("scrape failed")
 
-    def extract_text(self, path, filename, sentmin, sentmax, style, keywords, keyphraselen, maxkeywords):
+    def extract_text(self, path, filename):
         print("extractor selected...")
         applicator = Applicator()
-        cleaner = Cleaner()
-        formatter = Formatter()
+        # cleaner = Cleaner()
+        # formatter = Formatter()
         extractor = Extractor()
 
-        dictionary = "/home/lux/dev/felow/words"
-        sent_min = sentmin
-        sent_max = sentmax
-        phrase_len = keyphraselen
-        max_keywords = maxkeywords
+        # dictionary = "/home/lux/dev/felow/words"
+        # sent_min = sentmin
+        # sent_max = sentmax
+        # phrase_len = keyphraselen
+        # max_keywords = maxkeywords
 
         text = ""
-        ref_list = []
+        # ref_list = []
 
         #If path is directory
         if os.path.isdir(path):
@@ -95,8 +160,8 @@ class Felow(object):
                 extractor.extract_text(os.path.join(path, doc))
                 text = text + extractor.get_text()
 
-                temp_refs = extractor.extract_references(os.path.join(path, doc))
-                ref_list.append(temp_refs)
+                # temp_refs = extractor.extract_references(os.path.join(path, doc))
+                # ref_list.append(temp_refs)
  
         #If path is file
         elif os.path.isfile(path):
@@ -104,83 +169,116 @@ class Felow(object):
             extractor.extract_text(doc)
             text = extractor.get_text()
 
-            temp_refs = extractor.extract_references(os.path.join(path, doc))
-            ref_list.append(temp_refs)
+            # temp_refs = extractor.extract_references(os.path.join(path, doc))
+            # ref_list.append(temp_refs)
 
         else:
             print("invalid path")
             raise SystemExit
 
-        #Clean collected text
-        cleaner.set_text(text)
-        cleaner.sort_sentcs() 
-        cleaner.remv_newlines()
-        cleaner.remv_duplicates()
+        # #Clean collected text
+        # cleaner.set_text(text)
+        # cleaner.sort_sentcs() 
+        # cleaner.remv_newlines()
+        # cleaner.remv_duplicates()
         
-        #Remove parenthetical text before filtering characters
-        cleaner.remv_pars()
-        cleaner.remv_noalpha()
+        # #Remove parenthetical text before filtering characters
+        # cleaner.remv_pars()
+        # cleaner.remv_noalpha()
         
-        #Remove unwanted sentences
-        cleaner.remv_nodeclare()
-        cleaner.remv_firstperson()
-        cleaner.remv_secondperson()
+        # #Remove unwanted sentences
+        # cleaner.remv_nodeclare()
+        # cleaner.remv_firstperson()
+        # cleaner.remv_secondperson()
 
-        #Specific items to remove
-        cleaner.remv_excaps()
-        cleaner.remv_exletters()
-        cleaner.remv_badpgs()
+        # #Specific items to remove
+        # cleaner.remv_excaps()
+        # cleaner.remv_exletters()
+        # cleaner.remv_badpgs()
 
-        #Fix punctuation spacing resulting from removed characters
-        cleaner.remv_punspace()
-        cleaner.remv_badcoms()
+        # #Fix punctuation spacing resulting from removed characters
+        # cleaner.remv_punspace()
+        # cleaner.remv_badcoms()
 
-        #Trim the length and check spelling
-        cleaner.trim_sentlist(sent_min, sent_max)
+        # #Trim the length and check spelling
+        # cleaner.trim_sentlist(sent_min, sent_max)
 
-        # cleaner.check_sentlen(40)
+        # # cleaner.check_sentlen(40)
 
-        cleaner.check_misspelled(dictionary)
+        # cleaner.check_misspelled(dictionary)
 
-        sent_list = cleaner.get_sentlist()
+        # sent_list = cleaner.get_sentlist()
 
-        #Format sentences as text list
-        formatter.set_sentlist(sent_list)
-        formatter.frmt_textlist()
-        text = formatter.get_text()
+        # #Format sentences as text list
+        # formatter.set_sentlist(sent_list)
+        # formatter.frmt_textlist()
+        # text = formatter.get_text()
 
         #apply text to .txt doc
-        applicator.set_text(text)
-        applicator.apply_text(filename)
+        applicator.apply_text(text=text, document=filename)
 
-        if len(style) > 0:
-            #Add extracted references to text file
-            formatted_refs = formatter.frmt_references(ref_list, style)
+        # if len(style) > 0:
+        #     #Add extracted references to text file
+        #     formatted_refs = formatter.frmt_references(ref_list, style)
             
-            for refrnc in formatted_refs:
-                applicator.set_text(refrnc)
-                applicator.apply_text("references.txt")
+        #     for refrnc in formatted_refs:
+        #         applicator.set_text(refrnc)
+        #         applicator.apply_text("references.txt")
 
-        #Create keyword list
-        if keywords == True:
-            print("keyword extraction selected...")
-            print("creating keywords.txt...")
-            # phrase_len = 2
-            # max_keywords = 50
-            extractor.set_text(text)
-            keyword_list = extractor.extract_keywords(phrase_len, max_keywords)
-            kwd_text = ""
-            for kwd in keyword_list:
-                kwd_text = kwd_text + kwd
-                kwd_text = kwd_text + "\n"
+        # #Create keyword list
+        # if keywords == True:
+        #     print("keyword extraction selected...")
+        #     print("creating keywords.txt...")
+        #     # phrase_len = 2
+        #     # max_keywords = 50
+        #     extractor.set_text(text)
+        #     keyword_list = extractor.extract_keywords(phrase_len, max_keywords)
+        #     kwd_text = ""
+        #     for kwd in keyword_list:
+        #         kwd_text = kwd_text + kwd
+        #         kwd_text = kwd_text + "\n"
 
-            applicator.set_text(kwd_text)    
-            applicator.apply_text("keywords.txt")
+        #     applicator.set_text(kwd_text)    
+        #     applicator.apply_text("keywords.txt")
 
-    def build_weight(self, epochs, source, weightname, numepochs):
-        print("builder selected...")
-        builder = Builder()
-        builder.build_weight(source, epochs, numepochs, weightname)
+    def format_text(self, text, document):
+        document = "format.txt"
+        text_format = "string"
+
+        applicator = Applicator()
+        cleaner = Cleaner()
+        extractor = Extractor()
+        formatter = Formatter()
+
+        if os.path.isfile(text):
+            if extractor.extract_text(text):
+                new_text = extractor.get_text()
+
+            else:
+                print("unsupported file type")
+                raise SystemExit
+
+        else:
+            new_text = text
+
+        cleaner.create_sentc_list(new_text)
+        sentc_list = cleaner.get_sentc_list()
+
+        formatter.set_sentlist(sentc_list)
+
+        if text_format == "string":
+            formatter.frmt_textstring()
+        
+        format_text = formatter.get_text()
+
+        applicator.apply_text(format_text, document=document)
+
+    def generate_text(self, weight, numwords, lines, temp):
+        applicator = Applicator()
+        formatter = Formatter()
+        generator = Generator()
+
+        
 
     def generate_document(self, filename, numwords, sentmin, sentmax, title, weightname, lines, temp, clean):
         print("generator selected...")
@@ -330,8 +428,24 @@ Apply | Build | Clean | Download | Extract | Format | Generate
 
 subparsers = parser.add_subparsers(title="commands", dest="command")
 
-#dnl subparsers
-download = subparsers.add_parser(name="dnl")
+#Apply subparsers
+apply = subparsers.add_parser(name="apply")
+apply.add_argument("-txt", "--text", action="store", dest="text", required=True)
+apply.add_argument("-doc", "--document", action="store", dest="document", required=True)
+
+#build subparsers
+build = subparsers.add_parser(name="build")
+build.add_argument("-epo", "--epochs", action="store", dest="epochs", type=int, default=50)
+build.add_argument("-src", "--source", action="store", dest="source", default="extract.txt")
+build.add_argument("-wgt", "--weightname", action="store", dest="weightname", default="weight.hdf5")
+build.add_argument("-num", "--numepochs", action="store", type=int, dest="numepochs", default=False)
+
+#clean subparsers
+clean = subparsers.add_parser(name="clean")
+clean.add_argument("-txt", "--text", action="store", dest="text", required=True)
+
+#download subparsers
+download = subparsers.add_parser(name="download")
 download.add_argument("-qry", "--query", action="store", dest="query", required=True)
 download.add_argument("-eng", "--engine", action="store", dest="engine", default="g_scholar")
 download.add_argument("-hdr", "--headers", action="store", dest="headers", default={'user-agent': "Mozilla/5.0 (Linux x86_64; rv:83.0) Gecko/20100101 Firefox/83.0"})
@@ -341,8 +455,8 @@ download.add_argument("-epg", "--endpage", action="store", dest="endpage", type=
 download.add_argument("-fts", "--filetypes", action = "store", dest="filetypes", default=["pdf", "doc"])
 download.add_argument("-scp", "--scrape", action="store_true", dest="scrape")
 
-#ext subparsers
-extract = subparsers.add_parser(name="ext")
+#extract subparsers
+extract = subparsers.add_parser(name="extract")
 extract.add_argument("-p", "--path", action="store", dest="path", required=True)
 extract.add_argument("-f", "--filename", action="store", dest="filename", default="extract.txt")
 extract.add_argument("-min", "--sentmin", action="store", dest="sentmin", type=int, default=4)
@@ -352,12 +466,10 @@ extract.add_argument("-kwd", "--keywords", action="store_true", dest="keywords")
 extract.add_argument("-kpl", "--keyphraselength", action="store", dest="keyphraselength", type=int, default=2)
 extract.add_argument("-mkw", "--maxkeywords", action="store", dest="maxkeywords", type=int, default=50)
 
-#bld subparsers
-build = subparsers.add_parser(name="bld")
-build.add_argument("-epo", "--epochs", action="store", dest="epochs", type=int, default=50)
-build.add_argument("-src", "--source", action="store", dest="source", default="extract.txt")
-build.add_argument("-wgt", "--weightname", action="store", dest="weightname", default="weight.hdf5")
-build.add_argument("-num", "--numepochs", action="store", type=int, dest="numepochs", default=False)
+#format subparsers
+formatter = subparsers.add_parser(name="formatter")
+formatter.add_argument("-txt", "--text", action="store", dest="text", required=True)
+formatter.add_argument("-doc", "--document", action="store", dest="document", required=True)
 
 #gen subparsers
 generate = subparsers.add_parser(name="gen")
@@ -377,8 +489,27 @@ test = subparsers.add_parser(name="tst")
 #set arguments
 args = parser.parse_args()
 
+#Apply text to document based on tag
+if args.command == "apply":
+    text = args.text
+    document = args.document
+    felow.apply_text(text, document)
+
+#Build weight from .txt file
+elif args.command == "build":
+    print("building...")
+    epochs = args.epochs
+    source = args.source
+    weightname = args.weightname
+    numepochs = args.numepochs
+    felow.build_weight(epochs, source, weightname, numepochs)
+
+elif args.command == "clean":
+    text = args.text
+    felow.clean_text(text)
+
 #download documents from the internet
-if args.command == "dnl":
+elif args.command == "download":
     query = args.query
     engine = args.engine
     headers = args.headers
@@ -390,25 +521,15 @@ if args.command == "dnl":
     felow.download_files(query, engine, headers, waittime, startpage, endpage, filetypes, scrape)
 
 #extract text from document(s) to .txt file
-elif args.command == "ext":
+elif args.command == "extract":
     path = args.path
     filename = args.filename
-    sentmin = args.sentmin
-    sentmax = args.sentmax
-    style = args.style
-    keywords = args.keywords
-    keyphraselen = args.keyphraselength
-    maxkeywords = args.maxkeywords
-    felow.extract_text(path, filename, sentmin, sentmax, style, keywords, keyphraselen, maxkeywords)
+    felow.extract_text(path=path, filename=filename)
 
-#Build weight from .txt file
-elif args.command == "bld":
-    print("building...")
-    epochs = args.epochs
-    source = args.source
-    weightname = args.weightname
-    numepochs = args.numepochs
-    felow.build_weight(epochs, source, weightname, numepochs)
+elif args.command == "formatter":
+    text = args.text
+    document = args.document
+    felow.format_text(text, document)
 
 #Generate document from weight
 elif args.command == "gen":
@@ -423,12 +544,9 @@ elif args.command == "gen":
     noclean = args.noclean
     felow.generate_document(filename, numwords, sentmin, sentmax, title, weightname, lines, temp, noclean)
 
-elif args.command == "tst":
+# elif args.command == "tst":
     #Add test function here
     # print("for testing...")
-    applicator = Applicator()
-    applicator.set_tag("Hi")
-    applicator.apply_text("Bye", "newdoc.docx")
 
 else:
     print("command not found")
