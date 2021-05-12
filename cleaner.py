@@ -21,7 +21,7 @@ class Cleaner(object):
     #     self.sentc_list = temp_list
 
     def create_sentc_list(self, text):
-        print("sorting sentences...")
+        print("creating sentence list...")
         expression = re.compile(r'([A-Z][^\.!?]*[\.!?])')
         temp_list = re.findall(expression, text)
         self.sentc_list = temp_list
