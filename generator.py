@@ -22,17 +22,22 @@ class Generator(object):
         return len_check
 
     #Set RNN weight for generating text 
-    def set_weight(self, weight):
+    def set_weights(self, weights_path, vocab_path, config_path):
         try:
             print("importing rnn architecture...")
             from textgenrnn import textgenrnn
 
-            print("importing weight...")
-            self.textgen = textgenrnn(weight)
+            print("importing weights...")
+
+            if len(config_path) > 0 and len(vocab_path) > 0:
+                self.textgen = textgenrnn(weights_path=weights_path, vocab_path=vocab_path, config_path=config_path)
+
+            else:
+                self.textgen = textgenrnn(weights_path=weights_path)
         
         except:
             print("import failed")
-            print("make sure a valid weight is set")
+            print("make sure valid weights are set")
             raise SystemExit
 
     #Generate text list using selected RNN weight

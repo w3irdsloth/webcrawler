@@ -43,33 +43,87 @@ class Felow(object):
         else:
             print("application failed")
 
-    def build_weight(self, source, epochs, number, name):
+    def build_weight(self, source, epochs, number, name, isnew):
         print("builder selected")
         builder = Builder()
-        if builder.build_weight(source, epochs, number, name):
+        if builder.build_weight(source, epochs, number, name, isnew):
             print("build successful")
 
         else:
             print("build failed")
 
-    def clean_text(self, text, document, sentmin, sentmax, dictionary):
+    def clean_text(self, text, document, sentmin, sentmax, dictionary, cycle):
         print("applicator selected")
         applicator = Applicator()
         cleaner = Cleaner()
         formatter = Formatter()
         new_text = self.get_string(text)
 
+        cycle_list = ["noalpha", 
+                          "nodeclare", 
+                          "excaps", 
+                          "exletters", 
+                          "firstperson", 
+                          "secondperson", 
+                          "dupwords", 
+                          "duplicates", 
+                          "trimsentlist", 
+                          "checkspelling", 
+                          "help (or h)"]
+
+        def return_cycles():
+            s = ", "
+            s = s.join(cycle_list)
+            return s
+        
         cleaner.create_sentc_list(new_text)
-        cleaner.remv_noalpha()
-        cleaner.remv_nodeclare()
-        cleaner.remv_excaps()
-        cleaner.remv_exletters()
-        cleaner.remv_firstperson()
-        cleaner.remv_secondperson()
-        cleaner.remv_dupwords()
-        cleaner.remv_duplicates()
-        cleaner.trim_sentlist(sentmin, sentmax)
-        cleaner.check_misspelled(dictionary)
+        if cycle == "full":
+            cleaner.remv_noalpha()
+            cleaner.remv_nodeclare()
+            cleaner.remv_excaps()
+            cleaner.remv_exletters()
+            cleaner.remv_firstperson()
+            cleaner.remv_secondperson()
+            cleaner.remv_dupwords()
+            cleaner.remv_duplicates()
+            cleaner.trim_sentlist(sentmin, sentmax)
+            cleaner.check_misspelled(dictionary)
+
+        elif cycle == "noalpha":
+            cleaner.remv_noalpha()
+
+        elif cycle == "nodeclare":
+            cleaner.remv_nodeclare()
+
+        elif cycle == "excaps":
+            cleaner.remv_excaps()
+
+        elif cycle == "exletters":
+            cleaner.remv_exletters()
+
+        elif cycle == "firstperson":
+            cleaner.remv_firstperson()
+
+        elif cycle == "secondperson":
+            cleaner.remv_secondperson()
+
+        elif cycle == "dupwords":
+            cleaner.remv_dupwords()
+
+        elif cycle == "duplicates":
+            cleaner.remv_duplicates()
+
+        elif cycle == "trimsentlist":
+            cleaner.trim_sentlist(sentmin, sentmax)
+
+        elif cycle == "checkspelling":
+            cleaner.check_misspelled(dictionary)
+
+        else:
+            print("cycle not found")
+            print("available cycles:")
+            print(return_cycles())
+            raise SystemExit
 
         sentc_list = cleaner.get_sentc_list()
         formatter.set_sentlist(sentc_list)
@@ -223,12 +277,12 @@ class Felow(object):
         format_text = formatter.get_text()
         applicator.apply_text(format_text, document=document)
 
-    def generate_text(self, weight, num, lines, temp, document):
+    def generate_text(self, weights, vocab, config, num, lines, temp, document):
         applicator = Applicator()
         formatter = Formatter()
         generator = Generator()
         
-        generator.set_weight(weight)
+        generator.set_weights(weights, vocab, config)
         generator.gen_text(num, lines, temp)
         gen_list = generator.get_text_list()
         
@@ -276,8 +330,9 @@ applicator.add_argument("-tag", "--tag", action="store", dest="tag", default="")
 builder = subparsers.add_parser(name="builder")
 builder.add_argument("-src", "--source", action="store", dest="source", required=True)
 builder.add_argument("-epo", "--epochs", action="store", dest="epochs", type=int, default=50)
-builder.add_argument("-num", "--number", action="store", type=int, dest="number", default=False)
+builder.add_argument("-num", "--number", action="store", type=int, dest="number", default=5)
 builder.add_argument("-nme", "--name", action="store", dest="name", default="weight.hdf5")
+builder.add_argument("-new", "--isnew", action="store_true", dest="isnew")
 
 #Cleaner subparsers
 cleaner = subparsers.add_parser(name="cleaner")
@@ -286,6 +341,7 @@ cleaner.add_argument("-doc", "--document", action="store", dest="document", defa
 cleaner.add_argument("-min", "--sentmin", action="store", type=int, dest="sentmin", default=8)
 cleaner.add_argument("-max", "--sentmax", action="store", type=int, dest="sentmax", default=24)
 cleaner.add_argument("-dic", "--dictionary", action="store", dest="dictionary", default="/home/lux/dev/felow/words")
+cleaner.add_argument("-cyl", "--cycle", action="store", dest="cycle", default="full")
 
 #Downloader subparsers
 downloader = subparsers.add_parser(name="downloader")
@@ -317,14 +373,16 @@ formatter.add_argument("-fmt", "--formatting", action="store", dest="formatting"
 
 #Generator subparsers
 generator = subparsers.add_parser(name="generator")
-generator.add_argument("-wgt", "--weight", action="store", dest="weight", default="weight.hdf5")
+generator.add_argument("-wts", "--weights", action="store", dest="weights", default="weights.hdf5")
+generator.add_argument("-vcb", "--vocab", action="store", dest="vocab", default="")
+generator.add_argument("-cfg", "--config", action="store", dest="config", default="")
 generator.add_argument("-num", "--num", action="store", dest="num", type=int, required=True)
 generator.add_argument("-lns", "--lines", action="store", dest="lines", type=int, default=1)
 generator.add_argument("-tmp", "--temp", action="store", dest="temp", type=float, default=0.5)
 generator.add_argument("-doc", "--document", action="store", dest="document", default="gen.txt")
 
 #Test subparsers
-test = subparsers.add_parser(name="tst")
+# test = subparsers.add_parser(name="tst")
 ##Add test subparsers here##
 
 
@@ -332,30 +390,32 @@ test = subparsers.add_parser(name="tst")
 args = parser.parse_args()
 
 #Apply text to document based on tag
-if args.command == "applicator" or args.command == "a":
+if args.command == "applicator":
     text = args.text
     document = args.document
     tag = args.tag
     felow.apply_text(text, document, tag)
 
 #Build weight from .txt file
-elif args.command == "builder" or args.command == "b":
+elif args.command == "builder":
     source = args.source
     epochs = args.epochs
     number = args.number
     name = args.name
-    felow.build_weight(source, epochs, number, name)
+    isnew = args.isnew
+    felow.build_weight(source, epochs, number, name, isnew)
 
-elif args.command == "cleaner" or args.command == "c":
+elif args.command == "cleaner":
     text = args.text
     document = args.document
     sentmin = args.sentmin
     sentmax = args.sentmax
     dictionary = args.dictionary
-    felow.clean_text(text, document, sentmin, sentmax, dictionary)
+    cycle = args.cycle
+    felow.clean_text(text, document, sentmin, sentmax, dictionary, cycle)
 
 #download documents from the internet
-elif args.command == "downloader" or args.command == "d":
+elif args.command == "downloader":
     query = args.query
     engine = args.engine
     headers = args.headers
@@ -367,24 +427,26 @@ elif args.command == "downloader" or args.command == "d":
     felow.download_files(query, engine, headers, waittime, startpage, endpage, filetypes, scrape)
 
 #extract text from document(s) to .txt file
-elif args.command == "extractor" or args.command == "e":
+elif args.command == "extractor":
     path = args.path
     filename = args.filename
     felow.extract_text(path=path, filename=filename)
 
-elif args.command == "formatter" or args.command == "f":
+elif args.command == "formatter":
     text = args.text
     document = args.document
     formatting = args.formatting
     felow.format_text(text, document, formatting)
 
-elif args.command == "generator" or args.command == "g":
-    weight = args.weight
+elif args.command == "generator":
+    weights = args.weights
+    vocab = args.vocab
+    config = args.config
     num = args.num
     lines = args.lines
     temp = args.temp
     document = args.document
-    felow.generate_text(weight, num, lines, temp, document)
+    felow.generate_text(weights, vocab, config, num, lines, temp, document)
 
 # elif args.command == "tst":
     #Add test function here
