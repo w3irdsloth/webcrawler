@@ -29,11 +29,14 @@ class Generator(object):
 
             print("importing weights...")
 
-            if len(config_path) > 0 and len(vocab_path) > 0:
+            if config_path is not None and vocab_path is not None:
                 self.textgen = textgenrnn(weights_path=weights_path, vocab_path=vocab_path, config_path=config_path)
 
-            else:
+            elif weights_path is not None:
                 self.textgen = textgenrnn(weights_path=weights_path)
+
+            else:
+                self.textgen = textgenrnn()
         
         except:
             print("import failed")

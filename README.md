@@ -16,7 +16,9 @@ Installation:
 FELOW can be installed by cloning from the git repository and running /path/to/felow.py
 
 Use:
-dnl - downloads files from the internet (--query)
-ext - extracts text from documents (--path)
-bld - builds weight from text (--filename --epochs)
-gen - generates unique text from weight (--numwords --weight --filename)
+applicator - apply text to file based on given tag
+builder - build weight from text
+cleaner - clean text document based on given cycles
+downnloader - download files from the internet based on type
+extractor - extract text from documents
+generator - generate unique text from existing weight

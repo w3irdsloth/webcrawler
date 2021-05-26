@@ -43,10 +43,11 @@ class Felow(object):
         else:
             print("application failed")
 
-    def build_weight(self, source, epochs, number, name, isnew):
+    def build_weights(self, source, epochs, number, isnew, weights, vocab, config):
         print("builder selected")
         builder = Builder()
-        if builder.build_weight(source, epochs, number, name, isnew):
+        builder.set_weights(weights, vocab, config)
+        if builder.build_weights(source=source, epochs=epochs, gen_epochs=number, is_new=isnew):
             print("build successful")
 
         else:
@@ -331,14 +332,17 @@ builder = subparsers.add_parser(name="builder")
 builder.add_argument("-src", "--source", action="store", dest="source", required=True)
 builder.add_argument("-epo", "--epochs", action="store", dest="epochs", type=int, default=50)
 builder.add_argument("-num", "--number", action="store", type=int, dest="number", default=5)
-builder.add_argument("-nme", "--name", action="store", dest="name", default="weight.hdf5")
 builder.add_argument("-new", "--isnew", action="store_true", dest="isnew")
+
+builder.add_argument("-wts", "--weights", action="store", dest="weights", default=None)
+builder.add_argument("-vcb", "--vocab", action="store", dest="vocab", default=None)
+builder.add_argument("-cfg", "--config", action="store", dest="config", default=None)
 
 #Cleaner subparsers
 cleaner = subparsers.add_parser(name="cleaner")
 cleaner.add_argument("-txt", "--text", action="store", dest="text", required=True)
 cleaner.add_argument("-doc", "--document", action="store", dest="document", default="clean.txt")
-cleaner.add_argument("-min", "--sentmin", action="store", type=int, dest="sentmin", default=8)
+cleaner.add_argument("-min", "--sentmin", action="store", type=int, dest="sentmin", default=6)
 cleaner.add_argument("-max", "--sentmax", action="store", type=int, dest="sentmax", default=24)
 cleaner.add_argument("-dic", "--dictionary", action="store", dest="dictionary", default="/home/lux/dev/felow/words")
 cleaner.add_argument("-cyl", "--cycle", action="store", dest="cycle", default="full")
@@ -374,8 +378,8 @@ formatter.add_argument("-fmt", "--formatting", action="store", dest="formatting"
 #Generator subparsers
 generator = subparsers.add_parser(name="generator")
 generator.add_argument("-wts", "--weights", action="store", dest="weights", default="weights.hdf5")
-generator.add_argument("-vcb", "--vocab", action="store", dest="vocab", default="")
-generator.add_argument("-cfg", "--config", action="store", dest="config", default="")
+generator.add_argument("-vcb", "--vocab", action="store", dest="vocab", default=None)
+generator.add_argument("-cfg", "--config", action="store", dest="config", default=None)
 generator.add_argument("-num", "--num", action="store", dest="num", type=int, required=True)
 generator.add_argument("-lns", "--lines", action="store", dest="lines", type=int, default=1)
 generator.add_argument("-tmp", "--temp", action="store", dest="temp", type=float, default=0.5)
@@ -401,9 +405,12 @@ elif args.command == "builder":
     source = args.source
     epochs = args.epochs
     number = args.number
-    name = args.name
     isnew = args.isnew
-    felow.build_weight(source, epochs, number, name, isnew)
+
+    weights = args.weights
+    vocab = args.vocab
+    config = args.config
+    felow.build_weights(source, epochs, number, isnew, weights, vocab, config)
 
 elif args.command == "cleaner":
     text = args.text
