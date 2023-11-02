@@ -32,7 +32,7 @@ class Applicator(object):
     def apply_text(self, text, document):
         print("applying text to " + str(document))
         ext = splitext(document)[1]
-        if ".txt" in ext:
+        if ".txt" in ext or ".md" in ext:
             if os.path.isfile(document):
                 f = open(document, "r")
                 doc_text = f.read()
