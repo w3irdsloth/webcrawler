@@ -4,8 +4,8 @@
 
 import requests
 import random
-import re
 
+# import re
 # import time
 # import os
 # from bs4 import BeautifulSoup
@@ -106,19 +106,19 @@ class Crawler(object):
     def get_headers(self):
         return self.headers
     
-    def get_html(self):
-        return self.html
+    # def get_html(self):
+    #     return self.html
     
-    def get_link_list(self):
-        return self.link_list
+    # def get_link_list(self):
+    #     return self.link_list
 
-    #Scrape HTML from URL
-    def scrape_html(self, url):
+    # Get response from URL
+    def get_response(self, url):
         print("scraping " + url + "...")
-        html = ""
+        # html = ""
         try:
-            html = requests.get(url, headers=self.headers, timeout=self.timeout)
-            return html
+            response = requests.get(url, headers=self.headers, timeout=self.timeout)
+            return response
 
         except requests.exceptions.Timeout:
             print("timeout")
@@ -135,53 +135,90 @@ class Crawler(object):
         except:
             print("something went wrong")
     
-    #Scrape metadata from URL
-    def parse_response(self, url):
-        print("parsing metadata...")
-        meta = ""
-        try:
-            meta = requests.head(url)
-            return meta
+    #Get response from URL
+    # def parse_response(self, url):
+    #     print("parsing response...")
+    #     response = ""
+    #     try:
+    #         response = requests.head(url)
+    #         return response
 
-        except requests.exceptions.Timeout:
-            print("timeout")
+    #     except requests.exceptions.Timeout:
+    #         print("timeout")
 
-        except requests.exceptions.TooManyRedirects:
-            print("too many redirects")
+    #     except requests.exceptions.TooManyRedirects:
+    #         print("too many redirects")
 
-        except requests.exceptions.HTTPError:
-            print("HTTP error")
+    #     except requests.exceptions.HTTPError:
+    #         print("HTTP error")
 
-        except requests.exceptions.RequestException as e:
-            print("request error: " + str(e))
+    #     except requests.exceptions.RequestException as e:
+    #         print("request error: " + str(e))
         
-        except:
-            print("something went wrong")
+    #     except:
+    #         print("something went wrong")
 
-    # Parse links from html
-    def parse_links(self, html):
-        print("parsing links...")
-        # #To use BeautifulSoup
-        # soup = BeautifulSoup(html, 'html.parser')
-        # links = []
-        # for lnk in soup.find_all('a',  attrs={'href': re.compile("^http")}):
-        #     link = lnk.get('href')
-        #     if link not in links:
-        #         links.append(link)
+    # Parse links from response
+    # def parse_links(self, response):
+    #     print("parsing links...")
+    #     # #To use BeautifulSoup
+    #     # soup = BeautifulSoup(response, 'html.parser')
+    #     # links = []
+    #     # for lnk in soup.find_all('a',  attrs={'href': re.compile("^http")}):
+    #     #     link = lnk.get('href')
+    #     #     if link not in links:
+    #     #         links.append(link)
    
-        # #To use regular expressions instead of beautiful soup
-        links = []
-        link_list = []
-        try: 
-            links = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', html.text)
-            for lnk in links:
-                if lnk not in link_list:
-                    link_list.append(lnk)
+    #     # #To use regular expressions instead of beautiful soup
+    #     links = []
+    #     link_list = []
+    #     try: 
+    #         # links = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', response.text)
+    #         links = re.findall(r'<[^<>]+>', response.text)
+    #         for lnk in links:
+    #             if lnk not in link_list:
+    #                 link_list.append(lnk)
 
-            return link_list
+    #         return link_list
         
-        except:
-            print("something went wrong")
+    #     except:
+    #         print("something went wrong")
 
-    
- 
+    # check the validity of a response request
+    def check_validity(self, response):
+        status_code = response.status_code
+        print(status_code)
+        if status_code != 200:
+            return False
+        
+        else:
+            return True
+        
+    # # parse html tags from response
+    # def parse_elements(self, response):
+    #     try:
+    #         tag_list = re.findall(r'<[^<>]+>', response.text)    
+    #         return tag_list
+        
+    #     except:
+    #         print("something went wrong")
+
+
+
+    # # return html elements that contain a keyword
+    # def filter_elements(self, tag_list, query=""):
+    #     new_list = []
+    #     for tag in tag_list:
+    #         if query in tag:
+    #             try:
+    #                 new_list.append(tag)
+
+    #             except:
+    #                 pass
+
+    #     return new_list
+
+
+
+
+
