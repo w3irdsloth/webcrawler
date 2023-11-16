@@ -1,18 +1,25 @@
-#########           
-##FELOW##
+ ########           
+## FELO ##
 #########
 
-from applicator import Applicator
-from builder import Builder
-from cleaner import Cleaner
-from downloader import Downloader
-from extractor import Extractor
-from formatter import Formatter
-from generator import Generator
+
+
+
+from felo.editor.applicator import Applicator
+
+
+# from applicator import Applicator
+# from builder import Builder
+# from cleaner import Cleaner
+# from downloader import Downloader
+# from extractor import Extractor
+# from formatter import Formatter
+# from generator import Generator
 
 import argparse
 import textwrap
 import os
+
 
 class Felow(object):
 
@@ -301,19 +308,19 @@ felow = Felow()
 parser = argparse.ArgumentParser( prog='FELOW',
       formatter_class=argparse.RawDescriptionHelpFormatter,
       description=textwrap.dedent('''\
-
-                 ##   ###########   ##                   ##########     
-              ###########################              ### Hello! ###
-            ####  ###################  ####         #### I'm FELOW. #######
-           #################################       ### Your Fellow Editor ##
-          #############  FELOW  #############     ### And Logical Office ##       
-           #############abcdefg#############   ############ Writer. #######
-            ############ ###### ########### ####         ########### 
-              ###########      ###########
-                      ############        
-                       ##########
+                  #       ###       #                      ######### 
+                 ##   ###########   ##                   ###       ###     
+              ###########################              ###  Hello!  ###
+            ####  ###################  ####          ###  I'm FELO.   ###
+           #################################       ###      Your       ###
+          #############  FE^LO  #############     ###  Fellow Editor    ###       
+           #################################   #####         And         ###
+            ############ ###### ########### ####   ###  Logical Operator ### 
+              ###########      ###########           ###              ####
+                      ############                     ##   ###########
+                       ##########                        ####    
 --------------------------------------------------------------
-Apply | Build | Clean | Download | Extract | Format | Generate
+*Commands go here.
 -------------------------------------------------------------- 
          '''), epilog='''
 --------------------------------------------------------------
@@ -321,69 +328,69 @@ Apply | Build | Clean | Download | Extract | Format | Generate
 
 subparsers = parser.add_subparsers(title="commands", dest="command")
 
-#Applicator subparsers
-applicator = subparsers.add_parser(name="applicator")
-applicator.add_argument("-txt", "--text", action="store", dest="text", required=True)
-applicator.add_argument("-doc", "--document", action="store", dest="document", required=True)
-applicator.add_argument("-tag", "--tag", action="store", dest="tag", default="")
+# #Applicator subparsers
+# applicator = subparsers.add_parser(name="applicator")
+# applicator.add_argument("-txt", "--text", action="store", dest="text", required=True)
+# applicator.add_argument("-doc", "--document", action="store", dest="document", required=True)
+# applicator.add_argument("-tag", "--tag", action="store", dest="tag", default="")
 
-#Builder subparsers
-builder = subparsers.add_parser(name="builder")
-builder.add_argument("-src", "--source", action="store", dest="source", required=True)
-builder.add_argument("-epo", "--epochs", action="store", dest="epochs", type=int, default=50)
-builder.add_argument("-num", "--number", action="store", type=int, dest="number", default=5)
-builder.add_argument("-new", "--isnew", action="store_true", dest="isnew")
+# #Builder subparsers
+# builder = subparsers.add_parser(name="builder")
+# builder.add_argument("-src", "--source", action="store", dest="source", required=True)
+# builder.add_argument("-epo", "--epochs", action="store", dest="epochs", type=int, default=50)
+# builder.add_argument("-num", "--number", action="store", type=int, dest="number", default=5)
+# builder.add_argument("-new", "--isnew", action="store_true", dest="isnew")
 
-builder.add_argument("-wts", "--weights", action="store", dest="weights", default=None)
-builder.add_argument("-vcb", "--vocab", action="store", dest="vocab", default=None)
-builder.add_argument("-cfg", "--config", action="store", dest="config", default=None)
+# builder.add_argument("-wts", "--weights", action="store", dest="weights", default=None)
+# builder.add_argument("-vcb", "--vocab", action="store", dest="vocab", default=None)
+# builder.add_argument("-cfg", "--config", action="store", dest="config", default=None)
 
-#Cleaner subparsers
-cleaner = subparsers.add_parser(name="cleaner")
-cleaner.add_argument("-txt", "--text", action="store", dest="text", required=True)
-cleaner.add_argument("-doc", "--document", action="store", dest="document", default="clean.txt")
-cleaner.add_argument("-min", "--sentmin", action="store", type=int, dest="sentmin", default=6)
-cleaner.add_argument("-max", "--sentmax", action="store", type=int, dest="sentmax", default=24)
-cleaner.add_argument("-dic", "--dictionary", action="store", dest="dictionary", default="/home/lux/dev/felow/words")
-cleaner.add_argument("-cyl", "--cycle", action="store", dest="cycle", default="full")
+# #Cleaner subparsers
+# cleaner = subparsers.add_parser(name="cleaner")
+# cleaner.add_argument("-txt", "--text", action="store", dest="text", required=True)
+# cleaner.add_argument("-doc", "--document", action="store", dest="document", default="clean.txt")
+# cleaner.add_argument("-min", "--sentmin", action="store", type=int, dest="sentmin", default=6)
+# cleaner.add_argument("-max", "--sentmax", action="store", type=int, dest="sentmax", default=24)
+# cleaner.add_argument("-dic", "--dictionary", action="store", dest="dictionary", default="/home/lux/dev/felow/words")
+# cleaner.add_argument("-cyl", "--cycle", action="store", dest="cycle", default="full")
 
-#Downloader subparsers
-downloader = subparsers.add_parser(name="downloader")
-downloader.add_argument("-qry", "--query", action="store", dest="query", required=True)
-downloader.add_argument("-eng", "--engine", action="store", dest="engine", default="g_scholar")
-downloader.add_argument("-hdr", "--headers", action="store", dest="headers", default={'user-agent': "Mozilla/5.0 (Linux x86_64; rv:83.0) Gecko/20100101 Firefox/83.0"})
-downloader.add_argument("-wtm", "--waittime", action="store", dest="waittime", type=int, default=5)
-downloader.add_argument("-spg", "--startpage", action="store", dest="startpage", type=int, default=1)
-downloader.add_argument("-epg", "--endpage", action="store", dest="endpage", type=int, default=3)
-downloader.add_argument("-fts", "--filetypes", action = "store", dest="filetypes", default=["pdf", "doc"])
-downloader.add_argument("-scp", "--scrape", action="store_true", dest="scrape")
+# #Downloader subparsers
+# downloader = subparsers.add_parser(name="downloader")
+# downloader.add_argument("-qry", "--query", action="store", dest="query", required=True)
+# downloader.add_argument("-eng", "--engine", action="store", dest="engine", default="g_scholar")
+# downloader.add_argument("-hdr", "--headers", action="store", dest="headers", default={'user-agent': "Mozilla/5.0 (Linux x86_64; rv:83.0) Gecko/20100101 Firefox/83.0"})
+# downloader.add_argument("-wtm", "--waittime", action="store", dest="waittime", type=int, default=5)
+# downloader.add_argument("-spg", "--startpage", action="store", dest="startpage", type=int, default=1)
+# downloader.add_argument("-epg", "--endpage", action="store", dest="endpage", type=int, default=3)
+# downloader.add_argument("-fts", "--filetypes", action = "store", dest="filetypes", default=["pdf", "doc"])
+# downloader.add_argument("-scp", "--scrape", action="store_true", dest="scrape")
 
-#Extractor subparsers
-extractor = subparsers.add_parser(name="extractor")
-extractor.add_argument("-p", "--path", action="store", dest="path", required=True)
-extractor.add_argument("-f", "--filename", action="store", dest="filename", default="extract.txt")
-extractor.add_argument("-min", "--sentmin", action="store", dest="sentmin", type=int, default=4)
-extractor.add_argument("-max", "--sentmax", action="store", dest="sentmax", type=int, default=12)
-extractor.add_argument("-stl", "--style", action="store", dest="style", default="")
-# extract.add_argument("-kwd", "--keywords", action="store_true", dest="keywords")
-# extract.add_argument("-kpl", "--keyphraselength", action="store", dest="keyphraselength", type=int, default=2)
-# extract.add_argument("-mkw", "--maxkeywords", action="store", dest="maxkeywords", type=int, default=50)
+# #Extractor subparsers
+# extractor = subparsers.add_parser(name="extractor")
+# extractor.add_argument("-p", "--path", action="store", dest="path", required=True)
+# extractor.add_argument("-f", "--filename", action="store", dest="filename", default="extract.txt")
+# extractor.add_argument("-min", "--sentmin", action="store", dest="sentmin", type=int, default=4)
+# extractor.add_argument("-max", "--sentmax", action="store", dest="sentmax", type=int, default=12)
+# extractor.add_argument("-stl", "--style", action="store", dest="style", default="")
+# # extract.add_argument("-kwd", "--keywords", action="store_true", dest="keywords")
+# # extract.add_argument("-kpl", "--keyphraselength", action="store", dest="keyphraselength", type=int, default=2)
+# # extract.add_argument("-mkw", "--maxkeywords", action="store", dest="maxkeywords", type=int, default=50)
 
-#Formatter subparsers
-formatter = subparsers.add_parser(name="formatter")
-formatter.add_argument("-txt", "--text", action="store", dest="text", required=True)
-formatter.add_argument("-doc", "--document", action="store", dest="document", default="format.txt")
-formatter.add_argument("-fmt", "--formatting", action="store", dest="formatting", default="string")
+# #Formatter subparsers
+# formatter = subparsers.add_parser(name="formatter")
+# formatter.add_argument("-txt", "--text", action="store", dest="text", required=True)
+# formatter.add_argument("-doc", "--document", action="store", dest="document", default="format.txt")
+# formatter.add_argument("-fmt", "--formatting", action="store", dest="formatting", default="string")
 
-#Generator subparsers
-generator = subparsers.add_parser(name="generator")
-generator.add_argument("-wts", "--weights", action="store", dest="weights", default="weights.hdf5")
-generator.add_argument("-vcb", "--vocab", action="store", dest="vocab", default=None)
-generator.add_argument("-cfg", "--config", action="store", dest="config", default=None)
-generator.add_argument("-num", "--num", action="store", dest="num", type=int, required=True)
-generator.add_argument("-lns", "--lines", action="store", dest="lines", type=int, default=1)
-generator.add_argument("-tmp", "--temp", action="store", dest="temp", type=float, default=0.5)
-generator.add_argument("-doc", "--document", action="store", dest="document", default="gen.txt")
+# #Generator subparsers
+# generator = subparsers.add_parser(name="generator")
+# generator.add_argument("-wts", "--weights", action="store", dest="weights", default="weights.hdf5")
+# generator.add_argument("-vcb", "--vocab", action="store", dest="vocab", default=None)
+# generator.add_argument("-cfg", "--config", action="store", dest="config", default=None)
+# generator.add_argument("-num", "--num", action="store", dest="num", type=int, required=True)
+# generator.add_argument("-lns", "--lines", action="store", dest="lines", type=int, default=1)
+# generator.add_argument("-tmp", "--temp", action="store", dest="temp", type=float, default=0.5)
+# generator.add_argument("-doc", "--document", action="store", dest="document", default="gen.txt")
 
 #Test subparsers
 # test = subparsers.add_parser(name="tst")
@@ -393,72 +400,72 @@ generator.add_argument("-doc", "--document", action="store", dest="document", de
 #set arguments
 args = parser.parse_args()
 
-#Apply text to document based on tag
-if args.command == "applicator":
-    text = args.text
-    document = args.document
-    tag = args.tag
-    felow.apply_text(text, document, tag)
+# #Apply text to document based on tag
+# if args.command == "applicator":
+#     text = args.text
+#     document = args.document
+#     tag = args.tag
+#     felow.apply_text(text, document, tag)
 
-#Build weight from .txt file
-elif args.command == "builder":
-    source = args.source
-    epochs = args.epochs
-    number = args.number
-    isnew = args.isnew
+# #Build weight from .txt file
+# elif args.command == "builder":
+#     source = args.source
+#     epochs = args.epochs
+#     number = args.number
+#     isnew = args.isnew
 
-    weights = args.weights
-    vocab = args.vocab
-    config = args.config
-    felow.build_weights(source, epochs, number, isnew, weights, vocab, config)
+#     weights = args.weights
+#     vocab = args.vocab
+#     config = args.config
+#     felow.build_weights(source, epochs, number, isnew, weights, vocab, config)
 
-elif args.command == "cleaner":
-    text = args.text
-    document = args.document
-    sentmin = args.sentmin
-    sentmax = args.sentmax
-    dictionary = args.dictionary
-    cycle = args.cycle
-    felow.clean_text(text, document, sentmin, sentmax, dictionary, cycle)
+# elif args.command == "cleaner":
+#     text = args.text
+#     document = args.document
+#     sentmin = args.sentmin
+#     sentmax = args.sentmax
+#     dictionary = args.dictionary
+#     cycle = args.cycle
+#     felow.clean_text(text, document, sentmin, sentmax, dictionary, cycle)
 
-#download documents from the internet
-elif args.command == "downloader":
-    query = args.query
-    engine = args.engine
-    headers = args.headers
-    waittime = args.waittime
-    startpage = args.startpage
-    endpage = args.endpage
-    filetypes = args.filetypes
-    scrape = args.scrape
-    felow.download_files(query, engine, headers, waittime, startpage, endpage, filetypes, scrape)
+# #download documents from the internet
+# elif args.command == "downloader":
+#     query = args.query
+#     engine = args.engine
+#     headers = args.headers
+#     waittime = args.waittime
+#     startpage = args.startpage
+#     endpage = args.endpage
+#     filetypes = args.filetypes
+#     scrape = args.scrape
+#     felow.download_files(query, engine, headers, waittime, startpage, endpage, filetypes, scrape)
 
-#extract text from document(s) to .txt file
-elif args.command == "extractor":
-    path = args.path
-    filename = args.filename
-    felow.extract_text(path=path, filename=filename)
+# #extract text from document(s) to .txt file
+# elif args.command == "extractor":
+#     path = args.path
+#     filename = args.filename
+#     felow.extract_text(path=path, filename=filename)
 
-elif args.command == "formatter":
-    text = args.text
-    document = args.document
-    formatting = args.formatting
-    felow.format_text(text, document, formatting)
+# elif args.command == "formatter":
+#     text = args.text
+#     document = args.document
+#     formatting = args.formatting
+#     felow.format_text(text, document, formatting)
 
-elif args.command == "generator":
-    weights = args.weights
-    vocab = args.vocab
-    config = args.config
-    num = args.num
-    lines = args.lines
-    temp = args.temp
-    document = args.document
-    felow.generate_text(weights, vocab, config, num, lines, temp, document)
+# elif args.command == "generator":
+#     weights = args.weights
+#     vocab = args.vocab
+#     config = args.config
+#     num = args.num
+#     lines = args.lines
+#     temp = args.temp
+#     document = args.document
+#     felow.generate_text(weights, vocab, config, num, lines, temp, document)
 
-# elif args.command == "tst":
-    #Add test function here
-    # print("for testing...")
+# # elif args.command == "tst":
+#     #Add test function here
+#     # print("for testing...")
 
-else:
-    print("command not found")
-    print("use -h or --help for available commands")
+# else:
+#     print("command not found")
+#     print("use -h or --help for available commands")
