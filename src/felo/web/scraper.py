@@ -1,21 +1,11 @@
 
 import re
 
-
 class Scraper(object):
 
     # Parse http links from html response
     def parse_links(self, html):
         print("parsing links...")
-        # #To use BeautifulSoup
-        # soup = BeautifulSoup(html, 'html.parser')
-        # links = []
-        # for lnk in soup.find_all('a',  attrs={'href': re.compile("^http")}):
-        #     link = lnk.get('href')
-        #     if link not in links:
-        #         links.append(link)
-   
-        # #To use regular expressions instead of beautiful soup
         links = []
         link_list = []
         try: 
@@ -29,6 +19,7 @@ class Scraper(object):
         
         except:
             print("something went wrong")
+            return None
 
 
     # Remove elements from between 2 html tags

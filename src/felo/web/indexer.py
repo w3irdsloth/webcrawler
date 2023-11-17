@@ -23,6 +23,7 @@ class Indexer(object):
                     json.dump(db_content, f)
             except:
                 print("something went wrong")
+                return None
 
     def save_db(self, db_content, db_name):
         try:
@@ -30,6 +31,7 @@ class Indexer(object):
                     json.dump(db_content, f)
         except:
             print("something went wrong")
+            return None
             
 
     #Convert JSON database to array
@@ -43,9 +45,11 @@ class Indexer(object):
 
             except:
                     print("something went wrong")
+                    return None
 
         else:
             print("file doesn't exist")
+            return None
 
     #Merge two databases
     def merge_data(self, db1, db2):
