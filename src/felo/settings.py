@@ -15,6 +15,9 @@ max_crawl_sleep = 3
 # Default path/name for index database
 default_db_name = "/home/n0xs1/projects/felo/tests/db.json"
 
+# Default path/name for creating/reading .txt files
+default_txt_name = "/home/n0xs1/projects/felo/tests/test.txt"
+
 
 ## Crawler Defaults ##
 # Timeout for making requests in seconds
@@ -25,9 +28,9 @@ requests_timeout = 5
 # seed_url = 'https://www.yahoo.com'
 # seed_url = 'https://www.google.com'
 # seed_url = 'https://www.yandex.com'
-# seed_url = "https://stackoverflow.com/questions/65173291/git-push-error-src-refspec-main-does-not-match-any-on-linux"
+seed_url = "https://stackoverflow.com/questions/65173291/git-push-error-src-refspec-main-does-not-match-any-on-linux"
 # seed_url = "https://www.geeksforgeeks.org/python-merging-two-dictionaries/"
-seed_url = "https://www.w3schools.com/html/html_comments.asp"
+# seed_url = "https://www.w3schools.com/html/html_comments.asp"
 # seed_url = "https://blablabla.com"
 
 # Default header configuration
@@ -47,5 +50,43 @@ user_agent_list = ['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
 
 
 
+## Elements to remove from crawled text ##
+# Leave these all False to return only html #
+
+# text_only will return javascript functions, style elements, etc if these are set to False)
+filter_style_tags = True
+filter_script_tags = True
 
 
+# Setting both of these True will result in no text returned
+scrape_elmnts_only = False
+scrape_text_only = True
+
+
+
+## Elements to remove from indexed text ##
+
+# Removes ['</', '![endif]', '<br')] tags
+clean_html_tags = True
+
+
+## Return content between tags ##
+
+# Not super useful. Maybe for pulling out javascript
+default_content_tag1 = "<script"
+default_content_tag2 = "</script>"
+
+# Edit cycle list
+
+edit_cycle_config = {
+    "noalpha": True, 
+    "nodeclare": True, 
+    "excaps": True, 
+    "exletters": True, 
+    "firstperson": True, 
+    "secondperson": True, 
+    "dupwords": True, 
+    "duplicates": True, 
+    "trimsentlist": True, 
+    "checkspelling": True,
+}

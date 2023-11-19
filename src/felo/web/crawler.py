@@ -5,6 +5,8 @@
 import requests
 import random
 
+import time
+
 class Crawler(object):
     """ Creates an object for crawling html for web links """
 
@@ -23,12 +25,12 @@ class Crawler(object):
         # self.headers_user_agent = user_agent
         self.headers['User-Agent'] = user_agent
 
-    def set_agent_list(self, user_agent_list):
-        self.user_agent_list = user_agent_list
-    
     def set_random_user_agent(self, user_agent_list):
         random_user_agent = random.choice(user_agent_list)
         self.headers['User-Agent'] = random_user_agent
+    
+    def set_agent_list(self, user_agent_list):
+        self.user_agent_list = user_agent_list
     
     def get_user_agent(self):
         return self.headers_user_agent
@@ -52,19 +54,23 @@ class Crawler(object):
     def get_headers_encoding(self):
         return self.headers_accept_encoding
 
-    # def gen_headers(self):
-    #     headers = {'User-Agent': self.user_agent,
-    #             'Accept': self.headers_accept,
-    #             'Accept-Language': self.accept_language,
-    #             'Accept-Encoding': self.accept_encoding}
-
-    #     self.headers = headers
-
     def set_headers(self, headers):
         self.headers = headers
 
     def get_headers(self):
         return self.headers
+
+
+    def check_validity(self, response):
+        try:
+            status_code = response.status_code
+            if status_code != 200:
+                return False
+
+            else:
+                return True
+        except:
+            return None
 
 
     # Get response from URL
@@ -94,7 +100,7 @@ class Crawler(object):
             print("something went wrong")
             return None
         
-    
+
     def get_head(self, url):
         print("scraping " + url + "...")
         try:
@@ -120,8 +126,4 @@ class Crawler(object):
         except:
             print("something went wrong")
             return None
-
-
-
-
-
+        

@@ -37,7 +37,7 @@ class Writer(object):
         else:
             try:
                 with open(txt_name, 'w') as f:
-                    f.write(txt_content)    
+                    f.write(txt_content)
                     f.close()
                     return True
                 

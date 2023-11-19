@@ -1,10 +1,10 @@
- ###########
-## Cleaner ##
- ###########
+ ##########
+## Editor ##
+ ##########
 
 import re
 
-class Cleaner(object):
+class Editor(object):
     """ Creates an object for building and cleaning sentences """
     def __init__(self):
         self.sentc_list = []
@@ -22,8 +22,9 @@ class Cleaner(object):
 
     def create_sentc_list(self, text):
         print("creating sentence list...")
-        expression = re.compile(r'([A-Z][^\.!?]*[\.!?])')
-        temp_list = re.findall(expression, text)
+        print(text)
+        temp_list = re.findall(r'([A-Z][^\.!?]*[\.!?])', text)
+        # temp_list = re.findall(expression, text)
         self.sentc_list = temp_list
 
     def remv_newlines(self):

@@ -1,0 +1,1103 @@
+
+
+<html itemscope itemtype="https://schema.org/QAPa<script src="https://ajax.googlea
+
+
+            
+                
+        
+
+
+
+
+    
+
+
+	
+			
+			
+				
+			
+				
+					Stack Overflow
+				
+
+
+
+			
+
+					
+						About
+					
+
+				
+					
+						Products
+					
+				
+
+					
+						For Teams
+					
+			
+			
+				
+				
+					
+						
+							Stack Overflow
+							Public questions &amp; answers
+						
+					
+					
+						
+							Stack Overflow for Teams
+							Where developers &amp; technologists share private knowledge with coworkers
+						
+					
+					
+						
+							Talent
+							
+								Build your employer brand
+							
+						
+					
+					
+						
+							Advertising
+							Reach developers &amp; technologists worldwide
+						
+					
+					
+						
+						 	Labs
+							The future of collective knowledge sharing
+						 
+					
+					
+						About the company
+					
+				
+			
+
+
+		                                                    s-popover#show"                               data-s-popover-placement="bottom-start" />                                                            Loading&#x2026;    
+
+
+                                
+		
+                
+                        current community                                                                                                                                                                                        Stack Overflow    
+        help        chat
+                                                            
+                                        Meta Stack Overflow    
+                            
+            
+your communities            
+        
+            
+Sign up or log in to customize your list.                    
+            more stack exchange communities                company blog                                
+                                                        Log in                                        Sign up
+
+
+
+	
+
+
+	
+
+
+
+
+            
+
+                                                            
+
+
+
+
+            Home
+
+
+                    
+
+
+
+
+            Questions
+
+
+
+
+                    
+
+
+
+
+            Tags
+
+                                        
+
+                    
+
+
+
+
+            Users
+
+
+                        
+
+
+
+
+            Companies
+
+
+
+                                                                                                                        Collectives                                    
+                                                                        
+                            
+                                                    
+
+
+
+
+            Explore Collectives
+
+
+                                                                                    Labs                                                                                                                                                                                    
+
+
+
+
+            Discussions
+
+                                                    
+    
+
+
+Teams
+    Stack Overflow for Teams    – Start collaborating and sharing organizational knowledge.        
+    Create a free Team    Why Teams?
+
+
+
+            Teams                                                                                                                                                                    Create free Team                        
+            
+
+                                            Collectives™ on Stack Overflow            Find centralized, trusted content and collaborate around the technologies you use most.                            Learn more about Collectives                        
+            
+                    Teams            Q&amp;A for work            Connect and share knowledge within a single location that is structured and easy to search.                            Learn more about Teams                    
+                                
+                            Get early access and see previews of new features.         Learn more about Labs    
+
+
+
+
+
+    
+        
+
+
+
+    
+                            git push error: src refspec main does not match any on linux                                    Ask Question
+                                                                Asked                    2 years, 11 months ago                                                    Modified                    2 months ago                                                    Viewed                    124k times                                
+            
+
+
+		
+
+                                        59                    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    
+
+            
+whenever I'm trying to upload my files using git push -u origin main
+I'm getting error which is as follows
+error: src refspec main does not match any
+error: failed to push some refs to 'github.com:xxxxxx/xxx-project.git'
+
+but if I do git push -u origin master it is working perfectly and uploading my files to a separate branch named master. upon checking  .git/refs/heads in my project i saw that there is only one file named master so i performed git remote update which added .git/refs/remotes/origin/main but still git push -u origin main didn't work.
+I tried git push origin HEAD:main but produced error:
+! [rejected]        HEAD -&gt; main (non-fast-forward) error: failed to push some refs to 'github.com:xxxxxxx/xxx-project.git' hint: Updates were rejected because a pushed branch tip is behind its remote hint: counterpart. Check out this branch and integrate the remote changes hint: (e.g. 'git pull ...') before pushing again. hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+I want to push my code to main branch using git push -u origin main. how do I do that ?
+P.S - git version 2.29.2, pop_os 20.10.1
+Edit1 - git push -f origin HEAD:main pushes my code to main branch but how can i replace master file with main file in refs/heads so that i don't have to mention head and force my push ?
+                                                        gitgithubbranchgit-refspec                        
+                        
+
+
+
+
+            Share    
+
+                                    Improve this question                
+                                                Follow                            
+
+
+
+
+
+
+        
+            
+    edited Dec 6, 2020 at 21:45        Arka                
+                                    asked Dec 6, 2020 at 21:29        ArkaArka            95711 gold badge88 silver badges1818 bronze badges    
+
+
+            
+
+
+
+
+                     
+        
+	    
+                    Add a comment            &nbsp;|&nbsp;                     
+
+
+
+
+
+		
+
+                                                                                                                                                                                9 Answers                                9                                                                                                        
+
+            Sorted by:                Reset to default                                            Highest score (default)                                                    Trending (recent votes count more)                                                    Date modified (newest first)                                                    Date created (oldest first)                    
+
+
+                                                                                    
+
+                                
+
+                                        80                    
+
+    
+
+
+
+
+
+
+
+
+                                                        
+
+
+
+    
+    
+
+
+This is a multi-part answer because there are two separate issues here that are tangling together now.  Here's a summary of what we'll cover:
+
+main vs master
+error: src refspec main does not match any
+reconciling separate main and master branches
+
+Each of these is in its own section.
+main vs master
+Git itself has no special branch names.1  You could use main, master, trunk, or any other name as the name of your first branch.  Git has traditionally used the name master here, but there is a project to make this configurable, so that if you are French or Spanish you can use the name principal or première or primero, or if you prefer Maori, you can use matua or tuatahi.  Currently, you can do this manually during or after a git init,2 but the project makes Git just do it automatically, without requiring a second step: If for any reason you want any other name by default, you can configure that.
+Meanwhile, GitHub have already chosen to leap ahead and make their default initial branch name main instead of master.  But this leaves your Git and GitHub's Git out of sync, as it were.  For more about GitHub's changeover, see
+Difference Between Main Branch and Master Branch in Github?
+
+1There are some technical flaws in this kind of claim.  As we know, technically correct is the best kind of correct, so let me add a few caveats in this footnote:
+
+Merging auto-generates a message of the form merge branch X into Y when you are on branch Y and run git merge X.  However, when you're on master, Git traditionally generates only a message of the form merge branch X.
+
+A new, empty repository created by git init has no commits and therefore has no branches (because a branch can only exist by having commits on it).  However, you must be on some branch in this new empty repository.  So Git stores some name in the symbolic ref named HEAD.  This is the branch name that you're on, even if that branch name does not exist (yet).  For a long time, Git has had, hard-coded into it, some code to stick the branch name master in there.  (This is, in effect, what GitHub changed.)
+
+There are a bunch of other string literals reading master in the source and documentation as well; they're being converted to use the configuration settings but this will all take time.
+
+
+2If you have Git 2.28 or later, run git init --initial-branch=name, and/or set init.defaultBranch with git config in your system or global configuration.  If you have an earlier version of Git installed, or have already run git init, simply use git branch -m to rename master to whatever name you like.
+
+error: src refspec main does not match any
+This error message from Git is quite cryptic to newbies, but is actually pretty simple.  The problems are that it's loaded with jargon (webster; wikipedia), and abbreviates &quot;source&quot; to &quot;src&quot;.
+Git is all about commits.  When we clone a repository, we have our Git reach out to some other Git.  That other Git looks up a repository, and that other repository is full of commits.  We then have our Git create a new repository locally, transfer into it all of their commits, and turn all of their branch names into remote-tracking names.  Then our Git creates, in this new repository, one branch name, based on one of their branch names.  At least, that's the normal process.  (And, if you know what all these terms mean, good!  If not, don't worry too much about them right now.  The point to remember here is that we get all their commits and none of their branches, and then we normally have our Git create one branch to match one of theirs.)
+Since Git is all about commits, this process—of copying all their commits, but only copying one of their branch names to a name spelled the same in our own repository—is all we need.  The fact that our Git renames all of their branch names—so that with the one exception, we don't have any branches at all—isn't normally very important.  Our own Git deals with this later, automatically, if and when it's necessary.
+When we use git push, we are asking our Git program, which is reading our own Git repository, to connect to some other Git program—typically running on a server machine—that can then write to some other Git repository.  We'd like our Git to send their Git some of our commits.  In particular, we want to send them our new commits: the ones we just made.  Those are, after all, where we put all our good new stuff.  (Git is all about commits, so that's the only place we can put anything.)
+Once we've sent these commits, though, we need to their Git to set one of their branch names to remember our new commits.  That's because the way Git finds commits is to use branch names.3  The real names of each commit are big ugly hash ID numbers, which nobody wants to remember or look at; so we have Git remember these numbers using the branch names.  That way, we only have to look at the branch names, and these names can be meaningful to us: trunk, or feature/tall, or tuatahi, or whatever.
+By default and convention, the way we do this using git push is pretty simple:
+git push origin main
+
+for instance.  The git push part is the command that means send commits and ask them to set a name.  The origin part is what Git calls a remote: a short name that, mostly, holds a URL.  The main part at the end, here, is our branch name.  That's the one our Git is using to find our commits.  We'll have our Git send our commits, then ask their Git to set their main too.
+This last part—where we've put in main here—is what Git calls a refspec.  Refspecs actually let us put in two names, separated by a colon, or a couple of other forms.  We can, for instance, use HEAD:main as in Arka's answer (although for technical reasons we might want to use HEAD:refs/heads/main in many cases).  But in simple cases, we can just use one branch name: git push origin main.  The simple branch name is a simple form of refspec.
+For this to work, the source name must be the name of an existing branch in our own Git repository.  This is where things are going wrong.
+(See also Message &#39;src refspec master does not match any&#39; when pushing commits in Git)
+
+3Git can use any name, not just a branch name.  For instance, a tag name works fine.  But this answer is about branch names because the question is about branch names, and branch names are the most common ones to use here.
+
+What if our Git created only master?
+Suppose we're using GitHub and we've asked GitHub to make a new repository for us.  They run a form of git init that supplies, as the new repository's initial branch name, the name main.  They may or may not create one commit, too.  Let's say we do have them create this one commit.  That one commit will hold README and/or LICENSE files, based on what we choose using the web interface.  Creating that initial commit actually creates the branch name main.
+If we now clone their repository, we'll get their one commit, which will be under their branch name main.  Our Git will rename their main to origin/main and then create one new branch name, main, to match theirs.  So all will be good.
+But, if we create our own empty Git repository, using git init ourselves, our Git may set us up so that our first commit will create the name master.  We won't have a main branch: we'll have a master branch instead.
+Or, if we don't have GitHub create an initial commit, the GitHub repository will be totally empty.  Because it has no commits, it has no branches: a branch name is only allowed to exist if it specifies some commit.  So if we clone this empty repository, we'll have no branches either, and our Git won't know to use main: our Git may instead use master.  We're back in that same situation, where our Git think the first name to create should be master.
+So, in these various situations, we make our first commit(s), and they all go on a branch named master.  If we now run:
+git push -u origin main
+
+(with or without the -u; I won't go into the details about the -u here) our Git looks around in our Git repository for a branch named main.  There isn't one!  So our Git just gives us that:
+error: src refspec main does not match any
+
+error message.
+To fix this, we can either git push origin master—which sends our commits and then asks GitHub to create a new branch in the GitHub repository, with that branch name being master—or rename our master to whatever name we wanted, and then use that name:
+git branch -m master xyzzy
+git push -u origin xyzzy
+
+will make the (single) branch name that we both use be xyzzy.  If you want main here, rename your master to main.
+What if you've accidentally made both branches?
+Suppose we used GitHub to create a new repository, with their new default branch name main, that includes one initial commit with the usual README and LICENSE files.  Then, without thinking about it, we used git init on our own machine to create our own new repository, with its default branch name master, and we made a commit or two on our master.
+If we now rename our master to main:
+git branch -m master main
+
+and then try to push:
+git push -u origin main
+
+we get a different error:
+ ! [rejected]        main -&gt; main (non-fast-forward)
+
+The reason for this is simple enough: They have a commit, that they find using their name main, that we do not have.  If they change their name main to find the last commit that we're sending them, they'll lose the initial commit they made, with the README and LICENSE files.
+You have a bunch of options here:
+
+You can ignore the initial commit they made.  It's just a boilerplate commit, after all.  You can tell them to throw it away entirely.  Use git push --force as outlined in any of many existing StackOverflow answers.
+
+You can obtain their initial commit and rebase your commits on those commits.  This can be slightly tricky, because your first commit is a root commit.  If your first commit contains README and/or LICENSE files, you'll get an add/add conflict here.  In this case it's probably simpler to just force-push.
+
+You can obtain their initial commit and merge your commits.  In a modern Git, this requires using the --allow-unrelated-histories option.  As with the rebase method, if your commits contain README and/or LICENSE files, you'll get add/add conflicts.  The resulting repository will also have two root commits.  None of these are serious problems, but they might prove slightly annoying.
+
+
+To obtain their commit, simply run git fetch origin.  That will get GitHub's first commit, and use the name origin/main in your own Git repository to remember it.  You can then:
+git rebase origin/main
+
+or:
+git merge --allow-unrelated-histories origin/main
+
+to achieve the rebase or merge.  You can choose whether to rename your branch to main, if you have not already done so, at any time before or after doing all of this.                                
+
+
+
+
+            Share    
+
+                                    Improve this answer                
+                                                Follow                            
+
+
+
+
+
+
+                
+    edited Dec 19, 2020 at 17:10                        
+        
+
+                        answered Dec 7, 2020 at 0:25        torektorek            456k6060 gold badges657657 silver badges795795 bronze badges    
+
+
+                
+
+
+
+
+        6             
+                                                4                                                first of all thank you for your detailed explanations. I didn&#39;t expected these level of information. I&#39;ve one more request. please point me to some blogs where I can understand about rebase and root commit.                        
+&ndash;&nbsp;Arka                        Dec 7, 2020 at 18:07                                                                        Not really sure about blog posts, but there are plenty of answers about rebasing and root commits and such here on StackOverflow, e.g., Change first commit of project with Git? and How to merge a commit with the next commit in git interactive rebase?. This question and answer is perhaps more directly relevant though: Insert a NON-EMPTY commit before the root commit in Git?                        
+&ndash;&nbsp;torek                        Dec 8, 2020 at 0:09                                                                        Note that you can search StackOverflow using the search bar on StackOverflow: put [git] in literally, within the square brackets, and then various keywords, and SO will search their own questions and answers for those keywords with the git tag on the original question.                        
+&ndash;&nbsp;torek                        Dec 8, 2020 at 0:10                                                                        Wow this is an article!                        
+&ndash;&nbsp;Rafo                        Mar 21, 2022 at 11:48                                                                        Fantastic answer. In my particular case the solution to the error: src refspec main does not match any error was even simpler - I hadn&#39;t committed anything yet, so running ` git commit -m &quot;Initial commit&quot; ` resolved this for me. Just adding this here in case anyone else overlooked this simple step like I did.                        
+&ndash;&nbsp;Brady                        Apr 26, 2022 at 21:28                                                                            
+        
+	    
+                                &nbsp;|&nbsp;        Show 1 more comment             
+
+
+
+		
+                                
+
+                                        47                    
+
+    
+
+
+
+
+
+
+
+
+                                                        
+
+
+
+    
+    
+
+
+I have stuck in a similar issue a few hours ago but have eventually figured out why the error keeps coming and the solution to it.
+What I did:
+
+I created a git repository at GitHub
+
+Initialized my project in my code editor(vs code) as a git repository
+
+I added the URL to my repo using
+git remote add origin https://github.com/xxxxxx/xxxxx.git
+
+
+
+By this time
+git remote -v 
+
+probably gave as expected
+origin  https://github.com/xxxx/xxxx.git (fetch)
+origin  https://github.com/xxxx/xxxx.git (push)
+
+Notice that
+git branch 
+
+will show you nothing at this point because you have not created any branch also you cannot be able to create any.
+The issue:
+When I tried
+git push -u origin main
+
+I got
+error: src refspec main does not match any
+error: failed to push some refs to 'github.com:xxxx/xxxx.git'
+
+Even with the git recommended command
+git push --set-upstream origin master (or main preferably) 
+
+I got the same error.
+Now the solution:
+Add a file in your project such as README.md
+git add .
+git commit -m &quot;added README.md&quot;
+git branch -M main   
+
+The -M is to rename your branch if you don't want it to be called master
+Finally,
+git push origin main
+                                
+
+
+
+
+            Share    
+
+                                    Improve this answer                
+                                                Follow                            
+
+
+
+
+
+
+        
+
+                        answered Mar 16, 2021 at 12:32        EMMANUEL EZEKAEMMANUEL EZEKA            61255 silver badges88 bronze badges    
+
+
+                
+
+
+
+
+        3             
+                                                                                thanks! this solved my entire issue                        
+&ndash;&nbsp;aelkz                        Jan 27, 2022 at 19:36                                                                        minimum effort, maximum satisfaction! pretty strange issue, never had problem before with this, but your solution was amazing :) thank you                        
+&ndash;&nbsp;Benji                        Apr 27, 2022 at 12:34                                                                        git remote -v it solved my problem. thanks                        
+&ndash;&nbsp;KailiC                        Sep 4 at 7:23            
+        
+	    
+                    Add a comment            &nbsp;|&nbsp;                     
+
+                                
+
+                                        9                    
+
+    
+
+
+
+
+
+
+
+
+                                                        
+
+
+
+    
+    
+
+
+You can use:
+git add . 
+
+If done already, try to commit:
+git commit -m &quot;First commit for example...&quot;
+git branch -M main   
+
+and finally:
+git push origin main
+                                
+
+
+
+
+            Share    
+
+                                    Improve this answer                
+                                                Follow                            
+
+
+
+
+
+
+                
+    edited Jul 27, 2021 at 15:27        Reza Rahemtola            1,18277 gold badges1717 silver badges3030 bronze badges    
+        
+
+                        answered Jul 24, 2021 at 10:01        MydheMydhe            18111 silver badge88 bronze badges    
+
+
+                
+
+
+
+
+        1             
+                                                1                                                this answer should be further up, as forgetting to commit also causes the issue.                        
+&ndash;&nbsp;micsthepick                        Sep 2, 2021 at 3:13            
+        
+	    
+                    Add a comment            &nbsp;|&nbsp;                     
+
+
+
+		
+                                
+
+                                        8                    
+
+    
+
+
+
+
+
+
+
+
+                                                        
+
+
+
+    
+    
+
+
+after researching a bit more and coming up empty, I tried a hack. here it is.
+after git push -f origin HEAD:main i completely deleted my local project folder  then cloned my project from main branch. now i can use git push origin main to push any changes i want. i checked and now there's a main file in .git/refs/heads location of my project.                                
+
+
+
+
+            Share    
+
+                                    Improve this answer                
+                                                Follow                            
+
+
+
+
+
+
+        
+
+                        answered Dec 6, 2020 at 22:24        ArkaArka            95711 gold badge88 silver badges1818 bronze badges    
+
+
+                
+
+
+
+
+        1             
+                                                1                                                This is the only solution that worked for me.  It seems that -f is the magical override flag that forces git to do what you want it to do.                        
+&ndash;&nbsp;IgorGanapolsky                        May 10, 2021 at 17:20            
+        
+	    
+                    Add a comment            &nbsp;|&nbsp;                     
+
+                                
+
+                                        5                    
+
+    
+
+
+
+
+
+
+
+
+                                                        
+
+
+
+    
+    
+
+
+If this is the first time you are pushing to the main branch follow these step after committing your changes.
+I faced this error error:
+src refspec main does not match any
+error: failed to push some refs to 'https://github.com/&lt;my_project_name&gt;.git
+
+and I fixed using these steps after commit.Change URL for your github in the following code:
+git branch -M main
+git remote add origin https://github.com/Sidrah-Madiha/&lt;my_project_url&gt;.git
+git push -u origin main
+                                
+
+
+
+
+            Share    
+
+                                    Improve this answer                
+                                                Follow                            
+
+
+
+
+
+
+                
+    edited Mar 10, 2021 at 19:23        Dharman&#9830;            31.3k2525 gold badges8787 silver badges134134 bronze badges    
+        
+
+                        answered Mar 10, 2021 at 19:18        Sidrah Madiha SiddiquiSidrah Madiha Siddiqui            1,2261717 silver badges1616 bronze badges    
+
+
+                
+
+
+
+
+        5             
+                                                                                I get an error: ! [rejected]        main -&gt; refs/heads/main (already exists)                        
+&ndash;&nbsp;IgorGanapolsky                        May 10, 2021 at 17:18                                                                                                        1                                                Please see this stackoverflow.com/questions/22630404/&hellip;, seems like  you are using git branch main instead of git branch -M main                        
+&ndash;&nbsp;Sidrah Madiha Siddiqui                        May 11, 2021 at 18:20                                                                        But now I get an error: fatal: remote origin already exists.                        
+&ndash;&nbsp;IgorGanapolsky                        May 11, 2021 at 18:38                                        1                                                I was able to reproduce your issue, please make sure, you have used git add . or instead of . in the command add the files you want to commit then use git commit -m &quot;your message for commit&quot;  then use all the command above from git branch -M main,let me know if this fixes your issue                        
+&ndash;&nbsp;Sidrah Madiha Siddiqui                        May 12, 2021 at 2:18                                        1                                                I fixed my issue using force -f flag when pushing.  That is the only thing that worked.                        
+&ndash;&nbsp;IgorGanapolsky                        May 12, 2021 at 15:35            
+        
+	    
+                    Add a comment            &nbsp;|&nbsp;                     
+
+                                
+
+                                        2                    
+
+    
+
+
+
+
+
+
+
+
+                                                        
+
+
+
+    
+    
+
+
+In my case, I was simply trying to push an empty folder.
+Added test.txt file and all is working!
+Here is what I used:
+cd existing_folder
+git init --initial-branch=main
+git remote add origin https://.../repo.git
+git add .
+git commit -m &quot;Initial commit&quot;
+git push -u origin main
+                                
+
+
+
+
+            Share    
+
+                                    Improve this answer                
+                                                Follow                            
+
+
+
+
+
+
+        
+
+                        answered Apr 1, 2022 at 12:57        UsagiUsagi            2111 bronze badge    
+
+
+                
+
+
+
+
+        0             
+        
+	    
+                    Add a comment            &nbsp;|&nbsp;                     
+
+                                
+
+                                        1                    
+
+    
+
+
+
+
+
+
+
+
+                                                        
+
+
+
+    
+    
+
+
+For me it worked adding this to the ~/.ssh/config
+Host github.com
+  Hostname github.com
+  User &lt;your username&gt;
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519
+
+Note: id_ed25519.pub is added in my github authorized SSH keys                                
+
+
+
+
+            Share    
+
+                                    Improve this answer                
+                                                Follow                            
+
+
+
+
+
+
+        
+
+                        answered Feb 15, 2021 at 9:57        CalamarCalamar            1,56711 gold badge1313 silver badges2525 bronze badges    
+
+
+                
+
+
+
+
+                     
+        
+	    
+                    Add a comment            &nbsp;|&nbsp;                     
+
+                                
+
+                                        0                    
+
+    
+
+
+
+
+
+
+
+
+                                                        
+
+
+
+    
+    
+
+
+It might also occur that you cloned your repo from a master branch and now you are trying to commit it to the main branch. If your local repo is in the master branch and you are trying to commit it to the main branch on your remote repo then try using the following command.
+git push -f origin master:main                                
+
+
+
+
+            Share    
+
+                                    Improve this answer                
+                                                Follow                            
+
+
+
+
+
+
+        
+
+                        answered Dec 19, 2021 at 10:46        Chanda cheweChanda chewe            3111 silver badge33 bronze badges    
+
+
+                
+
+
+
+
+                     
+        
+	    
+                    Add a comment            &nbsp;|&nbsp;                     
+
+                                
+
+                                        0                    
+
+    
+
+
+
+
+
+
+
+
+                                                        
+
+
+
+    
+    
+
+
+I faced the same problem but this command solved the problem:
+git branch -M main
+                                
+
+
+
+
+            Share    
+
+                                    Improve this answer                
+                                                Follow                            
+
+
+
+
+
+
+        
+
+                        answered Aug 27 at 9:41        Hamza ErrechydyHamza Errechydy            2122 bronze badges    
+
+
+                
+
+
+
+
+                     
+        
+	    
+                    Add a comment            &nbsp;|&nbsp;                     
+
+
+                                                                                                                                                                                            Your Answer                                                            
+
+
+
+
+
+
+                                                            Reminder: Answers generated by Artificial Intelligence tools are not allowed on Stack Overflow. Learn more                                                                                                                                        
+    Thanks for contributing an answer to Stack Overflow!Please be sure to answer the question. Provide details and share your research!But avoid …Asking for help, clarification, or responding to other answers.Making statements based on opinion; back them up with references or personal experience.To learn more, see our tips on writing great answers.    
+
+
+
+    Draft saved    Draft discarded
+
+                
+                        
+
+
+
+                                                                                                                        Sign up or log in                                                                 Sign up using Google                                                                 Sign up using Facebook                                                                 Sign up using Email and Password                                                                                    Submit                                            Post as a guest                                    Name                                                                                                                                                        Email                        Required, but never shown                                                                                                            
+                                                                        Post as a guest                                    Name                                                                                                                                                        Email                        Required, but never shown                                                                                                            
+        
+                            
+                                                                                                            Post Your Answer                                                                                                                Discard                                                                                                                        By clicking “Post Your Answer”, you agree to our terms of service and acknowledge that you have read and understand our privacy policy and code of conduct.                                                                                                                                
+
+                                                    
+Not the answer you&#x27;re looking for? Browse other questions tagged gitgithubbranchgit-refspec or ask your own question.                                                                            
+        
+    
+                                                The Overflow Blog                                
+                                CEO update: Giving thanks and building upon our product &amp; engineering foundation                        
+                                The AI assistant trained on your company’s data                                                        Featured on Meta                                
+                                Update: New Colors Launched                        
+                                Incident update and uptime reporting                        
+                                Temporary policy: Generative AI (e.g., ChatGPT) is banned                        
+                                Beta test for short survey in banner ad slots starting on the week of...                        
+                                Collectives updates: new features and ways to get started with Discussions                
+
+
+
+		
+
+
+		
+
+        
+	Linked
+	            
+				
+					0
+				
+				How to update stack and push a cloned app to Heroku
+			        
+				
+					-2
+				
+				What are the correct commands for pushing and pulling in GitHub with &quot;main&quot; rather than &quot;master&quot;?
+			        
+				
+					-2
+				
+				Issues with git when beign trying to upload a repo
+			        
+				
+					0
+				
+				error: src refsoec master: does not match any
+			        
+				
+					4032
+				
+				Message &#39;src refspec master does not match any&#39; when pushing commits in Git
+			        
+				
+					631
+				
+				Change first commit of project with Git?
+			        
+				
+					172
+				
+				git push: refs/heads/my/subbranch exists, cannot create
+			        
+				
+					133
+				
+				Why does &quot;git push main&quot; work on GitHub when &quot;git push master&quot; does not? Also what is difference between &quot;Main branch&quot; and &quot;Master branch&quot;?
+			        
+				
+					3
+				
+				Insert a NON-EMPTY commit before the root commit in Git?
+			        
+				
+					2
+				
+				How to merge a commit with the next commit in git interactive rebase?
+			
+		                See more linked questions        
+	
+
+
+
+
+            Related                                                                    5                                        git push to GitHub repository branch gives error &quot;src refspec master does not match any&quot;                                                                            1                                        git push failing with src refspec                                                                            17                                        error: src refspec main does not match any error: failed to push some refs to &lt;url&gt;                                                                            0                                        Error in Github when I do &quot;git push origin master&quot; (error: src refspec master does not match any)                                                                            0                                        Changing git push from master to main does not solve &quot;src refspec does not match any&quot; error                                                                            0                                        GIT push , src refspec feature does not match any, how to resolve?                                                                            3                                        error: src refspec main does not match any                                                                            22                                        git: error: src refspec main does not match any                                                                            1                                        Github error: src refspec main does not match any                                                                            1                                        src refspec main does not match any: failed to push some refs to git (for existing project)                                
+
+
+            Hot Network Questions                                        Translation of &#x201C;in&#x201D; as &#x201C;and&#x201D;            
+                                            Behavior of BJT collector current in saturation            
+                                            How important is getting nitty-gritty with ideals for algebraic number theory?            
+                                            Sci-fi, mid-grade/YA novel about a girl in a wheelchair beta testing the world&#x27;s first fully immersive VR program            
+                                            My global IP address is 192.168.1.xxx?            
+                                            Did Israel (in their newest evacuation order) tell Gazans where are they supposed to go from Khan Yunis? Any zones declared (more) safe?            
+                                            Pattern matching vs. condition in a function            
+                                            Can I, a British Green Card holder residing in western NY, go to pick up my British mother flying into Toronto airport and bring her back home?            
+                                            How can I keep large packs of ham fresh longer?            
+                                            Flag Interpretation            
+                                            What are FAA rules regarding FBO operations encouraging food/ refreshments for pilots?            
+                                            Was Starship&#x2019;s &#x201C;launch window&#x201D; bureaucratic, rather than physical?            
+                                            How to weave Anni Albers Red Meander carpet?            
+                                            Does the Leshy Ancestry Feat Grasping Reach reduce Deadly/Fatal damage dice?            
+                                            Does a proof by induction have to explicitly refer to the principle of mathematical induction?            
+                                            Independent researcher being solicited for an academic collaboration. What do I need to know?            
+                                            Can you completely determine a finitely presented finite group?            
+                                            Why didn&#x27;t Microsoft use a well-known encryption algorithm like RSA for telephone activation?            
+                                            What are some good references on the history of ethics in statistics?            
+                                            Escalating user privileges on Linux            
+                                            How can I overcome irrational fears of being out in the dark?            
+                                            Golf Transmission            
+                                            Intellectually serious examples of systems of linear differential equations with constant coefficients            
+                                            Is &quot;it is looking good&quot; slang?            
+        
+            more hot questions    
+
+                                Question feed                            Subscribe to RSS                                                                Question feed                    To subscribe to this RSS feed, copy and paste this URL into your RSS reader.                                                                                                                            
+
+
+
+
+
+                    
+    
+    
+                    
+                                                                        Stack Overflow                                            Questions                            Help                                                                        Products                                            Teams                        Advertising                        Collectives                        Talent                                                                Company                                        About                    Press                        Work Here                    Legal                    Privacy Policy                    Terms of Service                        Contact Us                        Cookie Settings                    Cookie Policy                                                                            Stack Exchange Network                                                                                                        Technology                                                                                                                                        Culture &amp; recreation                                                                                                                                        Life &amp; arts                                                                                                                                        Science                                                                                                                                        Professional                                                                                                                                        Business                                                    
+                                                                                    API                                                    
+                                                                                    Data                                                                                                                                                Blog                Facebook                Twitter                LinkedIn                Instagram            
+            
+Site design / logo &#169; 2023 Stack Exchange Inc; user contributions licensed under CC BY-SA.                    rev&nbsp;2023.11.15.1019                        
+
+
+
+                            
+                                                                                                                            Your privacy                                                    By clicking “Accept all cookies”, you agree Stack Exchange can store cookies on your device and disclose information in accordance with our Cookie Policy.                                                                            Accept all cookies                    
+                                            Necessary cookies only                                    
+                                                            Customize settings                                                &nbsp;
+

@@ -14,13 +14,17 @@ class Indexer(object):
         self.content_list = content_list
 
     #Convert array to JSON database
-    def create_db(self, db_content, db_name):
+    def gen_db(self, db_content, db_name):
         if os.path.isfile(db_name):
-            print("file exists")
+            print("db file exists")
+            return None
+
         else:
             try:
                 with open(db_name, 'w') as f:
                     json.dump(db_content, f)
+                    return db_content
+
             except:
                 print("something went wrong")
                 return None
@@ -48,12 +52,17 @@ class Indexer(object):
                     return None
 
         else:
-            print("file doesn't exist")
+            print("read failed: file doesn't exist")
             return None
 
     #Merge two databases
     def merge_data(self, db1, db2):
-        merged_db = {**db1, **db2}
+        try:
+            merged_db = {**db1, **db2}
+            
+        except:
+            return None
+
         return merged_db
 
     #Sort database by data_type
@@ -64,21 +73,13 @@ class Indexer(object):
     #List links/content info in database
     def list_content(self, db_contents):
         text = ""
-        for lnk in db_contents:
+        # for lnk in db_contents:
+        for lnk in [lnk for lnk in (db_contents or [])]:
             data = db_contents[lnk]
-            try:
-                text += "Link: " + str(lnk) + "\n"
-            except:
-                pass
-
+            text += "Link: " + str(lnk) + "\n"
             for cnt in self.content_list:
-                try:
-                    contents = data[cnt]
-                    text += cnt + ": " + str(contents) + "\n"
-                
-                except:
-                    pass
-                
+                contents = data[cnt]
+                text += cnt + ": " + str(contents) + "\n"
             text += "\n"
-        
+
         return text
