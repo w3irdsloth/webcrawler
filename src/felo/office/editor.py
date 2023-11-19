@@ -27,6 +27,37 @@ class Editor(object):
         # temp_list = re.findall(expression, text)
         self.sentc_list = temp_list
 
+    #Format sentence list as string
+    def frmt_textstring(self):
+        print("formatting text as string...")
+        formatted_text = ""
+        try:
+            for sentc in self.sent_list:
+                formatted_text = formatted_text + sentc + " "
+
+        except:
+            print("error, no text formatted")
+            return None
+
+        return formatted_text
+    
+
+    #Format sentence list with newlines
+    def frmt_newlines(self):
+        print("formatting text with newlines...")
+        formatted_text = ""
+        try:
+            for sentc in self.sent_list:
+                formatted_text = formatted_text + sentc + "\n"
+
+        except:
+            print("error, no text formatted")
+            return None
+
+        return formatted_text
+
+
+
     def remv_newlines(self):
         print("removing newlines...")
         temp_list = []

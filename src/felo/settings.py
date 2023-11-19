@@ -19,7 +19,7 @@ default_db_name = "/home/n0xs1/projects/felo/tests/db.json"
 default_txt_name = "/home/n0xs1/projects/felo/tests/test.txt"
 
 
-## Crawler Defaults ##
+## Web ##
 # Timeout for making requests in seconds
 requests_timeout = 5
 
@@ -28,7 +28,7 @@ requests_timeout = 5
 # seed_url = 'https://www.yahoo.com'
 # seed_url = 'https://www.google.com'
 # seed_url = 'https://www.yandex.com'
-seed_url = "https://stackoverflow.com/questions/65173291/git-push-error-src-refspec-main-does-not-match-any-on-linux"
+crawl_seed_url = "https://stackoverflow.com/questions/65173291/git-push-error-src-refspec-main-does-not-match-any-on-linux"
 # seed_url = "https://www.geeksforgeeks.org/python-merging-two-dictionaries/"
 # seed_url = "https://www.w3schools.com/html/html_comments.asp"
 # seed_url = "https://blablabla.com"
@@ -76,6 +76,13 @@ clean_html_tags = True
 default_content_tag1 = "<script"
 default_content_tag2 = "</script>"
 
+
+# List of content-types to download
+downloadable_content = ['image/png']
+
+
+## Editing ##
+
 # Edit cycle list
 
 edit_cycle_config = {
@@ -88,5 +95,9 @@ edit_cycle_config = {
     "dupwords": True, 
     "duplicates": True, 
     "trimsentlist": True, 
-    "checkspelling": True,
+    "checkspelling": False,
 }
+
+# Min and max sentence length for 'trimsentlist' cycle
+edit_sent_min = 1
+edit_sent_max = 50 

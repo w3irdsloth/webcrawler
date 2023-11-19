@@ -4,8 +4,8 @@
 
 import requests
 import random
-
-import time
+# import time
+import os
 
 class Crawler(object):
     """ Creates an object for crawling html for web links """
@@ -127,3 +127,22 @@ class Crawler(object):
             print("something went wrong")
             return None
         
+
+    #Download file from url
+    def dl_file(self, url, redirects, directory=""):
+        # for lnk in links:
+        filename = os.path.split(url)[1]
+        print("downloading " + filename + "...")
+        try:
+            request = requests.get(url, allow_redirects=redirects, timeout=self.timeout)
+            open(directory + filename, "wb").write(request.content)
+            print("done")
+        except requests.exceptions.Timeout:
+            print("timeout")
+        except requests.exceptions.TooManyRedirects:
+            print("too many redirects")
+        except requests.exceptions.HTTPError:
+            print("HTTP error")
+        except requests.exceptions.RequestException as e:
+            print("requst error: " + str(e))
+            pass

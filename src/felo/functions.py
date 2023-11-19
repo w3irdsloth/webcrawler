@@ -167,6 +167,18 @@ def crawl_web(seed_url, max_links, max_timeout, max_sleep, headers, user_agent_l
 
     return crawled_links
 
+# Download file from url
+def dl_file(url):
+    directory = "/home/n0xs1/projects/felo/tests/"
+    crawler = Crawler()
+    crawler.dl_file(url, redirects=True, directory=directory)
+
+# # Download list of links
+# def dl_links(link_list):
+#     directory = "/home/n0xs1/projects/felo/tests/"
+#     crawler = Crawler()
+#     crawler.dl_links(link_list, directory)
+    
 
 ## Parse response from link list and create array as: link[meta] ##
 def gen_array(link_list, max_sleep, headers, user_agent_list):
@@ -209,6 +221,12 @@ def merge_data(db1, db2):
     db2_content = indexer.read_db(db2)
     merged_db = indexer.merge_data(db1_content, db2_content)
     return merged_db
+
+
+# Get list of downloadable links from indexer and download with crawler
+
+
+
 
 ## Return content between html elements
 def scrape_content(html, tag1, tag2):
@@ -275,45 +293,9 @@ def scrape_text(html):
 
 
 ## Editing ##
-def edit_text(text, cycle_config, sentmin=1, sentmax=100):
+def edit_text(text, cycle_config, sentmin, sentmax):
         editor = Editor()
-
-        # cycle_list = ["noalpha", 
-        #                   "nodeclare", 
-        #                   "excaps", 
-        #                   "exletters", 
-        #                   "firstperson", 
-        #                   "secondperson", 
-        #                   "dupwords", 
-        #                   "duplicates", 
-        #                   "trimsentlist", 
-        #                   "checkspelling", 
-        #                   "help (or h)"]
-
-        cycle_list = list_items(cycle_config)
-        print("cycles:")
-        print_items(cycle_list)
-
-
         editor.create_sentc_list(text)
-
-        # def return_cycles():
-        #     s = ", "
-        #     s = s.join(cycle_list)
-        #     return s
-        
-        # editor.create_sentc_list(text)
-        # if cycle == "full":
-        #     editor.remv_noalpha()
-        #     editor.remv_nodeclare()
-        #     editor.remv_excaps()
-        #     editor.remv_exletters()
-        #     editor.remv_firstperson()
-        #     editor.remv_secondperson()
-        #     editor.remv_dupwords()
-        #     editor.remv_duplicates()
-        #     editor.trim_sentlist(sentmin, sentmax)
-        #     # editor.check_misspelled(dictionary)
 
         if cycle_config["noalpha"]:
             editor.remv_noalpha()
@@ -343,13 +325,7 @@ def edit_text(text, cycle_config, sentmin=1, sentmax=100):
             editor.trim_sentlist(sentmin, sentmax)
 
         # elif cycle == "checkspelling":
-            # editor.check_misspelled(dictionary)
-
-        # else:
-        #     print("cycle not found")
-        #     print("available cycles:")
-        #     print(return_cycles())
-        #     raise SystemExit
+        #     editor.check_misspelled(dictionary)
 
         sentc_list = editor.get_sentc_list()    
         clean_text = ""
@@ -359,7 +335,3 @@ def edit_text(text, cycle_config, sentmin=1, sentmax=100):
         return clean_text
 
 
-#         formatter.set_sentlist(sentc_list)
-#         formatter.frmt_textlist()
-#         clean_text = formatter.get_text()
-#         applicator.apply_text(text=clean_text, document=document)
