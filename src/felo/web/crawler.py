@@ -72,7 +72,6 @@ class Crawler(object):
         except:
             return None
 
-
     # Get response from URL
     def get_response(self, url):
         print("scraping " + url + "...")
@@ -129,7 +128,7 @@ class Crawler(object):
         
 
     #Download file from url
-    def dl_file(self, url, redirects, directory=""):
+    def dl_file(self, url, directory, redirects):
         # for lnk in links:
         filename = os.path.split(url)[1]
         print("downloading " + filename + "...")

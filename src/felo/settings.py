@@ -12,11 +12,18 @@ max_crawl_timeout = 360
 # Maximum wait between crawl requests
 max_crawl_sleep = 3
 
-# Default path/name for index database
-default_db_name = "/home/n0xs1/projects/felo/tests/db.json"
+# Default path/name for db
+default_db_name = "/home/n0xs1/projects/felo/tests/test.json"
+
+# Default link db name
+default_link_db = "/home/n0xs1/projects/felo/tests/linkdb.json"
 
 # Default path/name for creating/reading .txt files
 default_txt_name = "/home/n0xs1/projects/felo/tests/test.txt"
+
+
+# Default download directory
+default_dl_directory = "/home/n0xs1/projects/felo/tests/downloads/"
 
 
 ## Web ##
@@ -80,8 +87,16 @@ default_content_tag2 = "</script>"
 # List of content-types to download
 downloadable_content = ['image/png']
 
+# Default filetype handlers
+filetype_handlers = {
+    ".doc":"docx",
+    ".pdf":"pdftotext",
+    # ".pdf":"pymupdf",
 
-## Editing ##
+}
+
+
+## Editor ##
 
 # Edit cycle list
 

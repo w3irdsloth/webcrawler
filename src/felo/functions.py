@@ -8,6 +8,7 @@ from felo.office.editor import Editor
 
 import time
 import random
+from os.path import splitext, basename, dirname
 
 
    ###########
@@ -63,20 +64,52 @@ def filter_list(list, query=""):
     return new_list
 
 
+def split_path(file_path):
+    file = basename(file_path)
+    file_tuple = splitext(file)
+    file_name = file_tuple[0]
+    ext_name = file_tuple[1]
+    dir_name = dirname(file_path)
+    path_data = {
+        "file": file,
+        "filename": file_name,
+        "extension": ext_name,
+        "directory": dir_name
+
+    }
+
+    return path_data
+
   ##########
 #### office ####
    ##########
 
-def write_text(txt_name, txt_content):
+def write_text(doc_name, txt_content):
     writer = Writer()
-    writer.write_txt(txt_name, txt_content)
+    writer.write_txt(doc_name, txt_content)
 
-def read_text(txt_name):
+def read_text(doc_name):
     reader = Reader()
-    text = reader.read_text(txt_name)
+    text = reader.read_text(doc_name)
     return text
 
+def read_file(doc_name, handlers):
+    reader = Reader()
+    reader.set_handlers(handlers)
 
+    path_data = split_path(doc_name)
+    file_ext = path_data['extension']
+    if file_ext == '.doc' or ".docm" or ".docx" or ".dot" or ".dotx":
+        doc_text = reader.read_doc(doc_name)
+
+    elif file_ext == '.pdf':
+        doc_text = reader.read_pdf(doc_name)
+
+    else:
+        print("unsupported filetype")
+        doc_text = None
+
+    return doc_text
 
 
    #######
@@ -168,17 +201,18 @@ def crawl_web(seed_url, max_links, max_timeout, max_sleep, headers, user_agent_l
     return crawled_links
 
 # Download file from url
-def dl_file(url):
-    directory = "/home/n0xs1/projects/felo/tests/"
+def dl_file(url, dl_directory, redirects):
+    # redirects = True
     crawler = Crawler()
-    crawler.dl_file(url, redirects=True, directory=directory)
+    crawler.dl_file(url, dl_directory, redirects)
 
-# # Download list of links
-# def dl_links(link_list):
-#     directory = "/home/n0xs1/projects/felo/tests/"
-#     crawler = Crawler()
-#     crawler.dl_links(link_list, directory)
-    
+# Download list of links
+def dl_files(link_list, dl_directory, redirects):
+    # directory = "/home/n0xs1/projects/felo/tests/downloads"
+    # redirects = True
+    crawler = Crawler()
+    for lnk in link_list:
+        crawler.dl_file(lnk, dl_directory, redirects)
 
 ## Parse response from link list and create array as: link[meta] ##
 def gen_array(link_list, max_sleep, headers, user_agent_list):
@@ -223,11 +257,41 @@ def merge_data(db1, db2):
     return merged_db
 
 
-# Get list of downloadable links from indexer and download with crawler
+# Generate index file based on query
+def search_db(db1, db2, query):
+    indexer = Indexer()
+    search_array = indexer.read_db(db1)
+    temp_array = {}
+    for lnk in search_array:
+        if query in lnk or query in search_array[lnk]:
+            temp_array[lnk] = search_array[lnk]
 
+        else:
+            pass
+    
+    new_db = indexer.gen_db(temp_array, db2)
 
+    return new_db
 
+# Generate index file containing downloadable links
+def gen_link_db(db1, db2):
+    indexer = Indexer()
+    search_array = indexer.read_db(db1)
+    temp_array = {}
+    content_list = ['image/png']
+    for lnk in search_array:
+        head = search_array[lnk]
+        if head['Content-Type'] and head['Content-Type'] in content_list:
+            temp_array[lnk] = search_array[lnk]
 
+        else:
+            pass
+
+    print(temp_array)
+    new_db = indexer.gen_db(temp_array, db2)
+
+    return new_db
+                                    
 ## Return content between html elements
 def scrape_content(html, tag1, tag2):
     scraper = Scraper()
