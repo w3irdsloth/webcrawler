@@ -4,64 +4,128 @@
 
 import requests
 import random
-# import time
 import os
 
 class Crawler(object):
-    """ Creates an object for crawling html for web links """
+    """Constructs an object for crawling html for web links.
+    
+    Attributes
+    ----------
+    headers: dict
+        headers data to pass into requests
+    timeout: int
+        timeout for requests in seconds
+
+    """
 
     def __init__(self):
-        self.headers = {}
-        self.user_agent_list = []
+        """Constructs the necessary attributes for the Crawler object."""
         self.timeout = 5
+        self.headers = {
+            'User-Agent': '',
+            'Accept': '',
+            'Accept-Language': '',
+            'Accept-Encoding': '',
+            'Referer': '',
+        }
 
     def set_timeout(self, time_out):
+        """Sets the timeout for requests in seconds."""
         self.timeout = time_out
 
     def get_timeout(self):
+        """Returns the timeout for requests."""
         return self.timeout
     
     def set_user_agent(self, user_agent):
-        # self.headers_user_agent = user_agent
+        """Sets 'User-Agent' for requests headers."""
         self.headers['User-Agent'] = user_agent
 
     def set_random_user_agent(self, user_agent_list):
+        """Sets random 'User-Agent' for requests headers.
+
+        Parameters
+        ----------
+        user_agent_list: list
+            list of user agents
+
+        """
         random_user_agent = random.choice(user_agent_list)
         self.headers['User-Agent'] = random_user_agent
     
-    def set_agent_list(self, user_agent_list):
-        self.user_agent_list = user_agent_list
-    
     def get_user_agent(self):
-        return self.headers_user_agent
+        """Returns 'User-Agent' for requests headers."""
+        return self.headers['User-Agent']
     
     def set_headers_accept(self, headers_accept):
-        # self.headers_accept = headers_accept
+        """Sets 'Accept' for requests headers."""
         self.headers['Accept'] = headers_accept
 
     def get_headers_accept(self):
-        return self.headers_accept
+        """Returns 'Accept' for requests headers."""
+        return self.headers['Accept']
     
     def set_headers_language(self, accept_language):
+        """Sets 'Accept-Language' for requests headers."""
         self.headers['Accept-Language'] = accept_language
 
     def get_headers_language(self):
-        return self.headers_accept_language
+        """Returns 'Accept-Language' for requests headers."""
+        return self.headers['Accept-Language']
     
     def set_headers_encoding(self, accept_encoding):
+        """Sets 'Accept-Encoding' for requests headers."""
         self.headers['Accept-Encoding'] = accept_encoding
     
     def get_headers_encoding(self):
-        return self.headers_accept_encoding
+        """Returns 'Accept-Encoding' for requests headers"""
+        return self.headers['Accept-Encoding']
+    
+    def set_headers_referer(self, referer):
+        """Sets 'Referer' for requests headers."""
+        self.headers['Referer'] = referer
+
+
+    def set_random_referer(self, referer_list):
+        """Sets random 'referer' for requests headers.
+
+        Parameters
+        ----------
+        referer_list: list
+            list of referers
+
+        """
+        random_referer = random.choice(referer_list)
+        self.headers['Referer'] = random_referer
+
+    def get_referer(self):
+        return self.headers['Referer']
 
     def set_headers(self, headers):
+        """Sets requests headers.
+        
+        Parameters
+        ----------
+        headers: dict
+            dictionary of headers values
+        
+        """
         self.headers = headers
 
     def get_headers(self):
+        """Returns requests headers"""
         return self.headers
 
 
     def check_validity(self, response):
+        """Checks the validity of an http request.
+        
+        Parameters
+        ----------
+        response: http response
+            response value from http request
+        
+        """
         try:
             status_code = response.status_code
             if status_code != 200:
@@ -72,9 +136,9 @@ class Crawler(object):
         except:
             return None
 
-    # Get response from URL
     def get_response(self, url):
-        print("scraping " + url + "...")
+        """Requests response from a url."""
+        print("requesting response from " + url + "...")
         try:
             response = requests.get(url, headers=self.headers, timeout=self.timeout)
             return response
@@ -101,7 +165,8 @@ class Crawler(object):
         
 
     def get_head(self, url):
-        print("scraping " + url + "...")
+        """Requests head from a url"""
+        print("requesting head data from " + url + "...")
         try:
             response = requests.head(url, headers=self.headers, timeout=self.timeout)
             return response
@@ -126,14 +191,12 @@ class Crawler(object):
             print("something went wrong")
             return None
         
-
-    #Download file from url
     def dl_file(self, url, directory, redirects):
-        # for lnk in links:
+        """Downloads a file from a url."""
         filename = os.path.split(url)[1]
         print("downloading " + filename + "...")
         try:
-            request = requests.get(url, allow_redirects=redirects, timeout=self.timeout)
+            request = requests.get(url, headers=self.headers, allow_redirects=redirects, timeout=self.timeout)
             open(directory + filename, "wb").write(request.content)
             print("done")
         except requests.exceptions.Timeout:

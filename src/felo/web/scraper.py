@@ -1,15 +1,18 @@
-
 import re
 
 class Scraper(object):
 
-    # Scrape http links from html
     def scrape_links(self, html):
+        """Scrapes http links from html."""
         print("parsing links...")
         links = []
         link_list = []
         try: 
-            links = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', html)
+            # regex = "^((http|https)://)[-a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%._\\+~#?&//=]*)$"
+            # regex = 'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()!@:%_\+.~#?&\/\/=]*)'
+            regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+            links = re.findall(regex, html)
+            
             for lnk in links:
                 if lnk not in link_list:
                     link_list.append(lnk)
@@ -20,28 +23,25 @@ class Scraper(object):
             print("something went wrong")
             return None
 
-    # Scrape text from html
+
     def scrape_text(self, html):
+        """Scrapes text from html."""
         html_text = ""
-        # elmnt_list = re.findall(r'<[^<>]+>', html) 
         elmnt_list = self.parse_elmnts(html)
         text_start = 0
         list_start = 0
-
         for e in elmnt_list:
+
             try:
                 list_index = elmnt_list.index(e, list_start)
                 sub1 = e
                 sub2 = elmnt_list[list_index + 1]
-
                 text_index1 = html.find(sub1, text_start)
                 text_index2 = html.find(sub2, text_index1 + len(sub1))
-
                 result = html[text_index1 + len(sub1): text_index2]
-                html_text = html_text + result
-
+                html_text = html_text + result + " "
                 list_start = list_index + 1
-                text_start = text_index1 + len(sub1)
+                text_start = text_index1 + len(sub1) + len(result)
 
             except:
                 pass
@@ -49,8 +49,8 @@ class Scraper(object):
         return html_text
     
 
-    # Return content from between html tags
     def scrape_content(self, html, tag1, tag2):
+        """Returns content from between html tags."""
         content = ""
         elmnt_list = self.parse_elmnts(html)
         text_start = 0
@@ -72,8 +72,8 @@ class Scraper(object):
         return content
 
 
-    # Remove content from between html tags
     def remove_content(self, html, tag1, tag2):
+        """Removes content from between html tags."""
         clean_text = html
         elmnt_list = self.parse_elmnts(html)
         text_start = 0
@@ -115,8 +115,8 @@ class Scraper(object):
 
     #     return new_list
     
-    # parse elements from html
     def parse_elmnts(self, html):
+        """Parses html elements from html."""
         try:
             elmnt_list = re.findall(r'<[^<>]+>', html)    
             return elmnt_list
@@ -125,8 +125,8 @@ class Scraper(object):
             print("something went wrong")
 
 
-    # return list of html elements that contain a tag
     def filter_elements(self, elmnt_list, tag=""):
+        """Returns list of html elements that contain a tag."""
         new_list = []
         for elmnt in elmnt_list:
             if tag in elmnt:
@@ -139,9 +139,8 @@ class Scraper(object):
         return new_list
 
 
-
-    # Generate array of html elements based on tag type
     def gen_elmnt_matrix(self, elmnt_list):
+        """Generates array of html elements based on tag type."""
         elmnt_matrix = {}
         for elmnt in elmnt_list:
             split_elmnt = elmnt.split()
@@ -162,8 +161,9 @@ class Scraper(object):
 
         return elmnt_matrix
     
-    #Return links from element matrix based on tag
+
     def gen_link_matrix(self, elmnt_matrix):
+        """Returns links from element matrix based on tag."""
         link_matrix = {}
         for t in elmnt_matrix:
             tag_list = elmnt_matrix[t]

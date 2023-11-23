@@ -5,7 +5,8 @@
 import os
 
 class Builder(object):
-    """ Creates an object for building rnn architectures """
+    """Constructs an object for building rnn architectures."""
+    
     def __init__(self):
         self.textgen = object
 

@@ -5,30 +5,42 @@
 import re
 
 class Editor(object):
-    """ Creates an object for building and cleaning sentences """
+    """Constructs an object for cleaning and formatting sentences."""
+    
     def __init__(self):
+        """Constructs the necessary attributes for the Editor object."""
         self.sentc_list = []
 
     def set_sentc_list(self, sentc_list):
+        """Sets a list of sentences to work with."""
         self.sentc_list = sentc_list
 
     def get_sentc_list(self):
+        """Returns the current sentence list."""
         return self.sentc_list
 
-    # def create_sentc_list(self, text):
-    #     from nltk.tokenize import sent_tokenize
-    #     temp_list = sent_tokenize(text)
-    #     self.sentc_list = temp_list
-
     def create_sentc_list(self, text):
+        """Creates a list of sentences out of text."""
         print("creating sentence list...")
-        print(text)
         temp_list = re.findall(r'([A-Z][^\.!?]*[\.!?])', text)
-        # temp_list = re.findall(expression, text)
         self.sentc_list = temp_list
 
-    #Format sentence list as string
+    def check_keywords(self, keywords):
+        """Returns list of sentences that contain a keyword."""
+        print("checking for keywords...")
+        temp_list = []
+        for sentc in self.sentc_list:
+            for kywrd in keywords:
+                if kywrd in sentc:
+                    print(sentc)
+                    print(kywrd)
+                    temp_list.append(sentc)
+                    break
+
+        self.sentc_list = temp_list
+
     def frmt_textstring(self):
+        """Formats sentence list as string."""
         print("formatting text as string...")
         formatted_text = ""
         try:
@@ -42,8 +54,8 @@ class Editor(object):
         return formatted_text
     
 
-    #Format sentence list with newlines
     def frmt_newlines(self):
+        """Formats sentence list with newlines."""
         print("formatting text with newlines...")
         formatted_text = ""
         try:
@@ -57,8 +69,14 @@ class Editor(object):
         return formatted_text
 
 
-
+    def remv_duplicates(self):
+        """Removes duplicates from sentence list."""
+        print("removing duplicates...")
+        temp_list = list(set(self.sentc_list))
+        self.sentc_list = temp_list
+        
     def remv_newlines(self):
+        """Removes newlines from sentences in list."""
         print("removing newlines...")
         temp_list = []
         for sentc in self.sentc_list:
@@ -68,13 +86,8 @@ class Editor(object):
 
         self.sentc_list = temp_list
 
-    def remv_duplicates(self):
-        print("removing duplicates...")
-        temp_list = list(set(self.sentc_list))
-        self.sentc_list = temp_list
-        
-    #Remove sentences with duplicate words
     def remv_dupwords(self):
+        """Removes sentences with duplicate words."""
         print("removing duplicate words...")
         #List of commonly used conjunctions, articles, and prepositions to ignore
         pass_list = ["is", "for", "and", "or", "are", "the", "a", "an", "at", "of", "to", "in", "on", "they", "there"]
@@ -101,6 +114,7 @@ class Editor(object):
         self.sentc_list = temp_list
 
     def remv_pars(self):
+        """Removes parentheses from sentences in list."""
         print("removing parentheses...")
         temp_list = []
         for sentc in self.sentc_list:
@@ -109,8 +123,8 @@ class Editor(object):
 
         self.sentc_list = temp_list
 
-    #Remove non-alphabetical characters    
     def remv_noalpha(self):
+        """Removes sentences that contain non-alphabetical characters from list."""
         print("removing non-alphabetical characters...")
         pun_list = [".", "?", "!"]
         pass_list = [" ", ",", "'"]
@@ -128,8 +142,8 @@ class Editor(object):
 
         self.sentc_list = temp_list
 
-    #Remove non-declarative sentences from sentence list
     def remv_nodeclare(self):
+        """Removes non-declarative sentences from list."""
         print("removing non-declaratives...")
         temp_list = []
         for sentc in self.sentc_list:
@@ -143,8 +157,8 @@ class Editor(object):
             
         self.sentc_list = temp_list
 
-    #Remove sentences with first-person language
     def remv_firstperson(self):
+        """Removes sentences with first-person language from list."""
         print("removing first-person language...")
         word_list = ["I", "me", "Me", "my", "My", "mine", "Mine", "our", "Our", "ours", "Ours", "us", "Us", "we", "We"]
         temp_list = []
@@ -162,8 +176,8 @@ class Editor(object):
 
         self.sentc_list = temp_list
 
-    #Remove sentences with second-person language
     def remv_secondperson(self):
+        """Removes sentences with second-person language from list."""
         print("removing second-person language...")
         word_list = ["you", "You", "your", "Your", "yours", "Yours"]
         temp_list = []
@@ -181,8 +195,8 @@ class Editor(object):
 
         self.sentc_list = temp_list
 
-    #Remove sentences with extra capital letters
     def remv_excaps(self):
+        """Removes sentences with extra capital letters from list."""
         print("removing extra capitals...")
         temp_list = [] 
         temp_list = temp_list + self.sentc_list
@@ -194,8 +208,8 @@ class Editor(object):
 
         self.sentc_list = temp_list
 
-    #Remove sentences with single letters
     def remv_exletters(self):
+        """Remove sentences with single letters from list."""
         print("removing extra letters...")
         temp_list = []
         temp_list = temp_list + self.sentc_list
@@ -210,6 +224,7 @@ class Editor(object):
         self.sentc_list = temp_list
 
     def remv_badpgs(self):
+        """Removes page indicators from list."""
         print("removing page indicators...")
         temp_list = []
         for sentc in self.sentc_list:
@@ -219,6 +234,7 @@ class Editor(object):
         self.sentc_list = temp_list
 
     def remv_badcoms(self):
+        """Fix poor comma spacing for sentences in list."""
         print("removing bad comma spacing...")
         temp_list = []
         for sentc in self.sentc_list:
@@ -231,29 +247,31 @@ class Editor(object):
 
         self.sentc_list = temp_list
 
-    # #Remove whitespace from sentences
-    # def remv_wtspace(self):
-    #     print("removing whitespace...")
-    #     temp_list = []
-    #     for sentc in self.sentc_list:
-    #         sentc = " ".join(sentc.split())
-    #         temp_list.append(sentc)
+    def remv_wtspace(self):
+        """Removes whitespace from sentences in list."""
+        print("removing whitespace...")
+        temp_list = []
+        for sentc in self.sentc_list:
+            sentc = " ".join(sentc.split())
+            temp_list.append(sentc)
 
-    #     self.sentc_list = temp_list
+        self.sentc_list = temp_list
 
-    # def remv_endspace(self):
-    #     print("removing bad end spacing...")
-    #     temp_list = []
-    #     for sentc in self.sentc_list:
-    #         sentc = sentc.strip()
-    #         while " ." in sentc:
-    #             sentc = sentc.replace(" .", ".")
+    def remv_endspace(self):
+        """Removes space after punctuation from sentences in list."""
+        print("removing bad end spacing...")
+        temp_list = []
+        for sentc in self.sentc_list:
+            sentc = sentc.strip()
+            while " ." in sentc:
+                sentc = sentc.replace(" .", ".")
             
-    #         temp_list.append(sentc)
+            temp_list.append(sentc)
 
-    #     self.sentc_list = temp_list
+        self.sentc_list = temp_list
     
     def remv_punspace(self):
+        """Removes empty space from between sentences and append to new list."""
         print("removing punctuation space...")
         temp_list = []
         for sentc in self.sentc_list:
@@ -263,8 +281,8 @@ class Editor(object):
 
         self.sentc_list = temp_list
 
-    #Remove sentences in sentence list based on min and max word length
     def trim_sentlist(self, sent_min, sent_max):
+        """Removes sentences in sentence list based on min and max word length."""
         print("trimming sentence list...")
         temp_list = []
         for sentc in self.sentc_list:
@@ -273,18 +291,9 @@ class Editor(object):
                 
         self.sentc_list = temp_list
 
-    # def check_sentlen(self, max_words):
-    #     print("checking max sentence length")
-    #     temp_list = []
-    #     for sentc in self.sentc_list:
-    #         temp_sentc = sentc.replace(" ", "")
-    #         if len(temp_sentc) <= 40:
-    #             temp_list.append(sentc)
 
-    #     self.sentc_list = temp_list
-
-    #Check words against dictionary
     def check_misspelled(self, words):
+        """Check words against dictionary for rudimentary spellchecking."""
         print("checking for spelling errors...")
         dict_list = [""]
         words = open(words, 'r')
@@ -301,7 +310,8 @@ class Editor(object):
 
         self.sentc_list = temp_list
 
-    # #Remove sentences with misspelled words
+
+    # #Use spellchecker
     # def remv_badspelling(self):
     #     print("checking for spelling errors...")
     #     from spellchecker import SpellChecker
@@ -323,7 +333,8 @@ class Editor(object):
             
     #     self.sentc_list = temp_list
 
-    # #LANGUAGE-TOOL Functions
+
+    ## Use Language-Tool
     # #Fix spelling and grammar errors in sentence list
     # def fix_language(self):
     #     import language_tool_python
@@ -352,18 +363,4 @@ class Editor(object):
     #         if len(errors) == 0:
     #             temp_list.append(sentc)
 
-    #     self.sentc_list = temp_list      
-
-    #Keep sentences that contain a keyword
-    def check_keywords(self, keywords):
-        print("checking for keywords...")
-        temp_list = []
-        for sentc in self.sentc_list:
-            for kywrd in keywords:
-                if kywrd in sentc:
-                    print(sentc)
-                    print(kywrd)
-                    temp_list.append(sentc)
-                    break
-
-        self.sentc_list = temp_list
+    #     self.sentc_list = temp_list

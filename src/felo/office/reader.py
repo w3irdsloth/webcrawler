@@ -5,19 +5,22 @@
 from os.path import isfile
 
 class Reader(object):
-    """ Creates an object for extracting text from files """
+    """Constructs an object for extracting text from files."""
 
     def __init__(self):
+        """Constructs the necessary attributes for the Reader object."""
         self.handlers = {}
         
     def set_handlers(self, handlers):
+        """Sets doctype handlers."""
         self.handlers = handlers
     
     def get_handlers(self, handlers):
+        """Returns doctype handlers."""
         return self.handlers
 
-    # Read text from .txt files
     def read_text(self, txt_name):
+        """Reads text from .txt files."""
         if isfile(txt_name):
             pass
 
@@ -34,8 +37,8 @@ class Reader(object):
             return None
             
 
-    # Read text from .doc files
     def read_doc(self, doc_name):
+        """Reads text from .doc files."""
         if isfile(doc_name):
             pass
 
@@ -45,6 +48,8 @@ class Reader(object):
         
         doc_text = ""
         print("reading .doc file")
+
+        # Use docx
         if self.handlers[".doc"] == "docx":
             try:
                 from docx import Document
@@ -65,8 +70,8 @@ class Reader(object):
 
         return doc_text
 
-    # Read text from .pdf files
     def read_pdf(self, pdf_name):
+        """Reads text from .pdf files."""
         if isfile(pdf_name):
             pass
 
@@ -76,6 +81,7 @@ class Reader(object):
         
         pdf_text = ""
         print("reading .pdf file...")
+        
         # USe pdftotext
         if self.handlers[".pdf"] == "pdftotext":
             try:

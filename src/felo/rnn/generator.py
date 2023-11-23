@@ -3,7 +3,7 @@
      ###############
 
 class Generator(object):
-    """ Creates an object for generating unique text with an rnn architecture  """
+    """Constructs an object for generating unique output with an rnn architecture."""
     def __init__(self):
         self.weight = ""
         self.text_list = []

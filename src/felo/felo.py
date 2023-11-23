@@ -9,14 +9,16 @@ import os
 from felo.settings import ( 
     crawl_seed_url, 
     max_crawl_links, 
-    max_crawl_timeout, 
+    max_crawl_runtime, 
     max_crawl_sleep, 
-    requests_timeout, 
+    requests_timeout,
     headers_user_agent, 
     headers_accept, 
     headers_accept_language, 
     headers_accept_encoding,
+    headers_referer,
     user_agent_list,
+    referer_list,
     downloadable_content,
     default_dl_directory,
     default_db_name,
@@ -31,7 +33,6 @@ from felo.settings import (
     default_txt_name,
     default_content_tag1,
     default_content_tag2,
-    # default_search_tag,
     edit_sent_min,
     edit_sent_max,
     
@@ -42,11 +43,12 @@ from felo.functions import (
     check_response,
     crawl_web, 
     gen_headers, 
-    gen_array, 
+    # gen_array, 
     gen_db, 
     read_db,
     merge_data,
-    gen_link_db,
+    search_db,
+    gen_dl_db,
     dl_file,
     dl_files,
     remove_content,
@@ -63,12 +65,12 @@ from felo.functions import (
     write_text,
     edit_text,
     print_items,
-    list_items,
-
+    # list_items,
+    
 )
 
 class Felo(object):
-    """An object for editing files, evaluating data, and other logical operations"""
+    """Constructs an object for editing files, evaluating data, and other logical operations"""
 
     def run(self):
         """Top level function that reads arguments and runs commands"""
@@ -77,21 +79,24 @@ class Felo(object):
         if args.command == "get-status":
             """Get response status from url"""
             url = args.url
-            headers = gen_headers(headers_user_agent, headers_accept, headers_accept_language, headers_accept_encoding)
+            headers = gen_headers(headers_user_agent, headers_accept, headers_accept_language, headers_accept_encoding, headers_referer)
             response = get_response(url, headers)
-            print(response.status_code)
+            if response is not None:
+                print(response.status_code)
+
+            else: 
+                print("bad response")
 
 
         if args.command == "crawl-web":
             """Crawl web for links and index data"""
             seed_url = args.seed_url
             max_links = args.max_links
-            max_timeout = args.max_timeout
+            max_runtime = args.max_runtime
             db_name = args.db_name
-            headers = gen_headers(headers_user_agent, headers_accept, headers_accept_language, headers_accept_encoding)
-            link_list = crawl_web(seed_url, max_links, max_timeout, max_crawl_sleep, headers, user_agent_list)
-            link_array = gen_array(link_list, max_crawl_sleep, headers, user_agent_list)
-            gen_db(link_array, db_name)
+            headers = gen_headers(headers_user_agent, headers_accept, headers_accept_language, headers_accept_encoding, headers_referer)
+            crawled_links = crawl_web(seed_url, requests_timeout, max_links, max_runtime, max_crawl_sleep, headers, user_agent_list, referer_list, db_name)
+            print("crawled: " + str(crawled_links))
 
 
         if args.command == "print-links":
@@ -109,6 +114,34 @@ class Felo(object):
             merged_data = merge_data(db1, db2)
             gen_db(merged_data, db_name)
 
+        if args.command == "dl-db":
+            """Index downloadable links from database and create new database"""
+            db_name = args.db_name
+            new_db = args.new_db
+            gen_dl_db(db_name, new_db, downloadable_content)
+
+        if args.command == "dl-file":
+            """Download file from link"""
+            url = args.url
+            redirects = args.redirects
+            dl_directory = args.dl_directory
+            headers = gen_headers(headers_user_agent, headers_accept, headers_accept_language, headers_accept_encoding, headers_referer)
+            dl_file(url, headers, dl_directory, redirects)
+
+        if args.command == "dl-files":
+            """Download files from database"""
+            link_db = args.link_db
+            dl_directory = args.dl_directory
+            redirects = args.redirects
+            link_array = read_db(link_db)
+            link_list = []
+
+            for lnk in link_array:
+                link_list.append(lnk)
+
+            headers = gen_headers(headers_user_agent, headers_accept, headers_accept_language, headers_accept_encoding, headers_referer)
+            dl_files(link_list, headers, dl_directory, redirects)
+            
 
         if args.command == "print-html":
             """Make request and print html to console or file"""
@@ -124,13 +157,14 @@ class Felo(object):
                 print("No response")
                 exit(code=0)
 
-            if filter_style_tags == True:
-                print("removing content between style elements")
-                html = remove_content(html, '<style', '</style>')
-
+            # Order is important here! Script tags should be filtered before style!
             if filter_script_tags == True:
                 print("removing content between script elements")
                 html = remove_content(html, '<script', '</script>')
+
+            if filter_style_tags == True:
+                print("removing content between style elements")
+                html = remove_content(html, '<style', '</style>')
 
             if scrape_elmnts_only == True:
                 html = scrape_elmnts(html)
@@ -144,8 +178,6 @@ class Felo(object):
             else:
                 print(html)
 
-
-        # Is this really necessary? I mean there's echo/nano/etc...
         if args.command == "read-text":
             """Read content of .txt file"""
             doc_name = args.doc_name
@@ -229,31 +261,15 @@ class Felo(object):
             else:
                 print(edited_text)
 
-        if args.command == "dl-file":
-            """Download file from link"""
-            url = args.url
-            redirects = args.redirects
-            dl_directory = args.dl_directory
-            dl_file(url, dl_directory, redirects)
 
-        if args.command == "dl-files":
-            """Download files from database"""
-            link_db = args.link_db
-            dl_directory = args.dl_directory
-            redirects = args.redirects
-            link_array = read_db(link_db)
-            link_list = []
+        #### Search through index file based on kw and return results ####
+        if args.command == "search-db":
+            db1 = args.db1
+            db2 = args.db2
+            query = args.query
+            new_db = search_db(db1, db2, query)
+            print(new_db)
 
-            for lnk in link_array:
-                link_list.append(lnk)
-            
-            dl_files(link_list, dl_directory, redirects)
-            
-        if args.command == "index-links":
-            """Index links from database and create new database"""
-            db_name = args.db_name
-            new_db = args.new_db
-            gen_link_db(db_name, new_db)
 
 
     def parse_arguments(self):
@@ -320,13 +336,13 @@ class Felo(object):
             )
         
         command.add_argument(
-            '-tmt', 
-            '--timeout', 
+            '-rtm', 
+            '--runtime', 
             action='store', 
             type=int, 
-            dest='max_timeout', 
-            default=max_crawl_timeout, 
-            help='Max time to wait before timing out',
+            dest='max_runtime', 
+            default=max_crawl_runtime, 
+            help='Max time the crawl loop will run',
             )
         
         command.add_argument(
@@ -550,9 +566,10 @@ class Felo(object):
             )
         
         command = subparsers.add_parser(
-            name='index-links', 
-            help='Index links from database and create new database',
+            name='dl-db', 
+            help='Index downloadable links from database and create new database',
             )
+        
         command.add_argument(
             '-db', 
             '--database', 
@@ -586,6 +603,15 @@ class Felo(object):
             )
         
         command.add_argument(
+            '-dir', 
+            '--directory', 
+            action='store', 
+            dest='dl_directory', 
+            default=default_dl_directory,
+            help='Directory to download files to',
+            )
+        
+        command.add_argument(
             '-rds', 
             '--redirects', 
             action='store_true', 
@@ -597,7 +623,8 @@ class Felo(object):
         command = subparsers.add_parser(name='dl-files',
                                         help='Download files from links in a database',
                                         )
-        
+
+
         command.add_argument(
             '-db', 
             '--database', 
@@ -625,5 +652,37 @@ class Felo(object):
             help='Whether requests should allow redirects',
             )
 
+        command = subparsers.add_parser(name='search-db',
+                                        help='Search database file and return results',
+                                        )
+        
+        command.add_argument(
+            '-db1', 
+            '--database1', 
+            action='store', 
+            dest='db1', 
+            required=True,
+            help='The name of the database file to search',
+            )
+        
+        command.add_argument(
+            '-db2', 
+            '--database2', 
+            action='store', 
+            dest='db2', 
+            required=True,
+            help='The name of the new database file',
+            )
+
+        command.add_argument(
+            '-qry', 
+            '--query', 
+            action='store', 
+            dest='query', 
+            default='',
+            help='Search query for filtering content',
+            )
+
+        
         args = parser.parse_args()
         return args

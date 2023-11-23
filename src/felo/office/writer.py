@@ -6,9 +6,10 @@ import os
 from os.path import splitext, isfile
 
 class Writer(object):
-    """ Write text to files """
+    """ Constructs an object for writing text to files."""
 
     def write_txt(self, txt_name, txt_content):
+        """Writes text to .txt file."""
         if os.path.isfile(txt_name):
             print("file exists")
             return False
@@ -25,6 +26,7 @@ class Writer(object):
                 return False
 
     def append_txt(self, txt_name, txt_content):
+        """Appends text to .txt file."""
         if os.path.isfile(txt_name):
             try:
                 with open(txt_name, 'a') as f:
@@ -42,6 +44,7 @@ class Writer(object):
         
 
     def save_txt(self, txt_name, txt_content):
+        """Tries to append and then write text to file if it doesn't exist."""
         if self.append_txt(txt_name, txt_content):
             return True
         

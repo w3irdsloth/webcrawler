@@ -1,8 +1,8 @@
-## Import and execute felo object ##
 from felo.felo import Felo
 
 
 def main():
+    """Builds and executes a Felo object."""
     felo = Felo()
     felo.run()
 

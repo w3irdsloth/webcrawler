@@ -8,13 +8,21 @@ import os
 content_list = ['Server', 'Date', 'Content-Type']
 
 class Indexer(object):
-    """ Creates an object for indexing web links """
+    """Constructs an object for indexing web links.
+    
+    
+    Attributes
+    ----------
+    content_list: list
+        Types of content to return when reading index files.
+    """
 
     def __init__(self):
+        """Constructs the necessary attributes for the Indexer object."""
         self.content_list = content_list
 
-    #Convert array to JSON database
     def gen_db(self, db_content, db_name):
+        """Converts index array to .json database."""
         if os.path.isfile(db_name):
             print("db file exists")
             return None
@@ -30,6 +38,7 @@ class Indexer(object):
                 return None
 
     def save_db(self, db_content, db_name):
+        """Writes new index array to .json database."""
         try:
             with open(db_name, 'w') as f:
                     json.dump(db_content, f)
@@ -38,8 +47,8 @@ class Indexer(object):
             return None
             
 
-    #Convert JSON database to array
     def read_db(self, db_name):
+        """Reads .json database to array."""
         if os.path.isfile(db_name):
             try:
                 with open(db_name) as f:
@@ -55,8 +64,8 @@ class Indexer(object):
             print("read failed: file doesn't exist")
             return None
 
-    #Merge two databases
     def merge_data(self, db1, db2):
+        """Merge two databases together."""
         try:
             merged_db = {**db1, **db2}
             
@@ -65,15 +74,15 @@ class Indexer(object):
 
         return merged_db
 
-    #Sort database by data_type
+
     def sort_data(self, db_contents, data_type, sort_reverse=False):
+        """Sort database by data_type."""
         sorted_contents = dict(sorted(db_contents.items(), key=lambda item: item[1][data_type] if data_type in item[1] else "", reverse=sort_reverse))
         return sorted_contents
 
-    #List links/content info in database
     def list_content(self, db_contents):
+        """List links/content info in database."""
         text = ""
-        # for lnk in db_contents:
         for lnk in [lnk for lnk in (db_contents or [])]:
             data = db_contents[lnk]
             text += "Link: " + str(lnk) + "\n"
