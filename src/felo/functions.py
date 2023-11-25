@@ -146,12 +146,18 @@ def gen_headers(user_agent, headers_accept, accept_language, accept_encoding, re
     
     return headers
 
-def get_response(url, headers):
+def get_status(url, headers):
     """Returns html request response from URL."""
     crawler = Crawler()
     crawler.set_headers(headers)
     response = crawler.get_response(url)
-    return response
+    if response is not None:
+        response_status = response.status_code
+
+    else:
+        response_status = None
+
+    return response_status
 
 def check_response(response):
     """Checks whether html response request was valid."""
@@ -207,8 +213,8 @@ def get_snippet(response):
     
     return text_snippet
 
-def print_response(response):
-    print(response.status_code)
+# def print_response(response):
+#     print(response.status_code)
 
 
 def crawl_web(seed_url, requests_timeout, max_links, max_runtime, max_sleep, headers, user_agent_list, referer_list, db_name):
@@ -396,6 +402,21 @@ def gen_dl_db(db1, db2, downloadable_content):
 
     return new_db
                                     
+#############
+def get_html(url, headers):
+    """Retrieves html from url."""
+    crawler = Crawler()
+    crawler.set_headers(headers)
+    response = crawler. get_response(url)
+
+    if check_response(response):
+        html = response.text
+        return html
+
+    else:
+        return None
+####
+
 def scrape_content(html, tag1, tag2):
     """Returns content between html elements."""
     scraper = Scraper()
@@ -415,13 +436,38 @@ def parse_elmnts(html):
     return elmnt_list
 
 def scrape_elmnts(html):
-    """Parses elements from html and return as text"""
+    """Parses elements from html and return as text."""
     scraped_text = ""
     elmnt_list = parse_elmnts(html)
     for elmnt in elmnt_list:
         scraped_text += elmnt + "\n"
 
     return scraped_text
+
+# Order is important here! Script tags should be filtered before style!
+def filter_html(html, filter_html_scripts, filter_html_styles, scrape_html_elmnts, scrape_html_text, doc_name):
+    if html is None:
+        return None
+    
+    if filter_html_scripts == True:
+        print("removing content between script elements")
+        html = remove_content(html, '<script', '</script>')
+
+    if filter_html_styles == True:
+        print("removing content between style elements")
+        html = remove_content(html, '<style', '</style>')
+
+    if scrape_html_elmnts == True:
+        html = scrape_elmnts(html)
+        
+    if scrape_html_text == True:
+        print("scraping text")
+        html = scrape_text(html)
+
+    if len(doc_name) > 1:
+        write_text(doc_name, html)
+            
+    return html
 
 def gen_elmnt_matrix(elmnt_list):
     """Generates a matrix of html elements that can be searched based on <tag>."""
@@ -436,7 +482,7 @@ def gen_link_matrix(elmnt_matrix):
     return link_matrix
 
 def filter_tags(html, query):
-    """Return html elements for <tag>."""
+    """Return html elements that contain a query"""
     scraper = Scraper()
     filtered_text = ""
     elmnt_list = scraper.parse_elmnts(html)
@@ -446,16 +492,51 @@ def filter_tags(html, query):
 
     return filtered_text
 
-def remove_tags(html, tag):
-    """Remove html elements that contain <tag>."""
+def remove_tags(html, query):
+    """Remove html elements that contain a query."""
     scraper = Scraper()
     scraped_text = ""
     elmnt_list = scraper.parse_elmnts(html)
-    elmnt_list = filter_list(elmnt_list, tag)
+    elmnt_list = filter_list(elmnt_list, query)
     for elmnt in elmnt_list:
         scraped_text += elmnt
 
     return scraped_text
+
+
+def search_tags(html, query, tag_name, clean_html_tags, get_tag_links):
+    if clean_html_tags == True:
+        html = remove_tags(html, '</')
+        html = remove_tags(html, '![endif]')
+        html = remove_tags(html, '<br')
+
+    if len(query) > 0:
+        html = filter_tags(html, query)
+    elmnt_list = parse_elmnts(html)
+    elmnt_matrix = gen_elmnt_matrix(elmnt_list)
+
+    if get_tag_links == True:
+        print("getting links!")
+        link_matrix = gen_link_matrix(elmnt_matrix)
+        matrix = link_matrix
+
+    else:
+        matrix = elmnt_matrix
+
+    if tag_name in matrix:
+        print(tag_name + " elements:")
+        print_items(matrix[tag_name])
+
+    elif len(tag_name) == 0:
+        print("no tag given")
+        print("available tags: ")
+        print_items(matrix)
+
+    else:
+        print("tag not found")
+        print("available tags: ")
+        print_items(matrix)
+
 
 def scrape_text(html):
     """Parses text from raw html."""
@@ -468,32 +549,35 @@ def edit_text(text, cycle_config, sentmin, sentmax):
     """Edits text based on configuration settings."""
     editor = Editor()
     editor.create_sentc_list(text)
-    if cycle_config["noalpha"]:
+    if cycle_config['noalpha']:
         editor.remv_noalpha()
 
-    if cycle_config["nodeclare"]:
+    if cycle_config['nodeclare']:
         editor.remv_nodeclare()
 
-    if cycle_config["excaps"]:
+    if cycle_config['excaps']:
         editor.remv_excaps()
 
-    if cycle_config["exletters"]:
+    if cycle_config['exletters']:
         editor.remv_exletters()
 
-    if cycle_config["firstperson"]:
+    if cycle_config['firstperson']:
         editor.remv_firstperson()
 
-    if cycle_config["secondperson"]:
+    if cycle_config['secondperson']:
         editor.remv_secondperson()
 
-    if cycle_config["dupwords"]:
+    if cycle_config['dupwords']:
         editor.remv_dupwords()
 
-    if cycle_config["duplicates"]:
+    if cycle_config['duplicates']:
         editor.remv_duplicates()
 
-    if cycle_config["trimsentlist"]:
+    if cycle_config['trimsentlist']:
         editor.trim_sentlist(sentmin, sentmax)
+
+    if cycle_config['whitespace']:
+        editor.remv_wtspace()
 
     # elif cycle == "checkspelling":
     #     editor.check_misspelled(dictionary)

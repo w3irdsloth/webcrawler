@@ -19,6 +19,8 @@ default_link_db = "linkdb.json"
 # Default path/name for creating/reading .txt files
 default_txt_name = "test.txt"
 
+# Default path/name for edited text output
+default_txt_edits = "edits.txt"
 
 # Default download directory
 default_dl_directory = "/home/n0xs1/projects/felo/tests/downloads/"
@@ -65,25 +67,21 @@ referer_list = [
 
 ]
 
-## Elements to remove from crawled text ##
-# Leave these all False to return only html #
+#### Elements to remove from crawled text ####
+# Leave these all False to return only html 
 
 # text_only will return javascript functions, style elements, etc if these are set to False)
-# Filtering out style tags before script tags may cause issues!
-filter_script_tags = True
-filter_style_tags = True
+# Filtering out style tags before script tags will prevent clean text!
+filter_html_scripts = True
+filter_html_styles = True
 
 
+# Whether to scrape html elements, text, or neither
 # Setting both of these True will result in no text returned
-scrape_elmnts_only = False
-scrape_text_only = True
+scrape_html_elmnts = False
+scrape_html_text = True
 
-
-
-## Elements to remove from indexed text ##
-
-# Removes ['</', '![endif]', '<br')] tags
-clean_html_tags = True
+#### END ####
 
 
 ## Return content between tags ##
@@ -130,7 +128,8 @@ downloadable_content = [
     
     ]
 
-# Default filetype handlers
+
+# Default filetype handlers for reading non-.txt documents
 filetype_handlers = {
     ".doc":"docx",
     ".pdf":"pdftotext",
@@ -138,21 +137,18 @@ filetype_handlers = {
 
 }
 
-
-## Editor ##
-
 # Edit cycle list
-
 edit_cycle_config = {
-    "noalpha": True, 
-    "nodeclare": True, 
-    "excaps": True, 
-    "exletters": True, 
-    "firstperson": True, 
-    "secondperson": True, 
-    "dupwords": True, 
+    "noalpha": False, 
+    "nodeclare": False, 
+    "excaps": False, 
+    "exletters": False, 
+    "firstperson": False, 
+    "secondperson": False, 
+    "dupwords": False, 
     "duplicates": True, 
-    "trimsentlist": True, 
+    "trimsentlist": False, 
+    "whitespace": True,
     "checkspelling": False,
 }
 

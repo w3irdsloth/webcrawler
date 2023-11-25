@@ -24,13 +24,14 @@ from felo.settings import (
     default_db_name,
     default_link_db,
     filetype_handlers,
-    filter_style_tags,
-    filter_script_tags,
-    clean_html_tags,
-    scrape_elmnts_only,
-    scrape_text_only,
+    filter_html_styles,
+    filter_html_scripts,
+    # clean_html_tags,
+    scrape_html_elmnts,
+    scrape_html_text,
     edit_cycle_config,
     default_txt_name,
+    default_txt_edits,
     default_content_tag1,
     default_content_tag2,
     edit_sent_min,
@@ -39,8 +40,9 @@ from felo.settings import (
 )
 
 from felo.functions import ( 
-    get_response,
-    check_response,
+    # get_response,
+    get_status,
+    # check_response,
     crawl_web, 
     gen_headers, 
     # gen_array, 
@@ -51,22 +53,24 @@ from felo.functions import (
     gen_dl_db,
     dl_file,
     dl_files,
-    remove_content,
-    remove_tags,
+    # remove_content,
+    # remove_tags,
     scrape_content,
-    parse_elmnts,
-    scrape_elmnts,
-    gen_elmnt_matrix,
-    gen_link_matrix,
-    filter_tags,
-    scrape_text,
+    # parse_elmnts,
+    # scrape_elmnts,
+    # gen_elmnt_matrix,
+    # gen_link_matrix,
+    search_tags,
+    # scrape_text,
     read_text,
     read_file,
     write_text,
     edit_text,
     print_items,
     # list_items,
-    
+    get_html,
+    filter_html,
+
 )
 
 class Felo(object):
@@ -80,13 +84,8 @@ class Felo(object):
             """Get response status from url"""
             url = args.url
             headers = gen_headers(headers_user_agent, headers_accept, headers_accept_language, headers_accept_encoding, headers_referer)
-            response = get_response(url, headers)
-            if response is not None:
-                print(response.status_code)
-
-            else: 
-                print("bad response")
-
+            response_status = get_status(url, headers)
+            print(response_status)
 
         if args.command == "crawl-web":
             """Crawl web for links and index data"""
@@ -98,13 +97,11 @@ class Felo(object):
             crawled_links = crawl_web(seed_url, requests_timeout, max_links, max_runtime, max_crawl_sleep, headers, user_agent_list, referer_list, db_name)
             print("crawled: " + str(crawled_links))
 
-
         if args.command == "print-links":
             """Print links in database"""
             db_name = args.db_name
             db = read_db(db_name)
             print_items(db)
-
 
         if args.command == "merge-data":
             """Merge two database files"""
@@ -134,109 +131,42 @@ class Felo(object):
             dl_directory = args.dl_directory
             redirects = args.redirects
             link_array = read_db(link_db)
-            link_list = []
-
-            for lnk in link_array:
-                link_list.append(lnk)
-
+            link_list = list(link_array)
             headers = gen_headers(headers_user_agent, headers_accept, headers_accept_language, headers_accept_encoding, headers_referer)
             dl_files(link_list, headers, dl_directory, redirects)
             
-
         if args.command == "print-html":
             """Make request and print html to console or file"""
             url = args.url
-            doc_name = args.doc_name
-            headers = gen_headers(headers_user_agent, headers_accept, headers_accept_language, headers_accept_encoding)
-            response = get_response(url, headers)
+            doc_name = args.doc_name            
+            headers = gen_headers(headers_user_agent, headers_accept, headers_accept_language, headers_accept_encoding, headers_referer)
+            html = get_html(url, headers)
+            html = filter_html(html, filter_html_scripts, filter_html_styles, scrape_html_elmnts, scrape_html_text, doc_name)
+            print(html)
 
-            if check_response(response):
-                html = response.text
-
-            else:
-                print("No response")
-                exit(code=0)
-
-            # Order is important here! Script tags should be filtered before style!
-            if filter_script_tags == True:
-                print("removing content between script elements")
-                html = remove_content(html, '<script', '</script>')
-
-            if filter_style_tags == True:
-                print("removing content between style elements")
-                html = remove_content(html, '<style', '</style>')
-
-            if scrape_elmnts_only == True:
-                html = scrape_elmnts(html)
-        
-            if scrape_text_only == True:
-                html = scrape_text(html)                 
-
-            if len(doc_name) > 1:
-                write_text(doc_name, html)
-            
-            else:
-                print(html)
-
-        if args.command == "read-text":
-            """Read content of .txt file"""
+        if args.command == "print-text":
+            """Read content of .txt file and print to console."""
             doc_name = args.doc_name
             text = read_text(doc_name)
             print(text)
 
-        if args.command == "read-file":
-            """Read contents supported document"""
+
+        if args.command == "print-file":
+            """Read contents of document and print to console."""
             doc_name = args.doc_name
-            new_doc = args.new_doc
             text = read_file(doc_name, filetype_handlers)
-
-            if len(new_doc) > 0:
-                write_text(new_doc, text)
-
-            else:
-                print(text)
+            print(text)
 
 
-        if args.command == "read-html":
+        if args.command == "print-tags":
             """Read html from doc, create matrix, and print elements based on tag"""
             doc_name = args.doc_name
-            tag_name = args.tag_name
-            get_links = args.get_links
             query = args.query
+            tag_name = args.tag_name
+            clean_tags = args.clean_tags
+            get_tag_links = args.get_tag_links
             html = read_text(doc_name)
-
-            if clean_html_tags == True:
-                html = remove_tags(html, '</')
-                html = remove_tags(html, '![endif]')
-                html = remove_tags(html, '<br')
-
-            if len(query) > 0:
-                html = filter_tags(html, query)
-    
-            elmnt_list = parse_elmnts(html)
-            elmnt_matrix = gen_elmnt_matrix(elmnt_list)
-
-            if get_links == True:
-                print("getting links!")
-                link_matrix = gen_link_matrix(elmnt_matrix)
-                matrix = link_matrix
-
-            else:
-                matrix = elmnt_matrix
-
-            if tag_name in matrix:
-                print(tag_name + " elements:")
-                print_items(matrix[tag_name])
-
-            elif len(tag_name) == 0:
-                print("no tag given")
-                print("available tags: ")
-                print_items(matrix)
-
-            else:
-                print("tag not found")
-                print("available tags: ")
-                print_items(matrix)
+            html = search_tags(html, query, tag_name, clean_tags, get_tag_links)
 
 
         if args.command == "read-content":
@@ -255,11 +185,7 @@ class Felo(object):
             edited_doc = args.edited_doc
             text = read_text(doc_name)
             edited_text = edit_text(text, edit_cycle_config, edit_sent_min, edit_sent_max)
-            if len(edited_doc) > 0:
-                write_text(edited_doc, edited_text)
-
-            else:
-                print(edited_text)
+            write_text(edited_doc, edited_text)
 
 
         #### Search through index file based on kw and return results ####
@@ -434,8 +360,8 @@ class Felo(object):
             )
 
         command = subparsers.add_parser(
-            name='read-text',
-            help='Read content of .txt file',
+            name='print-text',
+            help='print content of .txt file',
             )
         
         command.add_argument(
@@ -448,7 +374,7 @@ class Felo(object):
             )
 
         command = subparsers.add_parser(
-            name='read-file',
+            name='print-file',
             help='Read a file if the filetype is supported',
             )
         
@@ -460,18 +386,9 @@ class Felo(object):
             required=True,
             help='Name of document to read from',
             )
-        
-        command.add_argument(
-            '-new', 
-            '--newdoc', 
-            action='store', 
-            dest='new_doc', 
-            default='',
-            help='Name of document to save text into',
-            )
 
         command = subparsers.add_parser(
-            name='read-html',
+            name='print-tags',
             help='Read html from doc, create matrix, and print elements based on tag',
             )
         
@@ -485,23 +402,6 @@ class Felo(object):
             )
         
         command.add_argument(
-            '-tag', 
-            '--tagname', 
-            action='store', 
-            dest='tag_name', 
-            default='',
-            help='Name of element tag to return',
-            )
-        
-        command.add_argument(
-            '-lnks', 
-            '--getlinks', 
-            action='store_true', 
-            dest='get_links',
-            help='Whether to download links from html',
-            )
-        
-        command.add_argument(
             '-qry', 
             '--query', 
             action='store', 
@@ -509,7 +409,32 @@ class Felo(object):
             default='',
             help='Search query for filtering elements',
             )
+        
+        command.add_argument(
+            '-tag', 
+            '--tagname', 
+            action='store', 
+            dest='tag_name', 
+            default='',
+            help='Name of element tag to return',
+            )
 
+        command.add_argument(
+            '-lnks', 
+            '--getlinks', 
+            action='store_true', 
+            dest='get_tag_links',
+            help='Whether to download links from html',
+            )
+
+        command.add_argument(
+            '-cln', 
+            '--cleantags', 
+            action='store_true', 
+            dest='clean_tags',
+            help='Whether to clean unwanted tags from matrix',
+            )
+        
         command = subparsers.add_parser(
             name='read-content', 
             help='Read content between two html elements based on tags',
@@ -561,7 +486,7 @@ class Felo(object):
             '--edits', 
             action='store', 
             dest='edited_doc', 
-            default='',
+            default=default_txt_edits,
             help='Name of document to save edited text',
             )
         
