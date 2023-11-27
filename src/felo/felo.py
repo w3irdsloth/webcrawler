@@ -36,6 +36,7 @@ from felo.settings import (
     default_content_tag2,
     edit_sent_min,
     edit_sent_max,
+    default_wgt_db,
     
 )
 
@@ -70,6 +71,7 @@ from felo.functions import (
     # list_items,
     get_html,
     filter_html,
+    weigh_db,
 
 )
 
@@ -142,7 +144,7 @@ class Felo(object):
             headers = gen_headers(headers_user_agent, headers_accept, headers_accept_language, headers_accept_encoding, headers_referer)
             html = get_html(url, headers)
             html = filter_html(html, filter_html_scripts, filter_html_styles, scrape_html_elmnts, scrape_html_text, doc_name)
-            print(html)
+            # print(html)
 
         if args.command == "print-text":
             """Read content of .txt file and print to console."""
@@ -188,14 +190,24 @@ class Felo(object):
             write_text(edited_doc, edited_text)
 
 
-        #### Search through index file based on kw and return results ####
         if args.command == "search-db":
+            """Search through index file based on kw and return results."""
             db1 = args.db1
             db2 = args.db2
             query = args.query
             new_db = search_db(db1, db2, query)
             print(new_db)
 
+        if args.command == "weigh-db":
+            """Weight database based on backlinks and save new one."""
+            db1 = args.db1
+            db2 = args.db2
+            new_db = weigh_db(db1, db2)
+            for idx in new_db:
+                print("link: " + idx)
+                print("weight: " + str(new_db[idx].get('Index-Weight')))
+                print("page links: " + str(new_db[idx].get('Page-Links')))
+                print("snippet: " + str(new_db[idx].get('Text-Snippet')))
 
 
     def parse_arguments(self):
@@ -607,6 +619,29 @@ class Felo(object):
             default='',
             help='Search query for filtering content',
             )
+
+
+        command = subparsers.add_parser(name='weigh-db',
+                                        help='weigh database indexes based on number of backlinks.',
+                                        )
+
+        command.add_argument(
+            '-db1', 
+            '--database1', 
+            action='store', 
+            dest='db1', 
+            required=True,
+            help='The name of the database file to search',
+            )
+        
+        command.add_argument(
+            '-db2', 
+            '--database2', 
+            action='store', 
+            dest='db2', 
+            default=default_wgt_db,
+            help='The name of the new database file',
+            )                    
 
         
         args = parser.parse_args()

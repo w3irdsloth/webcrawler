@@ -13,8 +13,11 @@ max_crawl_sleep = 3
 # Default path/name for db
 default_db_name = "newtest.json"
 
-# Default link db name
+# Default path/name for link db
 default_link_db = "linkdb.json"
+
+# Default path/name for weight db
+default_wgt_db = "weighted.json"
 
 # Default path/name for creating/reading .txt files
 default_txt_name = "test.txt"
@@ -72,8 +75,8 @@ referer_list = [
 
 # text_only will return javascript functions, style elements, etc if these are set to False)
 # Filtering out style tags before script tags will prevent clean text!
-filter_html_scripts = True
-filter_html_styles = True
+filter_html_scripts = False
+filter_html_styles = False
 
 
 # Whether to scrape html elements, text, or neither

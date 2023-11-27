@@ -9,6 +9,7 @@ from felo.office.editor import Editor
 import time
 import random
 from os.path import splitext, basename, dirname
+import re
 
 
    ###########
@@ -22,13 +23,7 @@ def rand_sleep(max_num):
 
 def remv_duplicates(old_list):
     """Removes duplicates from list."""
-    # new_list = []
-    # for itm in list:
-    #     if itm not in new_list:
-    #         new_list.append(itm)
-
     new_list = list(set(old_list))
-
     return new_list
 
 def check_lists(list1, list2):
@@ -173,6 +168,7 @@ def get_head(url, headers):
     return response
 
 def get_snippet(response):
+    scraper = Scraper()
     text_snippet = ""
     content_list = [
         'text/css', 
@@ -185,7 +181,6 @@ def get_snippet(response):
     ] 
 
     content_type = response.headers.get('Content-Type')
-
     if content_type == None:
         pass
 
@@ -194,27 +189,22 @@ def get_snippet(response):
 
     else:
         return text_snippet
-
+    
+    print("getting snippet...")
     html = response.text
-
     ## Order is important here!!! Removing style elements first will cause problems. ##
-    html = remove_content(html, '<script', '</script>')
-    html = remove_content(html, '<noscript', '</noscript>')
-    html = remove_content(html, '<style', '</style>')
-
-    # Not sure if this works.
-    # text_snippet = remove_content(text_snippet, '<!--', '-->')
-
-    html = scrape_text(html)
+    scraper.gen_elmnt_list(html)
+    html = scraper.remove_content(html, '<script', '</script>')
+    scraper.gen_elmnt_list(html)
+    html = scraper.remove_content(html, '<style', '</style>')
+    scraper.gen_elmnt_list(html)
+    html = scraper.scrape_text(html)
     text_snippet = " ".join(html.split())
-
     if len(text_snippet) > 500:
         text_snippet = text_snippet[:500]
     
     return text_snippet
 
-# def print_response(response):
-#     print(response.status_code)
 
 
 def crawl_web(seed_url, requests_timeout, max_links, max_runtime, max_sleep, headers, user_agent_list, referer_list, db_name):
@@ -388,7 +378,6 @@ def gen_dl_db(db1, db2, downloadable_content):
     indexer = Indexer()
     search_array = indexer.read_db(db1)
     temp_array = {}
-    # content_list = ['image/png']
     for lnk in search_array:
         head = search_array[lnk]
         if head.get('Content-Type') in downloadable_content:
@@ -397,12 +386,31 @@ def gen_dl_db(db1, db2, downloadable_content):
         else:
             pass
 
-    print(temp_array)
     new_db = indexer.gen_db(temp_array, db2)
-
     return new_db
-                                    
-#############
+
+
+def weigh_db(db1, db2):
+    """Weights links in index database against one another."""
+    indexer = Indexer()
+    db_array = indexer.read_db(db1)
+    for i1 in db_array:
+        index_wgt = 0
+        for i2 in db_array: 
+            if i2 is not i1 and db_array[i2].get('Page-Links') is not None:
+                for lnk in db_array[i2].get('Page-Links'):
+                    if lnk == i1:
+                        index_wgt += 1
+
+        else:
+            pass
+
+        db_array[i1]['Index-Weight'] = index_wgt
+
+    new_db = indexer.gen_db(db_array, db2)
+    return new_db
+
+                   
 def get_html(url, headers):
     """Retrieves html from url."""
     crawler = Crawler()
@@ -415,7 +423,6 @@ def get_html(url, headers):
 
     else:
         return None
-####
 
 def scrape_content(html, tag1, tag2):
     """Returns content between html elements."""
@@ -446,23 +453,32 @@ def scrape_elmnts(html):
 
 # Order is important here! Script tags should be filtered before style!
 def filter_html(html, filter_html_scripts, filter_html_styles, scrape_html_elmnts, scrape_html_text, doc_name):
+    scraper = Scraper()
+    # remv_image_tags = False
+    scraper.gen_elmnt_list(html)
+
     if html is None:
         return None
     
     if filter_html_scripts == True:
         print("removing content between script elements")
-        html = remove_content(html, '<script', '</script>')
+        html = scraper.remove_content(html, '<script', '</script>')
+        scraper.gen_elmnt_list(html)
 
     if filter_html_styles == True:
         print("removing content between style elements")
-        html = remove_content(html, '<style', '</style>')
+        html = scraper.remove_content(html, '<style', '</style>')
+        scraper.gen_elmnt_list(html)
 
     if scrape_html_elmnts == True:
         html = scrape_elmnts(html)
         
     if scrape_html_text == True:
-        print("scraping text")
-        html = scrape_text(html)
+        html = scraper.scrape_text(html)
+
+    # if remv_image_tags == True:
+    #     print("removing image tags")
+    #     html = scraper.remove_tag(html, '<img')
 
     if len(doc_name) > 1:
         write_text(doc_name, html)
