@@ -1,2 +1,3 @@
 # Webcrawler
-## This is a basic webcrawler using an indexer and scraper to create database files
+## A simple webcrawler that uses an indexer and scraper to create database files
+### Can be searched, sorted, or merged together
