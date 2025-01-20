@@ -1,10 +1,6 @@
-from felo.web.crawler import Crawler
-from felo.web.scraper import Scraper
-from felo.web.indexer import Indexer
-
-from felo.office.reader import Reader
-from felo.office.writer import Writer
-from felo.office.editor import Editor
+from crawler import Crawler
+from scraper import Scraper
+from indexer import Indexer
 
 import time
 import random
@@ -72,7 +68,6 @@ def filter_list(list, query=""):
 
     return new_list
 
-
 def split_path(file_path):
     """Splits a file path and returns dictionary."""
     file = basename(file_path)
@@ -90,45 +85,10 @@ def split_path(file_path):
 
     return path_data
 
-  ##########
-#### office ####
-   ##########
 
-def write_text(doc_name, txt_content):
-    """Writes text to .txt file."""
-    writer = Writer()
-    writer.write_txt(doc_name, txt_content)
-
-def read_text(doc_name):
-    """Reads text from .txt file."""
-    reader = Reader()
-    text = reader.read_text(doc_name)
-    return text
-
-def read_file(doc_name, handlers):
-    """Attempts to read filetype and return text."""
-    reader = Reader()
-    reader.set_handlers(handlers)
-
-    path_data = split_path(doc_name)
-    file_ext = path_data['extension']
-    if file_ext == '.doc' or ".docm" or ".docx" or ".dot" or ".dotx":
-        doc_text = reader.read_doc(doc_name)
-
-    elif file_ext == '.pdf':
-        doc_text = reader.read_pdf(doc_name)
-
-    else:
-        print("unsupported filetype")
-        doc_text = None
-
-    return doc_text
-
-
-   #######
-#### web ####
-   #######
-
+  #######
+### Web ###
+  #######
 
 def gen_headers(user_agent, headers_accept, accept_language, accept_encoding, referer):
     """Generate headers for html request."""
